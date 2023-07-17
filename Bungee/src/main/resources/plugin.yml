@@ -1,0 +1,4 @@
+name: BungeeCore
+main: camp.pvp.BungeeCore
+version: ${plugin.desc}
+author: leuo

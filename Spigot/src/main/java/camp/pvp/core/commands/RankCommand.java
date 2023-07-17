@@ -1,0 +1,301 @@
+package camp.pvp.core.commands;
+
+import camp.pvp.core.SpigotCore;
+import camp.pvp.core.profiles.CoreProfile;
+import camp.pvp.core.ranks.Rank;
+import camp.pvp.core.ranks.RankManager;
+import camp.pvp.core.utils.Colors;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import java.util.*;
+
+public class RankCommand implements CommandExecutor {
+
+    private SpigotCore plugin;
+    public RankCommand(SpigotCore plugin) {
+        this.plugin = plugin;
+        plugin.getServer().getPluginCommand("rank").setExecutor(this);
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        if(sender instanceof Player) {
+            Player player = (Player) sender;
+            CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
+            Rank rank = null;
+            RankManager rankManager = plugin.getRankManager();
+
+            if(args.length > 0) {
+                switch(args[0].toLowerCase()) {
+                    case "list":
+                        List<Rank> rankList = new ArrayList<>(plugin.getRankManager().getRanks().values());
+                        Collections.sort(rankList);
+
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("&6Ranks &7(" + rankList.size() + "):&f ");
+
+                        while(!rankList.isEmpty()) {
+                            rank = rankList.get(0);
+                            sb.append(rank.getColor() + rank.getName() + " &7(" + rank.getWeight() + ")");
+
+                            rankList.remove(rank);
+
+                            if(rankList.isEmpty()) {
+                                sb.append(".");
+                            } else {
+                                sb.append(", ");
+                            }
+                        }
+
+                        player.sendMessage(Colors.get(sb.toString()));
+                        return true;
+                    case "make":
+                    case "create":
+                        if(args.length > 2) {
+                            rank = rankManager.getRankFromName(args[1]);
+                            if(rank == null) {
+                                if(!args[1].matches("[a-zA-Z]+")) {
+                                    player.sendMessage(ChatColor.RED + "Rank names can only contain letters A-Z.");
+                                    return true;
+                                }
+
+                                int weight = 0;
+                                try {
+                                    weight = Integer.parseInt(args[2]);
+                                } catch (NumberFormatException ignored) {
+                                    player.sendMessage(ChatColor.RED + "You must specify a valid weight number.");
+                                    return true;
+                                }
+
+                                if(rankManager.getRankFromWeight(weight) == null) {
+                                    rank = rankManager.create(args[1]);
+                                    rank.setWeight(weight);
+
+                                    player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getDisplayName() + "&a with a weight of " + weight + " has been created."));
+                                }
+
+                            } else {
+                                player.sendMessage(ChatColor.RED + "This rank already exists.");
+                            }
+
+                            return true;
+                        }
+                        break;
+                    case "delete":
+                        if(args.length > 1) {
+                            rank = rankManager.getRankFromName(args[1]);
+                            if(rank != null) {
+                                rankManager.delete(rank);
+                                player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getDisplayName() + "&a has been deleted."));
+                            } else {
+                                player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
+                            }
+                            return true;
+                        }
+                        break;
+                    case "rename":
+                        if(args.length > 2) {
+                            rank = rankManager.getRankFromName(args[1]);
+                            if(rank != null) {
+                                String name = args[2];
+                                if (!name.matches("[a-zA-Z]+")) {
+                                    player.sendMessage(ChatColor.RED + "Rank names can only contain letters A-Z.");
+                                    return true;
+                                }
+
+                                player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a has been renamed to " + rank.getColor() + name.toLowerCase() + "&a."));
+                                rank.setName(name.toLowerCase());
+                                rankManager.exportToDatabase(rank, true);
+                            } else {
+                                player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
+                            }
+                            return true;
+                        }
+                        break;
+                    case "weight":
+                        if(args.length > 2) {
+                            rank = rankManager.getRankFromName(args[1]);
+                            if(rank != null) {
+                                int weight = 0;
+                                try {
+                                    weight = Integer.parseInt(args[2]);
+                                } catch (NumberFormatException ignored) {
+                                    player.sendMessage(ChatColor.RED + "You must specify a valid weight number.");
+                                    return true;
+                                }
+
+                                rank.setWeight(weight);
+                                rankManager.exportToDatabase(rank, true);
+
+                                player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a now has the weight " + rank.getWeight() + "."));
+                            } else {
+                                player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
+                            }
+                            return true;
+                        }
+                        break;
+                    case "displayname":
+                        if(args.length > 2) {
+                            rank = rankManager.getRankFromName(args[1]);
+                            if(rank != null) {
+                                sb = new StringBuilder();
+                                for(int i = 2; i < args.length; i++) {
+                                    sb.append(args[i]);
+                                    if(i + 1 != args.length) {
+                                        sb.append(" ");
+                                    }
+                                }
+
+                                rank.setDisplayName(sb.toString());
+                                rankManager.exportToDatabase(rank, true);
+
+                                player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a now has the display name &f" + rank.getDisplayName() + "&a."));
+                            } else {
+                                player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
+                            }
+                            return true;
+                        }
+                        break;
+                    case "prefix":
+                        if(args.length > 2) {
+                            rank = rankManager.getRankFromName(args[1]);
+                            if(rank != null) {
+                                sb = new StringBuilder();
+                                for(int i = 2; i < args.length; i++) {
+                                    sb.append(args[i]);
+                                    if(i + 1 != args.length) {
+                                        sb.append(" ");
+                                    }
+                                }
+
+                                rank.setPrefix(sb.toString());
+                                rankManager.exportToDatabase(rank, true);
+
+                                player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a now has the prefix &f" + rank.getPrefix() + "&a."));
+                            } else {
+                                player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
+                            }
+                            return true;
+                        }
+                        break;
+                    case "color":
+                        if(args.length > 2) {
+                            rank = rankManager.getRankFromName(args[1]);
+                            if(rank != null) {
+                                player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a now has " + rank.getColor() + "this color&a."));
+                                rank.setColor(args[2]);
+                                rankManager.exportToDatabase(rank, true);
+                            } else {
+                                player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
+                            }
+                            return true;
+                        }
+                        break;
+                    case "perms":
+                        if(args.length > 1) {
+                            rank = rankManager.getRankFromName(args[1]);
+                            if(rank != null) {
+                                String server = "_global";
+                                if(args.length == 3) {
+                                    server = args[2].toLowerCase();
+                                }
+
+                                List<String> permissions = rank.getPermissions().get(server);
+                                if(permissions != null) {
+                                    Collections.sort(permissions);
+
+                                    sb = new StringBuilder();
+                                    sb.append("&aPermissions for " + rank.getColor() + rank.getName() + " &afor server &f" + server + "&7:");
+
+                                    for(String permission : permissions) {
+                                        sb.append("\n&f");
+                                        sb.append(permission);
+                                    }
+
+                                    player.sendMessage(Colors.get(sb.toString()));
+                                } else {
+                                    player.sendMessage(ChatColor.RED + "This server does not have any permissions set for this rank.");
+                                }
+                            } else {
+                                player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
+                            }
+                            return true;
+                        }
+                        break;
+                    case "addperm":
+                        if(args.length > 2) {
+                            rank = rankManager.getRankFromName(args[1]);
+                            if(rank != null) {
+                                String permission = args[2].toLowerCase();
+                                String server = "_global";
+                                if(args.length == 4) {
+                                    server = args[3].toLowerCase();
+                                }
+
+                                rank.getPermissions().computeIfAbsent(server, k -> new ArrayList<>());
+                                if(!rank.getPermissions().get(server).contains(permission)) {
+                                    rank.getPermissions().get(server).add(permission);
+                                    rankManager.exportToDatabase(rank, true);
+                                    player.sendMessage(Colors.get("Rank " + rank.getColor() + rank.getName() + " now has the permission &f" + permission + "&a set for server &f" + server + "&a."));
+                                } else {
+                                    player.sendMessage(ChatColor.RED + "This rank already has the permission set for server " + server + ".");
+                                }
+                            } else {
+                                player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
+                            }
+                            return true;
+                        }
+                        break;
+                    case "delperm":
+                        if(args.length > 2) {
+                            rank = rankManager.getRankFromName(args[1]);
+                            if(rank != null) {
+                                String permission = args[2].toLowerCase();
+                                String server = "_global";
+                                if(args.length == 4) {
+                                    server = args[3].toLowerCase();
+                                }
+
+                                rank.getPermissions().computeIfAbsent(server, k -> new ArrayList<>());
+                                if(rank.getPermissions().get(server).contains(permission)) {
+                                    rank.getPermissions().get(server).remove(permission);
+                                    rankManager.exportToDatabase(rank, true);
+                                    player.sendMessage(Colors.get("Rank " + rank.getColor() + rank.getName() + " no longer the permission &f" + permission + "&a set for server &f" + server + "&a."));
+                                } else {
+                                    player.sendMessage(ChatColor.RED + "This rank does not have this permission set for server " + server + ".");
+                                }
+                            } else {
+                                player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
+                            }
+                            return true;
+                        }
+                        break;
+                }
+            }
+
+            StringBuilder help = new StringBuilder();
+            help.append("&6&l/rank &r&6Help");
+            help.append("\n&7<> Required, [] Optional");
+            help.append("\n&6/rank list &7- &fReturns the list of ranks in weight order.");
+            help.append("\n&6/rank create <name> <weight> &7- &fCreates a new rank.");
+            help.append("\n&6/rank delete <name> &7- &fDeletes an existing rank.");
+            help.append("\n&6/rank rename <name> <new name> &7- &fRenames a rank.");
+            help.append("\n&6/rank weight <name> <weight> &7- &fSets a rank weight.");
+            help.append("\n&6/rank displayname <name> <display name> &7- &fSets a rank display name.");
+            help.append("\n&6/rank prefix <name> <prefix> &7- &fSets a rank prefix.");
+            help.append("\n&6/rank color <name> <color codes> &7- &fSets a rank color.");
+            help.append("\n&6/rank perms <name> [server] &7- &fView permissions for a rank.");
+            help.append("\n&6/rank addperm <name> <permission> [server] &7- &fAdds a permission to a rank.");
+            help.append("\n&6/rank delperm <name> <permission> [server] &7- &fRemoves a permission from a rank.");
+
+            player.sendMessage(Colors.get(help.toString()));
+        }
+
+        return true;
+    }
+}

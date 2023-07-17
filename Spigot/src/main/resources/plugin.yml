@@ -1,0 +1,15 @@
+name: SpigotCore
+version: ${plugin.desc}
+main: camp.pvp.core.SpigotCore
+author: leuo
+depend:
+  - NetworkHelper
+
+commands:
+  rank:
+    aliases: [rankmanager, rm]
+    description: Rank manager.
+    permission: core.commands.rank
+  message:
+    aliases: [msg, reply, r, tell, whisper]
+    description: Send a message to a player.
