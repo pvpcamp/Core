@@ -173,10 +173,17 @@ public class RankCommand implements CommandExecutor {
                                     }
                                 }
 
-                                rank.setPrefix(sb.toString());
-                                rankManager.exportToDatabase(rank, true);
+                                if(sb.toString().equalsIgnoreCase("none")) {
+                                    rank.setPrefix(null);
+                                    rankManager.exportToDatabase(rank, true);
 
-                                player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a now has the prefix &f" + rank.getPrefix() + "&a."));
+                                    player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a no longer has a prefix."));
+                                } else {
+                                    rank.setPrefix(sb.toString());
+                                    rankManager.exportToDatabase(rank, true);
+
+                                    player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a now has the prefix &f" + rank.getPrefix() + "&a."));
+                                }
                             } else {
                                 player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
                             }

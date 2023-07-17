@@ -34,6 +34,7 @@ public class Rank implements Comparable<Rank>{
         this.displayName = doc.getString("display_name");
         this.color = doc.getString("color");
         this.weight = doc.getInteger("weight");
+        this.prefix = doc.getString("prefix");
         this.defaultRank = doc.getBoolean("default");
 
         this.permissions = (Map<String, List<String>>) doc.get("permissions");
@@ -44,6 +45,7 @@ public class Rank implements Comparable<Rank>{
         map.put("name", getName());
         map.put("display_name", getDisplayName());
         map.put("color", getColor());
+        map.put("prefix", getPrefix());
         map.put("weight", getWeight());
         map.put("default", isDefaultRank());
         map.put("permissions", getPermissions());
