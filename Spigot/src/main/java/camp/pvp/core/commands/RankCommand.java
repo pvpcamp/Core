@@ -194,7 +194,7 @@ public class RankCommand implements CommandExecutor {
                         if(args.length > 2) {
                             rank = rankManager.getRankFromName(args[1]);
                             if(rank != null) {
-                                player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a now has " + rank.getColor() + "this color&a."));
+                                player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a now has " + args[2] + "this color&a."));
                                 rank.setColor(args[2]);
                                 rankManager.exportToDatabase(rank, true);
                             } else {
@@ -209,6 +209,10 @@ public class RankCommand implements CommandExecutor {
                             if(rank != null) {
                                 String server = "_global";
                                 if(args.length == 3) {
+                                    if(!args[2].matches("[a-zA-Z]+")) {
+                                        player.sendMessage(ChatColor.RED + "The server name you specified must only contain letters A-Z.");
+                                        return true;
+                                    }
                                     server = args[2].toLowerCase();
                                 }
 
