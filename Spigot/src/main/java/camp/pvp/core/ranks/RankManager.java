@@ -29,14 +29,14 @@ public class RankManager {
         plugin.getMongoManager().getCollectionIterable(false, "core_ranks", new MongoIterableResult() {
             @Override
             public void call(FindIterable<Document> iterable) {
-                while(iterable.cursor().hasNext()) {
-                    Document doc = iterable.cursor().next();
-
-                    UUID uuid = doc.get("_id", UUID.class);
-                    Rank rank = new Rank(uuid);
-                    rank.importFromDocument(plugin, doc);
-                    ranks.put(uuid, rank);
-                }
+                iterable.forEach(
+                        document -> {
+                            UUID uuid = document.get("_id", UUID.class);
+                            Rank rank = new Rank(uuid);
+                            rank.importFromDocument(plugin, document);
+                            ranks.put(uuid, rank);
+                        }
+                );
             }
         });
 
