@@ -1,7 +1,7 @@
 package camp.pvp.core.commands;
 
 import camp.pvp.core.SpigotCore;
-import camp.pvp.core.guis.GrantGui;
+import camp.pvp.core.guis.ranks.GrantGui;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.utils.Colors;
 import org.bukkit.ChatColor;

@@ -2,6 +2,8 @@ package camp.pvp.core.profiles;
 
 import camp.pvp.core.SpigotCore;
 import camp.pvp.core.chattags.ChatTag;
+import camp.pvp.core.punishments.Punishment;
+import camp.pvp.core.punishments.PunishmentManager;
 import camp.pvp.core.ranks.Rank;
 import camp.pvp.core.ranks.RankManager;
 import lombok.Getter;
@@ -20,10 +22,11 @@ public class CoreProfile {
     private String name;
 
     private List<Rank> ranks;
-    private Map<String, Map<String, Boolean>> permissions;
 
     private ChatTag chatTag;
     private List<ChatTag> ownedChatTags;
+
+    private List<Punishment> punishments;
 
     public CoreProfile(UUID uuid) {
         this.uuid = uuid;
@@ -67,6 +70,16 @@ public class CoreProfile {
         return rank;
     }
 
+    public Punishment getActivePunishment(Punishment.Type type) {
+        for(Punishment punishment : getPunishments()) {
+            if(punishment.isActive() && punishment.getType().equals(type)) {
+                return punishment;
+            }
+        }
+
+        return null;
+    }
+
     public void importFromDocument(SpigotCore plugin, Document doc) {
         this.name = doc.getString("name");
 
@@ -77,6 +90,13 @@ public class CoreProfile {
             if(rank != null) {
                 getRanks().add(rank);
             }
+        }
+
+        PunishmentManager pm = plugin.getPunishmentManager();
+        List<UUID> punishmentIds = doc.getList("punishments", UUID.class);
+        for(UUID uuid : punishmentIds) {
+            Punishment punishment = pm.importFromDatabase(uuid);
+            getPunishments().add(punishment);
         }
     }
 
@@ -90,6 +110,13 @@ public class CoreProfile {
         }
 
         map.put("ranks", rankIds);
+
+        List<UUID> punishmentIds = new ArrayList<>();
+        for(Punishment punishment : getPunishments()) {
+            punishmentIds.add(punishment.getUuid());
+        }
+
+        map.put("punishments", punishmentIds);
 
 
         return map;

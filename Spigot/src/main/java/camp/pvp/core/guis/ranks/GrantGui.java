@@ -1,4 +1,4 @@
-package camp.pvp.core.guis;
+package camp.pvp.core.guis.ranks;
 
 import camp.pvp.core.SpigotCore;
 import camp.pvp.core.profiles.CoreProfile;
