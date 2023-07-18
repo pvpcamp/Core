@@ -1,4 +1,4 @@
-package camp.pvp.core.commands;
+package camp.pvp.core.commands.ranks;
 
 import camp.pvp.core.SpigotCore;
 import camp.pvp.core.guis.ranks.GrantGui;

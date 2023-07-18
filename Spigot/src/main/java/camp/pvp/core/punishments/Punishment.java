@@ -8,7 +8,7 @@ import org.bson.Document;
 import java.util.*;
 
 @Getter @Setter
-public class Punishment {
+public class Punishment implements Comparable<Date>{
 
     public enum Type {
         BAN, BLACKLIST, MUTE;
@@ -46,12 +46,12 @@ public class Punishment {
     }
 
     public boolean isActive() {
-        if(getPardoned() != null) {
+        if(getPardonReason() != null) {
             return false;
         }
 
         if(getExpires() != null) {
-            return getExpires().before(new Date());
+            return new Date().before(getExpires());
         } else {
             return true;
         }
@@ -88,5 +88,10 @@ public class Punishment {
         map.put("silent", isSilent());
 
         return map;
+    }
+
+    @Override
+    public int compareTo(Date date) {
+        return date.compareTo(this.getIssued());
     }
 }

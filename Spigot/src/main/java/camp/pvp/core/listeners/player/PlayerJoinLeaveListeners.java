@@ -39,7 +39,7 @@ public class PlayerJoinLeaveListeners implements Listener {
         if(punishment == null) {
             List<Punishment> punishments = plugin.getPunishmentManager().getPunishmentsIp(event.getAddress().getHostAddress());
             for(Punishment p : punishments) {
-                if((p.getType().equals(Punishment.Type.BAN) || p.getType().equals(Punishment.Type.BLACKLIST)) && p.isActive()) {
+                if((p.getType().equals(Punishment.Type.BAN) || p.getType().equals(Punishment.Type.BLACKLIST)) && p.isActive() && p.isIpPunished()) {
                     punishment = p;
                     break;
                 }
@@ -48,6 +48,7 @@ public class PlayerJoinLeaveListeners implements Listener {
 
         if(punishment != null) {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, Colors.get(
+                    "\n " +
                     punishment.getType().getMessage() +
                     "\n&cExpires: " + (punishment.getExpires() == null ? "Never" : DateUtils.getDifference(punishment.getExpires(), new Date())) +
                     "\n" + punishment.getType().getAppealMessage()
@@ -67,6 +68,8 @@ public class PlayerJoinLeaveListeners implements Listener {
         if(profile.getRanks().size() == 0) {
             profile.getRanks().add(plugin.getRankManager().getDefaultRank());
         }
+
+        profile.setIp(player.getAddress().getAddress().getHostAddress());
 
         plugin.getCoreProfileManager().updatePermissions(profile);
 

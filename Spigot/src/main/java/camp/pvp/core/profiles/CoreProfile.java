@@ -11,7 +11,6 @@ import lombok.Setter;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.PermissibleBase;
 
 import java.util.*;
 
@@ -19,7 +18,7 @@ import java.util.*;
 public class CoreProfile {
 
     private final UUID uuid;
-    private String name;
+    private String name, ip;
 
     private List<Rank> ranks;
 
@@ -28,9 +27,22 @@ public class CoreProfile {
 
     private List<Punishment> punishments;
 
+    private List<UUID> ignored;
+
+    private boolean seeGlobalChat, allowPrivateMessages, messageSounds, staffMode, staffChat;
+
     public CoreProfile(UUID uuid) {
         this.uuid = uuid;
         this.ranks = new ArrayList<>();
+        this.ownedChatTags = new ArrayList<>();
+        this.punishments = new ArrayList<>();
+        this.ignored = new ArrayList<>();
+
+        this.seeGlobalChat = true;
+        this.allowPrivateMessages = true;
+        this.messageSounds = true;
+        this.staffMode = false;
+        this.staffChat = false;
     }
 
     public Map<String, Boolean> getPermissions(String server) {
@@ -42,6 +54,19 @@ public class CoreProfile {
                     if(permList != null) {
                         for (String s : permList) {
                             permissions.put(s, true);
+                        }
+                    }
+                }
+            }
+
+            for(Rank pr : rank.getParents(SpigotCore.getInstance())) {
+                for(Map.Entry<String, List<String>> entry : pr.getPermissions().entrySet()) {
+                    if(entry.getKey().equalsIgnoreCase("_global") || entry.getKey().equalsIgnoreCase(server)) {
+                        List<String> permList = entry.getValue();
+                        if(permList != null) {
+                            for (String s : permList) {
+                                permissions.put(s, true);
+                            }
                         }
                     }
                 }
@@ -82,6 +107,12 @@ public class CoreProfile {
 
     public void importFromDocument(SpigotCore plugin, Document doc) {
         this.name = doc.getString("name");
+        this.ip = doc.getString("ip");
+        this.seeGlobalChat = doc.getBoolean("see_global_chat");
+        this.allowPrivateMessages = doc.getBoolean("allow_private_messages");
+        this.messageSounds = doc.getBoolean("message_sounds");
+        this.staffMode = doc.getBoolean("staff_mode");
+        this.staffChat = doc.getBoolean("staff_chat");
 
         RankManager rm = plugin.getRankManager();
         List<UUID> rankIds = doc.getList("ranks", UUID.class);
@@ -96,13 +127,29 @@ public class CoreProfile {
         List<UUID> punishmentIds = doc.getList("punishments", UUID.class);
         for(UUID uuid : punishmentIds) {
             Punishment punishment = pm.importFromDatabase(uuid);
-            getPunishments().add(punishment);
+            this.getPunishments().add(punishment);
         }
     }
 
     public Map<String, Object> exportToMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("name", getName());
+        map.put("ip", getIp());
+        map.put("see_global_chat", isSeeGlobalChat());
+        map.put("allow_private_messages", isAllowPrivateMessages());
+        map.put("message_sounds", isMessageSounds());
+        map.put("staff_mode", isStaffMode());
+        map.put("staff_chat", isStaffChat());
+
+        UUID chatTag = getChatTag() == null ? null : getChatTag().getUuid();
+        map.put("applied_chat_tag", chatTag);
+
+        List<UUID> tagIds = new ArrayList<>();
+        for(ChatTag tag : getOwnedChatTags()) {
+            tagIds.add(tag.getUuid());
+        }
+
+        map.put("owned_chat_tags", tagIds);
 
         List<UUID> rankIds = new ArrayList<>();
         for(Rank rank : getRanks()) {

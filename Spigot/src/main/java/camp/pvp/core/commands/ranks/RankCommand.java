@@ -1,4 +1,4 @@
-package camp.pvp.core.commands;
+package camp.pvp.core.commands.ranks;
 
 import camp.pvp.core.SpigotCore;
 import camp.pvp.core.profiles.CoreProfile;
@@ -90,6 +90,11 @@ public class RankCommand implements CommandExecutor {
                         if(args.length > 1) {
                             rank = rankManager.getRankFromName(args[1]);
                             if(rank != null) {
+                                if(rank.isDefaultRank()) {
+                                    player.sendMessage(ChatColor.RED + "You cannot delete the default rank.");
+                                    return true;
+                                }
+
                                 rankManager.delete(rank);
                                 player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getDisplayName() + "&a has been deleted."));
                             } else {
@@ -224,7 +229,7 @@ public class RankCommand implements CommandExecutor {
                                     sb.append("&aPermissions for " + rank.getColor() + rank.getName() + " &afor server &f" + server + "&7:");
 
                                     for(String permission : permissions) {
-                                        sb.append("\n&f");
+                                        sb.append("\n&7+ &f");
                                         sb.append(permission);
                                     }
 
@@ -252,7 +257,7 @@ public class RankCommand implements CommandExecutor {
                                 if(!rank.getPermissions().get(server).contains(permission)) {
                                     rank.getPermissions().get(server).add(permission);
                                     rankManager.exportToDatabase(rank, true);
-                                    player.sendMessage(Colors.get("Rank " + rank.getColor() + rank.getName() + " now has the permission &f" + permission + "&a set for server &f" + server + "&a."));
+                                    player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a now has the permission &f" + permission + "&a set for server &f" + server + "&a."));
                                 } else {
                                     player.sendMessage(ChatColor.RED + "This rank already has the permission set for server " + server + ".");
                                 }
@@ -276,9 +281,86 @@ public class RankCommand implements CommandExecutor {
                                 if(rank.getPermissions().get(server).contains(permission)) {
                                     rank.getPermissions().get(server).remove(permission);
                                     rankManager.exportToDatabase(rank, true);
-                                    player.sendMessage(Colors.get("Rank " + rank.getColor() + rank.getName() + " no longer the permission &f" + permission + "&a set for server &f" + server + "&a."));
+                                    player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a no longer the permission &f" + permission + "&a set for server &f" + server + "&a."));
                                 } else {
                                     player.sendMessage(ChatColor.RED + "This rank does not have this permission set for server " + server + ".");
+                                }
+                            } else {
+                                player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
+                            }
+                            return true;
+                        }
+                        break;
+                    case "parents":
+                        if(args.length > 1) {
+                            rank = rankManager.getRankFromName(args[1]);
+                            if(rank != null) {
+                                rankList = new ArrayList<>(rank.getParents(plugin));
+                                Collections.sort(rankList);
+
+                                sb = new StringBuilder();
+                                sb.append("&6Parents of rank " + rank.getColor() + rank.getDisplayName() + " &7(" + rankList.size() + "):&f ");
+
+                                while(!rankList.isEmpty()) {
+                                    rank = rankList.get(0);
+                                    sb.append(rank.getColor() + rank.getName() + " &7(" + rank.getWeight() + ")");
+
+                                    rankList.remove(rank);
+
+                                    if(rankList.isEmpty()) {
+                                        sb.append(".");
+                                    } else {
+                                        sb.append(", ");
+                                    }
+                                }
+
+                                player.sendMessage(Colors.get(sb.toString()));
+                                return true;
+                            } else {
+                                player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
+                            }
+                            return true;
+                        }
+                        break;
+                    case "addparent":
+                        if(args.length > 2) {
+                            rank = rankManager.getRankFromName(args[1]);
+                            if(rank != null) {
+                                Rank parentRank = rankManager.getRankFromName(args[2]);
+                                if(parentRank != null) {
+                                    if(rank.getParents().contains(parentRank.getUuid())) {
+                                        player.sendMessage(ChatColor.RED + "This rank already has " + rank.getName() + " as a parent.");
+                                        return true;
+                                    }
+
+                                    rank.getParents().add(parentRank.getUuid());
+                                    rankManager.exportToDatabase(rank, true);
+                                    player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a now has the parent &f" + parentRank.getColor() + parentRank.getDisplayName() + "&a."));
+                                } else {
+                                    player.sendMessage(ChatColor.RED + "The parent rank you specified does not exist.");
+                                }
+                            } else {
+                                player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
+                            }
+                            return true;
+                        }
+                        break;
+                    case "delparent":
+                        if(args.length > 2) {
+                            rank = rankManager.getRankFromName(args[1]);
+                            if(rank != null) {
+                                Rank parentRank = rankManager.getRankFromName(args[2]);
+                                if(parentRank != null) {
+                                    if(rank.getParents().contains(parentRank.getUuid())) {
+                                        player.sendMessage(ChatColor.RED + "This rank already has " + rank.getName() + " as a parent.");
+                                        return true;
+                                    }
+
+                                    rank.getParents().remove(parentRank.getUuid());
+                                    rankManager.exportToDatabase(rank, true);
+                                    player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a no longer has the parent &f" + parentRank.getColor() + parentRank.getDisplayName() + "&a."));
+                                } else {
+                                    player.sendMessage(ChatColor.RED + "The parent rank you specified does not exist.");
                                 }
                             } else {
                                 player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
@@ -303,6 +385,9 @@ public class RankCommand implements CommandExecutor {
             help.append("\n&6/rank perms <name> [server] &7- &fView permissions for a rank.");
             help.append("\n&6/rank addperm <name> <permission> [server] &7- &fAdds a permission to a rank.");
             help.append("\n&6/rank delperm <name> <permission> [server] &7- &fRemoves a permission from a rank.");
+            help.append("\n&6/rank parents <name> &7- &fView parents of a rank.");
+            help.append("\n&6/rank addparent <name> <parent> &7- &fAdds a parent to a rank.");
+            help.append("\n&6/rank delparent <name> <parent> &7- &fRemoves a parent from a rank.");
 
             player.sendMessage(Colors.get(help.toString()));
         }

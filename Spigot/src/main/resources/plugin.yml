@@ -6,6 +6,36 @@ depend:
   - NetworkHelper
 
 commands:
+  # Punishments
+  ban:
+    description: Permanently ban a player.
+    permission: core.commands.ban
+  blacklist:
+    description: Permanently blacklist a player.
+    permission: core.commands.blacklist
+  kick:
+    description: Kick a player.
+    permission: core.commands.kick
+  mute:
+    description: Permanently mute a player.
+    permission: core.commands.mute
+  tempban:
+    description: Temporarily ban a player.
+    aliases: [tban]
+    permission: core.commands.tempban
+  tempmute:
+    description: Temporarily mute a player.
+    aliases: [tm, tmute]
+    permission: core.commands.tempmute
+  unban:
+    description: Unban a player.
+    permission: core.commands.unban
+  unblacklist:
+    description: Unblacklist a player.
+    permission: core.commands.unblacklist
+  unmute:
+    description: Unmute a player.
+    permission: core.commands.unmute
   grant:
     description: Apply or remove a rank from a player.
     permission: core.commands.grant

@@ -1,6 +1,7 @@
 package camp.pvp.core.profiles;
 
 import camp.pvp.core.SpigotCore;
+import camp.pvp.core.utils.Colors;
 import camp.pvp.mongo.MongoCollectionResult;
 import camp.pvp.mongo.MongoUpdate;
 import com.mongodb.client.MongoCollection;
@@ -61,6 +62,15 @@ public class CoreProfileManager {
             }
 
             permissionAttachments.put(profile.getUuid(), attachment);
+        }
+    }
+
+    public void staffBroadcast(String message) {
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            CoreProfile profile = getLoadedProfiles().get(player.getUniqueId());
+            if(profile.isStaffMode()) {
+                player.sendMessage(Colors.get("&7[Staff] " + message));
+            }
         }
     }
 
@@ -131,7 +141,7 @@ public class CoreProfileManager {
         mu.setUpdate(profile.exportToMap());
         plugin.getMongoManager().massUpdate(async, mu);
 
-        if(!store) {
+        if(!store && profile.getPlayer() == null) {
             getLoadedProfiles().remove(profile.getUuid());
         }
     }

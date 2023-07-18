@@ -1,8 +1,9 @@
 package camp.pvp.core;
 
 import camp.pvp.NetworkHelper;
-import camp.pvp.core.commands.GrantCommand;
-import camp.pvp.core.commands.RankCommand;
+import camp.pvp.core.commands.punishments.*;
+import camp.pvp.core.commands.ranks.GrantCommand;
+import camp.pvp.core.commands.ranks.RankCommand;
 import camp.pvp.core.listeners.player.PlayerChatListener;
 import camp.pvp.core.listeners.player.PlayerJoinLeaveListeners;
 import camp.pvp.core.profiles.CoreProfileManager;
@@ -12,7 +13,6 @@ import camp.pvp.core.chattags.ChatTagManager;
 import camp.pvp.core.server.CoreServer;
 import camp.pvp.mongo.MongoManager;
 import lombok.Getter;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class SpigotCore extends JavaPlugin {
@@ -55,6 +55,18 @@ public class SpigotCore extends JavaPlugin {
     }
 
     public void registerCommands() {
+        // Punishments
+        new BanCommand(this);
+        new BlacklistCommand(this);
+        new KickCommand(this);
+        new MuteCommand(this);
+        new TempBanCommand(this);
+        new TempMuteCommand(this);
+        new UnbanCommand(this);
+        new UnblacklistCommand(this);
+        new UnmuteCommand(this);
+
+        // Ranks
         new GrantCommand(this);
         new RankCommand(this);
     }
