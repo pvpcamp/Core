@@ -7,6 +7,9 @@ import camp.pvp.core.ranks.RankManager;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissibleBase;
 
 import java.util.*;
 
@@ -25,6 +28,28 @@ public class CoreProfile {
     public CoreProfile(UUID uuid) {
         this.uuid = uuid;
         this.ranks = new ArrayList<>();
+    }
+
+    public Map<String, Boolean> getPermissions(String server) {
+        Map<String, Boolean> permissions = new HashMap<>();
+        for(Rank rank : getRanks()) {
+            for(Map.Entry<String, List<String>> entry : rank.getPermissions().entrySet()) {
+                if(entry.getKey().equalsIgnoreCase("_global") || entry.getKey().equalsIgnoreCase(server)) {
+                    List<String> permList = entry.getValue();
+                    if(permList != null) {
+                        for (String s : permList) {
+                            permissions.put(s, true);
+                        }
+                    }
+                }
+            }
+        }
+
+        return permissions;
+    }
+
+    public Player getPlayer(){
+        return Bukkit.getPlayer(this.getUuid());
     }
 
     public Rank getHighestRank() {

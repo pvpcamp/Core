@@ -6,6 +6,9 @@ depend:
   - NetworkHelper
 
 commands:
+  grant:
+    description: Apply or remove a rank from a player.
+    permission: core.commands.grant
   rank:
     aliases: [rankmanager, rm]
     description: Rank manager.

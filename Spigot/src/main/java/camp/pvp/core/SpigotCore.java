@@ -1,6 +1,7 @@
 package camp.pvp.core;
 
 import camp.pvp.NetworkHelper;
+import camp.pvp.core.commands.GrantCommand;
 import camp.pvp.core.commands.RankCommand;
 import camp.pvp.core.listeners.player.PlayerChatListener;
 import camp.pvp.core.listeners.player.PlayerJoinLeaveListeners;
@@ -8,6 +9,7 @@ import camp.pvp.core.profiles.CoreProfileManager;
 import camp.pvp.core.punishments.PunishmentManager;
 import camp.pvp.core.ranks.RankManager;
 import camp.pvp.core.chattags.ChatTagManager;
+import camp.pvp.core.server.CoreServer;
 import camp.pvp.mongo.MongoManager;
 import lombok.Getter;
 import org.bukkit.entity.Player;
@@ -16,6 +18,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class SpigotCore extends JavaPlugin {
 
     private @Getter static SpigotCore instance;
+
+    private @Getter CoreServer coreServer;
 
     private @Getter MongoManager mongoManager;
 
@@ -29,6 +33,8 @@ public class SpigotCore extends JavaPlugin {
         instance = this;
 
         this.saveDefaultConfig();
+
+        this.coreServer = new CoreServer(getConfig().getString("server.name"), getConfig().getString("server.type"));
 
         this.mongoManager = NetworkHelper.getInstance().getMongoManager();
 
@@ -49,6 +55,7 @@ public class SpigotCore extends JavaPlugin {
     }
 
     public void registerCommands() {
+        new GrantCommand(this);
         new RankCommand(this);
     }
 

@@ -5,10 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Getter @Setter
 public class Rank implements Comparable<Rank>{
@@ -16,8 +13,9 @@ public class Rank implements Comparable<Rank>{
     private final UUID uuid;
     private String name, displayName, prefix, color;
     private int weight;
-    private boolean defaultRank;
+    private boolean defaultRank, nameMcAward;
     private Map<String, List<String>> permissions;
+    private List<UUID> parents;
 
     public Rank(UUID uuid) {
         this.uuid = uuid;
@@ -27,6 +25,20 @@ public class Rank implements Comparable<Rank>{
         this.weight = 0;
 
         this.permissions = new HashMap<>();
+        this.parents = new ArrayList<>();
+    }
+
+    public List<Rank> getParents(SpigotCore plugin) {
+        List<Rank> ranks = new ArrayList<>();
+        RankManager rankManager = plugin.getRankManager();
+        for(UUID uuid : getParents()) {
+            Rank rank = rankManager.getRanks().get(uuid);
+            if(rank != null) {
+                ranks.add(rank);
+            }
+        }
+
+        return ranks;
     }
 
     public void importFromDocument(SpigotCore plugin, Document doc) {
@@ -36,8 +48,9 @@ public class Rank implements Comparable<Rank>{
         this.weight = doc.getInteger("weight");
         this.prefix = doc.getString("prefix");
         this.defaultRank = doc.getBoolean("default");
-
+        this.nameMcAward = doc.getBoolean("namemc_reward");
         this.permissions = (Map<String, List<String>>) doc.get("permissions");
+        this.parents = doc.getList("parents", UUID.class);
     }
 
     public Map<String, Object> exportToMap() {
@@ -48,13 +61,15 @@ public class Rank implements Comparable<Rank>{
         map.put("prefix", getPrefix());
         map.put("weight", getWeight());
         map.put("default", isDefaultRank());
+        map.put("namemc_reward", isNameMcAward());
         map.put("permissions", getPermissions());
+        map.put("parents", getParents());
 
         return map;
     }
 
     @Override
     public int compareTo(Rank r) {
-        return this.getWeight() - r.getWeight();
+        return r.getWeight() - this.getWeight();
     }
 }

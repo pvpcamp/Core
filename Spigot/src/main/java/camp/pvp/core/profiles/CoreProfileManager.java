@@ -8,7 +8,10 @@ import com.mongodb.client.model.Filters;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissibleBase;
+import org.bukkit.permissions.PermissionAttachment;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,11 +22,46 @@ public class CoreProfileManager {
 
     private SpigotCore plugin;
     private Map<UUID, CoreProfile> loadedProfiles;
+    private Map<UUID, PermissionAttachment> permissionAttachments;
     public CoreProfileManager(SpigotCore plugin) {
         this.plugin = plugin;
         this.loadedProfiles = new HashMap<>();
+        this.permissionAttachments = new HashMap<>();
 
         plugin.getLogger().info("Started CoreProfileManager.");
+    }
+
+    public void updateAllPermissions() {
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            CoreProfile profile = loadedProfiles.get(player.getUniqueId());
+            if(profile != null) {
+                updatePermissions(profile);
+            }
+        }
+    }
+
+    public void updatePermissions(CoreProfile profile) {
+        Player player = profile.getPlayer();
+        if(player != null) {
+            PermissionAttachment attachment = player.addAttachment(plugin);
+
+            if (permissionAttachments.get(profile.getUuid()) != null) {
+                player.removeAttachment(permissionAttachments.get(profile.getUuid()));
+            }
+
+            player.setOp(false);
+
+            for (Map.Entry<String, Boolean> entry : profile.getPermissions(plugin.getCoreServer().getType()).entrySet()) {
+                String permission = entry.getKey();
+                if (permission.equalsIgnoreCase("*")) {
+                    player.setOp(true);
+                } else {
+                    attachment.setPermission(permission, entry.getValue());
+                }
+            }
+
+            permissionAttachments.put(profile.getUuid(), attachment);
+        }
     }
 
     public CoreProfile find(UUID uuid, boolean store) {
@@ -40,6 +78,13 @@ public class CoreProfileManager {
 
     public CoreProfile find(String name, boolean store) {
         final CoreProfile[] profile = {null};
+
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            if(player.getName().equalsIgnoreCase(name)) {
+                return getLoadedProfiles().get(player.getUniqueId());
+            }
+        }
+
         plugin.getMongoManager().getCollection(false, "core_profiles", new MongoCollectionResult() {
             @Override
             public void call(MongoCollection<Document> mongoCollection) {
@@ -92,6 +137,9 @@ public class CoreProfileManager {
     }
 
     public void shutdown() {
-
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            CoreProfile profile = getLoadedProfiles().get(player.getUniqueId());
+            exportToDatabase(profile, false, false);
+        }
     }
 }

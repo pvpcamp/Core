@@ -101,6 +101,8 @@ public class RankManager {
             profile.getRanks().remove(rank);
         }
 
+        plugin.getCoreProfileManager().updateAllPermissions();
+
         plugin.getMongoManager().deleteDocument(true, "core_ranks", rank.getUuid());
     }
 
@@ -108,6 +110,10 @@ public class RankManager {
         MongoUpdate mu = new MongoUpdate("core_ranks", rank.getUuid());
         mu.setUpdate(rank.exportToMap());
         plugin.getMongoManager().massUpdate(async, mu);
+
+        if(plugin.getCoreProfileManager() != null) {
+            plugin.getCoreProfileManager().updateAllPermissions();
+        }
     }
 
     public Rank getDefaultRank() {
