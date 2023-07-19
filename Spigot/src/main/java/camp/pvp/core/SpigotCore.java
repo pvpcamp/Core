@@ -4,6 +4,7 @@ import camp.pvp.NetworkHelper;
 import camp.pvp.core.commands.punishments.*;
 import camp.pvp.core.commands.ranks.GrantCommand;
 import camp.pvp.core.commands.ranks.RankCommand;
+import camp.pvp.core.commands.users.MessageCommand;
 import camp.pvp.core.listeners.player.PlayerChatListener;
 import camp.pvp.core.listeners.player.PlayerJoinLeaveListeners;
 import camp.pvp.core.profiles.CoreProfileManager;
@@ -69,6 +70,9 @@ public class SpigotCore extends JavaPlugin {
         // Ranks
         new GrantCommand(this);
         new RankCommand(this);
+
+        // Communication
+        new MessageCommand(this);
     }
 
     public void registerListeners() {

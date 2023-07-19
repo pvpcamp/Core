@@ -64,7 +64,7 @@ public class KickCommand implements CommandExecutor {
                         "&cYou have been kicked from PvP Camp." +
                                 "\n&cReason: &f" + reasonBuilder.toString()));
 
-                String banMessage = "&f" + targetProfile.getHighestRank().getColor() + target + "&a has been kicked by " + issueFromName + "&a.";
+                String banMessage = "&f" + targetProfile.getHighestRank().getColor() + target.getName() + "&a has been kicked by " + issueFromName + "&a.";
                 if(silent) {
                     plugin.getCoreProfileManager().staffBroadcast(banMessage);
                 } else {

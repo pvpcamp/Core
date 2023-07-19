@@ -106,7 +106,7 @@ public class TempMuteCommand implements CommandExecutor {
                     StringBuilder reasonBuilder = new StringBuilder();
                     boolean silent = false;
                     if(args.length > 3) {
-                        for(int i = 1; i < args.length; i++) {
+                        for(int i = 3; i < args.length; i++) {
                             if(args[3].equalsIgnoreCase("-s")) {
                                 silent = true;
                             } else {

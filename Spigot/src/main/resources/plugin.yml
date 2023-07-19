@@ -44,5 +44,5 @@ commands:
     description: Rank manager.
     permission: core.commands.rank
   message:
-    aliases: [msg, reply, r, tell, whisper]
+    aliases: [msg, m, tell, whisper, reply, r]
     description: Send a message to a player.

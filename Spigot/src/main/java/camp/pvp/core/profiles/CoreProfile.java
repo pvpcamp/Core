@@ -27,6 +27,7 @@ public class CoreProfile {
 
     private List<Punishment> punishments;
 
+    private UUID replyTo;
     private List<UUID> ignored;
 
     private boolean seeGlobalChat, allowPrivateMessages, messageSounds, staffMode, staffChat;
@@ -72,6 +73,14 @@ public class CoreProfile {
                 }
             }
         }
+
+        permissions.put("minecraft.command.ban", false);
+        permissions.put("minecraft.command.ban-ip", false);
+        permissions.put("minecraft.command.kick", false);
+        permissions.put("minecraft.command.list", false);
+        permissions.put("minecraft.command.me", false);
+        permissions.put("minecraft.command.say", false);
+        permissions.put("minecraft.command.tell", false);
 
         return permissions;
     }

@@ -226,7 +226,7 @@ public class RankCommand implements CommandExecutor {
                                     Collections.sort(permissions);
 
                                     sb = new StringBuilder();
-                                    sb.append("&aPermissions for " + rank.getColor() + rank.getName() + " &afor server &f" + server + "&7:");
+                                    sb.append("&aPermissions for " + rank.getColor() + rank.getName() + " &afor server type&f" + server + "&7:");
 
                                     for(String permission : permissions) {
                                         sb.append("\n&7+ &f");
@@ -235,7 +235,7 @@ public class RankCommand implements CommandExecutor {
 
                                     player.sendMessage(Colors.get(sb.toString()));
                                 } else {
-                                    player.sendMessage(ChatColor.RED + "This server does not have any permissions set for this rank.");
+                                    player.sendMessage(ChatColor.RED + "This rank does not have any permissions set for this server type.");
                                 }
                             } else {
                                 player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
@@ -257,9 +257,9 @@ public class RankCommand implements CommandExecutor {
                                 if(!rank.getPermissions().get(server).contains(permission)) {
                                     rank.getPermissions().get(server).add(permission);
                                     rankManager.exportToDatabase(rank, true);
-                                    player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a now has the permission &f" + permission + "&a set for server &f" + server + "&a."));
+                                    player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a now has the permission &f" + permission + "&a set for server type &f" + server + "&a."));
                                 } else {
-                                    player.sendMessage(ChatColor.RED + "This rank already has the permission set for server " + server + ".");
+                                    player.sendMessage(ChatColor.RED + "This rank already has the permission set for server type" + server + ".");
                                 }
                             } else {
                                 player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
@@ -281,9 +281,9 @@ public class RankCommand implements CommandExecutor {
                                 if(rank.getPermissions().get(server).contains(permission)) {
                                     rank.getPermissions().get(server).remove(permission);
                                     rankManager.exportToDatabase(rank, true);
-                                    player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a no longer the permission &f" + permission + "&a set for server &f" + server + "&a."));
+                                    player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a no longer the permission &f" + permission + "&a set for server type &f" + server + "&a."));
                                 } else {
-                                    player.sendMessage(ChatColor.RED + "This rank does not have this permission set for server " + server + ".");
+                                    player.sendMessage(ChatColor.RED + "This rank does not have this permission set for server type " + server + ".");
                                 }
                             } else {
                                 player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
