@@ -33,6 +33,7 @@ public class GrantCommand implements CommandExecutor {
                 case 1:
                     if(sender instanceof Player) {
                         String name = args[0];
+                        name = name.replaceAll("\\$[A-Za-z0-9]+(_[A-Za-z0-9]+)*\\$", "");
                         Player player = (Player) sender;
                         CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
                         CoreProfile target = plugin.getCoreProfileManager().find(name, false);

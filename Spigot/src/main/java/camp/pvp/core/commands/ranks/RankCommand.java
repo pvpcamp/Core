@@ -5,6 +5,12 @@ import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.ranks.Rank;
 import camp.pvp.core.ranks.RankManager;
 import camp.pvp.core.utils.Colors;
+import camp.pvp.events.MongoMessageEvent;
+import camp.pvp.mongo.MongoCollectionResult;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import org.bson.Document;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -368,6 +374,47 @@ public class RankCommand implements CommandExecutor {
                             return true;
                         }
                         break;
+                    case "assigned":
+                        if(args.length > 1) {
+                            rank = rankManager.getRankFromName(args[1]);
+                            if(rank != null) {
+                                Rank finalRank = rank;
+                                plugin.getMongoManager().getCollection(true, "core_profiles", new MongoCollectionResult() {
+                                    @Override
+                                    public void call(MongoCollection<Document> mongoCollection) {
+                                        Date requestStarted = new Date();
+                                        List<String> names = new ArrayList<>();
+                                        MongoCursor<Document> cursor = mongoCollection.find(new Document("ranks", finalRank.getUuid())).cursor();
+                                        while(cursor.hasNext()) {
+                                            names.add(cursor.next().getString("name"));
+                                        }
+
+                                        StringBuilder sb = new StringBuilder();
+                                        sb.append("&6Players with rank " + finalRank.getColor() + finalRank.getName() + "&6: &f");
+
+                                        Collections.sort(names);
+                                        for(int x = 0; x < names.size(); x++) {
+                                            String name = names.get(x);
+
+                                            sb.append("&f");
+                                            sb.append(name);
+                                            if(x + 1 == names.size()) {
+                                                sb.append("&7.");
+                                            } else {
+                                                sb.append("&7, ");
+                                            }
+                                        }
+
+                                        Bukkit.getServer().getPluginManager().callEvent(new MongoMessageEvent(sb.toString(), player.getUniqueId(), requestStarted, new Date()));
+                                    }
+                                });
+                            } else {
+                                player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
+                            }
+
+                            return true;
+                        }
+                        break;
                 }
             }
 
@@ -388,6 +435,7 @@ public class RankCommand implements CommandExecutor {
             help.append("\n&6/rank parents <name> &7- &fView parents of a rank.");
             help.append("\n&6/rank addparent <name> <parent> &7- &fAdds a parent to a rank.");
             help.append("\n&6/rank delparent <name> <parent> &7- &fRemoves a parent from a rank.");
+            help.append("\n&6/rank assigned <name> &7- &fShows users that are assigned this rank.");
 
             player.sendMessage(Colors.get(help.toString()));
         }

@@ -30,7 +30,12 @@ public class TempMuteCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(args.length > 2) {
-            String target = args[0].replaceAll("\\$[A-Za-z0-9]+(_[A-Za-z0-9]+)*\\$", "");
+            String target = args[0];
+            if(!target.matches("^[a-zA-Z0-9_]{1,16}$")) {
+                sender.sendMessage(ChatColor.RED + "Invalid username provided.");
+                return true;
+            }
+
             CoreProfile targetProfile = plugin.getCoreProfileManager().find(target, false);
 
             if(targetProfile != null) {

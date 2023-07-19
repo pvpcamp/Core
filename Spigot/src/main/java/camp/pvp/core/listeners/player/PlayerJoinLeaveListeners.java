@@ -50,6 +50,8 @@ public class PlayerJoinLeaveListeners implements Listener {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, Colors.get(
                     "\n " +
                     punishment.getType().getMessage() +
+                    "\n " +
+                    "\n&cReason: " + punishment.getReason() +
                     "\n&cExpires: " + (punishment.getExpires() == null ? "Never" : DateUtils.getDifference(punishment.getExpires(), new Date())) +
                     "\n" + punishment.getType().getAppealMessage()
             ));

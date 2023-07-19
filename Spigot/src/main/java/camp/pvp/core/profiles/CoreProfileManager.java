@@ -1,10 +1,14 @@
 package camp.pvp.core.profiles;
 
 import camp.pvp.core.SpigotCore;
+import camp.pvp.core.ranks.Rank;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.mongo.MongoCollectionResult;
+import camp.pvp.mongo.MongoIterableResult;
 import camp.pvp.mongo.MongoUpdate;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,9 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.permissions.PermissionAttachment;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Getter @Setter
 public class CoreProfileManager {
@@ -98,10 +100,14 @@ public class CoreProfileManager {
         plugin.getMongoManager().getCollection(false, "core_profiles", new MongoCollectionResult() {
             @Override
             public void call(MongoCollection<Document> mongoCollection) {
-                Document doc = mongoCollection.find(Filters.regex("name", "(?i)" + name)).first();
-                if(doc != null) {
-                    profile[0] = importFromDatabase(doc.get("_id", UUID.class), store);
-                }
+                mongoCollection.find(Filters.regex("name", "(?i)" + name)).forEach(
+                    document -> {
+                        String dbName = document.getString("name");
+                        if(dbName.equalsIgnoreCase(name)) {
+                            profile[0] = importFromDatabase(document.get("_id", UUID.class), store);
+                        }
+                    }
+                );
             }
         });
 
@@ -121,6 +127,21 @@ public class CoreProfileManager {
         });
 
         return profile[0];
+    }
+
+    public List<String> getProfilesWithRank(Rank rank) {
+        List<String> profileNames = new ArrayList<>();
+        plugin.getMongoManager().getCollection(false, "core_profiles", new MongoCollectionResult() {
+            @Override
+            public void call(MongoCollection<Document> mongoCollection) {
+                MongoCursor<Document> cursor = mongoCollection.find(new Document("ranks", rank.getUuid())).cursor();
+                while(cursor.hasNext()) {
+                    profileNames.add(cursor.next().getString("name"));
+                }
+            }
+        });
+
+        return profileNames;
     }
 
     public CoreProfile create(Player player) {
