@@ -7,6 +7,7 @@ import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.ranks.Rank;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.core.utils.DateUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -39,6 +40,12 @@ public class PlayerChatListener implements Listener {
                 return;
             }
 
+            if(!profile.isSeeGlobalChat()) {
+                player.sendMessage(ChatColor.RED + "You currently have global chat disabled.");
+                event.setCancelled(true);
+                return;
+            }
+
             Rank rank = profile.getHighestRank();
             ChatTag tag = profile.getChatTag();
 
@@ -57,6 +64,19 @@ public class PlayerChatListener implements Listener {
             chatFormat.append("&7:&f %2$s");
 
             event.setFormat(Colors.get(chatFormat.toString()));
+
+            for(Player p : Bukkit.getOnlinePlayers()) {
+                CoreProfile pr = plugin.getCoreProfileManager().getLoadedProfiles().get(p.getUniqueId());
+                if(pr != null) {
+                    if(!pr.isSeeGlobalChat()) {
+                        event.getRecipients().remove(p);
+                    }
+
+                    if(pr.getIgnored().contains(player.getUniqueId())) {
+                        event.getRecipients().remove(p);
+                    }
+                }
+            }
         } else {
             event.setCancelled(true);
             player.sendMessage(ChatColor.RED + "Your profile has not been loaded yet.");

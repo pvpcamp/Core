@@ -15,6 +15,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Date;
 import java.util.UUID;
 
 public class BanCommand implements CommandExecutor {
@@ -43,33 +44,41 @@ public class BanCommand implements CommandExecutor {
                     ban = new Punishment(UUID.randomUUID());
                     ban.setType(Punishment.Type.BAN);
                     ban.setIp(targetProfile.getIp());
+                    ban.setIssued(new Date());
                     ban.setIssuedTo(targetProfile.getUuid());
+                    ban.setIssuedToName(targetProfile.getName());
 
                     String issueFromName = sender.getName();
+                    String issueFromColor = "&4";
                     UUID issuedFrom = null;
                     if(sender instanceof Player) {
                         Player player = (Player) sender;
                         CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
-                        issueFromName = profile.getHighestRank().getColor() + profile.getName();
+                        issueFromColor = profile.getHighestRank().getColor();
+                        issueFromName = profile.getName();
                         issuedFrom = player.getUniqueId();
                     }
 
                     ban.setIssuedFrom(issuedFrom);
+                    ban.setIssuedFromName(issueFromName);
 
                     StringBuilder reasonBuilder = new StringBuilder();
                     boolean silent = false;
                     if(args.length > 1) {
                         for(int i = 1; i < args.length; i++) {
-                            if(args[i].equalsIgnoreCase("-s")) {
-                                silent = true;
-                            } else if(args[i].equalsIgnoreCase("-ip")) {
-                                ban.setIpPunished(true);
-                            } else {
-                                reasonBuilder.append(args[i]);
+                            switch(args[i]) {
+                                case "-s":
+                                    silent = true;
+                                    break;
+                                case "-ip":
+                                    ban.setIpPunished(true);
+                                    break;
+                                default:
+                                    reasonBuilder.append(args[i]);
 
-                                if(i + 1 != args.length) {
-                                    reasonBuilder.append(" ");
-                                }
+                                    if(i + 1 != args.length) {
+                                        reasonBuilder.append(" ");
+                                    }
                             }
                         }
                     }
@@ -89,7 +98,7 @@ public class BanCommand implements CommandExecutor {
                         targetProfile.getPlayer().kickPlayer(Colors.get("&cYou have been banned from PvP Camp."));
                     }
 
-                    String banMessage = "&f" + targetProfile.getHighestRank().getColor() + target + "&a has been permanently banned by " + issueFromName + "&a.";
+                    String banMessage = "&f" + targetProfile.getHighestRank().getColor() + target + "&a has been permanently banned by " + issueFromColor + issueFromName + "&a.";
                     if(silent) {
                         plugin.getCoreProfileManager().staffBroadcast(banMessage);
                     } else {

@@ -66,7 +66,7 @@ public class MessageCommand implements CommandExecutor {
                         target = Bukkit.getPlayer(args[0]);
                         start = 1;
                     } else {
-                        player.sendMessage(ChatColor.RED + "Usage: /" + label + " <message>");
+                        player.sendMessage(ChatColor.RED + "Usage: /" + label + " <player> <message>");
                         return true;
                     }
                     break;
@@ -88,7 +88,17 @@ public class MessageCommand implements CommandExecutor {
                     }
                 }
 
-                if(!targetProfile.getIgnored().contains(player.getUniqueId()) || targetProfile.isAllowPrivateMessages()) {
+                if(!targetProfile.getIgnored().contains(player.getUniqueId())) {
+
+                    if(!targetProfile.isAllowPrivateMessages()) {
+                        player.sendMessage(ChatColor.RED + "You cannot message " + target.getName() + " right now.");
+                        return true;
+                    }
+
+                    if(profile.getIgnored().contains(targetProfile.getUuid())) {
+                        player.sendMessage(ChatColor.RED + "You cannot message " + target.getName() + " because you ignored them.");
+                        return true;
+                    }
 
                     profile.setReplyTo(target.getUniqueId());
                     targetProfile.setReplyTo(player.getUniqueId());
@@ -97,7 +107,7 @@ public class MessageCommand implements CommandExecutor {
                     target.sendMessage(Colors.get("&7(From " + profile.getHighestRank().getColor() + player.getName() + "&7) &f" + message.toString()));
 
                     if(targetProfile.isMessageSounds()) {
-                        target.playSound(target.getLocation(), Sound.NOTE_PIANO, 1F, 1F);
+                        target.playSound(target.getLocation(), Sound.NOTE_PLING, 1F, 1F);
                     }
                 } else {
                     player.sendMessage(ChatColor.RED + "You cannot message " + target.getName() + " right now.");

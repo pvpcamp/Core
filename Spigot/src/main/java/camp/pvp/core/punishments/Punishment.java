@@ -4,14 +4,40 @@ import camp.pvp.core.SpigotCore;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
 @Getter @Setter
-public class Punishment implements Comparable<Date>{
+public class Punishment implements Comparable<Punishment>{
 
     public enum Type {
         BAN, BLACKLIST, MUTE;
+
+        @Override
+        public String toString() {
+            switch(this) {
+                case BAN:
+                    return "Ban";
+                case BLACKLIST:
+                    return "Blacklist";
+                default:
+                    return "Mute";
+            }
+        }
+
+        public ChatColor getColor() {
+            switch(this) {
+                case BAN:
+                    return ChatColor.RED;
+                case BLACKLIST:
+                    return ChatColor.DARK_RED;
+                default:
+                    return ChatColor.GOLD;
+            }
+        }
 
         public String getMessage() {
             switch(this) {
@@ -32,13 +58,30 @@ public class Punishment implements Comparable<Date>{
                     return "&cIf you would like to appeal your punishment, join our Discord: discord.pvp.camp";
             }
         }
+
+        public ItemStack getIcon() {
+            ItemStack item = new ItemStack(Material.WOOL);
+            switch(this) {
+                case BAN:
+                    item.setDurability((short) 14);
+                    break;
+                case BLACKLIST:
+                    item.setDurability((short) 15);
+                    break;
+                default:
+                    item.setDurability((short) 1);
+                    break;
+            }
+
+            return item;
+        }
     }
 
     private final UUID uuid;
     private Punishment.Type type;
     private UUID issuedTo, issuedFrom, pardoner;
     private Date issued, expires, pardoned;
-    private String reason, pardonReason, ip;
+    private String issuedToName, issuedFromName, pardonerName, reason, pardonReason, ip;
     private boolean ipPunished, silent;
 
     public Punishment(UUID uuid) {
@@ -62,6 +105,9 @@ public class Punishment implements Comparable<Date>{
         this.issuedTo = doc.get("issued_to", UUID.class);
         this.issuedFrom = doc.get("issued_from", UUID.class);
         this.pardoner = doc.get("pardoner", UUID.class);
+        this.issuedToName = doc.getString("issued_to_name");
+        this.issuedFromName = doc.getString("issued_from_name");
+        this.pardonerName = doc.getString("pardoner_name");
         this.issued = doc.getDate("issued");
         this.expires = doc.getDate("expires");
         this.pardoned = doc.getDate("pardoned");
@@ -78,6 +124,9 @@ public class Punishment implements Comparable<Date>{
         map.put("issued_to", getIssuedTo());
         map.put("issued_from", getIssuedFrom());
         map.put("pardoner", getPardoner());
+        map.put("issued_to_name", getIssuedToName());
+        map.put("issued_from_name", getIssuedFromName());
+        map.put("pardoner_name", getPardonerName());
         map.put("issued", getIssued());
         map.put("expires", getExpires());
         map.put("pardoned", getPardoned());
@@ -91,7 +140,7 @@ public class Punishment implements Comparable<Date>{
     }
 
     @Override
-    public int compareTo(Date date) {
-        return date.compareTo(this.getIssued());
+    public int compareTo(Punishment punishment) {
+        return punishment.getIssued().compareTo(this.getIssued());
     }
 }

@@ -38,14 +38,17 @@ public class UnmuteCommand implements CommandExecutor {
                 Punishment mute = targetProfile.getActivePunishment(Punishment.Type.MUTE);
                 if(mute != null) {
                     String issueFromName = sender.getName();
+                    String issueFromColor = "&4";
                     UUID issuedFrom = null;
                     if(sender instanceof Player) {
                         Player player = (Player) sender;
                         CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
-                        issueFromName = profile.getHighestRank().getColor() + profile.getName();
+                        issueFromColor = profile.getHighestRank().getColor();
+                        issueFromName = profile.getName();
                         issuedFrom = player.getUniqueId();
                     }
 
+                    mute.setPardonerName(issueFromName);
                     mute.setPardoner(issuedFrom);
 
                     StringBuilder reasonBuilder = new StringBuilder();
@@ -75,7 +78,7 @@ public class UnmuteCommand implements CommandExecutor {
                     plugin.getPunishmentManager().exportToDatabase(mute, true);
                     plugin.getCoreProfileManager().exportToDatabase(targetProfile, true, false);
 
-                    String punishmentMessage = "&f" + targetProfile.getHighestRank().getColor() + target + "&a has been unmuted by " + issueFromName + "&a.";
+                    String punishmentMessage = "&f" + targetProfile.getHighestRank().getColor() + target + "&a has been unmuted by " + issueFromColor + issueFromName + "&a.";
                     if(silent) {
                         plugin.getCoreProfileManager().staffBroadcast(punishmentMessage);
                     } else {

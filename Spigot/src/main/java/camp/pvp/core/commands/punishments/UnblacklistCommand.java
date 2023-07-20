@@ -37,14 +37,17 @@ public class UnblacklistCommand implements CommandExecutor {
                 Punishment blacklist = targetProfile.getActivePunishment(Punishment.Type.BLACKLIST);
                 if(blacklist != null) {
                     String issueFromName = sender.getName();
+                    String issueFromColor = "&4";
                     UUID issuedFrom = null;
                     if(sender instanceof Player) {
                         Player player = (Player) sender;
                         CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
-                        issueFromName = profile.getHighestRank().getColor() + profile.getName();
+                        issueFromColor = profile.getHighestRank().getColor();
+                        issueFromName = profile.getName();
                         issuedFrom = player.getUniqueId();
                     }
 
+                    blacklist.setPardonerName(issueFromName);
                     blacklist.setPardoner(issuedFrom);
 
                     StringBuilder reasonBuilder = new StringBuilder();
@@ -74,7 +77,7 @@ public class UnblacklistCommand implements CommandExecutor {
                     plugin.getPunishmentManager().exportToDatabase(blacklist, true);
                     plugin.getCoreProfileManager().exportToDatabase(targetProfile, true, false);
 
-                    String punishmentMessage = "&f" + targetProfile.getHighestRank().getColor() + target + "&a has been unblacklisted by " + issueFromName + "&a.";
+                    String punishmentMessage = "&f" + targetProfile.getHighestRank().getColor() + target + "&a has been unblacklisted by " + issueFromColor + issueFromName + "&a.";
                     if(silent) {
                         plugin.getCoreProfileManager().staffBroadcast(punishmentMessage);
                     } else {

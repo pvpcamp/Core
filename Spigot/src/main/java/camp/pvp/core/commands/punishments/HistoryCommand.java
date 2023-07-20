@@ -1,0 +1,50 @@
+package camp.pvp.core.commands.punishments;
+
+import camp.pvp.core.SpigotCore;
+import camp.pvp.core.guis.punishments.HistoryGui;
+import camp.pvp.core.profiles.CoreProfile;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+public class HistoryCommand implements CommandExecutor {
+
+    private SpigotCore plugin;
+    public HistoryCommand(SpigotCore plugin) {
+        this.plugin = plugin;
+        plugin.getServer().getPluginCommand("history").setExecutor(this);
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+            if(args.length > 0) {
+                String target = args[0];
+                if(!target.matches("^[a-zA-Z0-9_]{1,16}$")) {
+                    sender.sendMessage(ChatColor.RED + "Invalid username provided.");
+                    return true;
+                }
+
+                CoreProfile targetProfile = plugin.getCoreProfileManager().find(target, false);
+
+                if(targetProfile != null) {
+                    if(targetProfile.getPunishments().size() > 0) {
+                        new HistoryGui(targetProfile.getName() + " History", targetProfile.getPunishments()).open(player);
+                    } else {
+                        sender.sendMessage(ChatColor.GREEN + "Player " + ChatColor.WHITE +  targetProfile.getName() + ChatColor.GREEN + " does not have any punishments.");
+                    }
+                } else {
+                    sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
+                }
+            } else {
+                player.sendMessage(ChatColor.RED + "Usage: /history <player>");
+            }
+        }
+
+        return true;
+    }
+}

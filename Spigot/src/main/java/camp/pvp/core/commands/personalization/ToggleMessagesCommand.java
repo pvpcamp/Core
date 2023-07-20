@@ -1,4 +1,4 @@
-package camp.pvp.core.commands.staff;
+package camp.pvp.core.commands.personalization;
 
 import camp.pvp.core.SpigotCore;
 import camp.pvp.core.profiles.CoreProfile;
@@ -8,12 +8,12 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class StaffModeCommand implements CommandExecutor {
+public class ToggleMessagesCommand implements CommandExecutor {
 
     private SpigotCore plugin;
-    public StaffModeCommand(SpigotCore plugin) {
+    public ToggleMessagesCommand(SpigotCore plugin) {
         this.plugin = plugin;
-        plugin.getServer().getPluginCommand("staffmode").setExecutor(this);
+        plugin.getServer().getPluginCommand("togglemessages").setExecutor(this);
     }
 
     @Override
@@ -22,9 +22,9 @@ public class StaffModeCommand implements CommandExecutor {
         if(sender instanceof Player) {
             Player player = (Player) sender;
             CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
-            profile.setStaffMode(!profile.isStaffMode());
+            profile.setAllowPrivateMessages(!profile.isAllowPrivateMessages());
 
-            player.sendMessage(ChatColor.GREEN + "Staff mode is now " + ChatColor.WHITE + (profile.isStaffMode() ? ChatColor.YELLOW + "enabled" : ChatColor.RED + "disabled") + ChatColor.GREEN + ".");
+            player.sendMessage(ChatColor.GREEN + "Private messages are now " + ChatColor.WHITE + (profile.isAllowPrivateMessages() ? ChatColor.YELLOW + "enabled" : ChatColor.RED + "disabled") + ChatColor.GREEN + ".");
 
         }
 

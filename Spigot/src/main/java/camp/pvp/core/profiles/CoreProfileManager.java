@@ -1,21 +1,16 @@
 package camp.pvp.core.profiles;
 
 import camp.pvp.core.SpigotCore;
-import camp.pvp.core.ranks.Rank;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.mongo.MongoCollectionResult;
-import camp.pvp.mongo.MongoIterableResult;
 import camp.pvp.mongo.MongoUpdate;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.permissions.PermissionAttachment;
 
 import java.util.*;
@@ -129,19 +124,22 @@ public class CoreProfileManager {
         return profile[0];
     }
 
-    public List<String> getProfilesWithRank(Rank rank) {
-        List<String> profileNames = new ArrayList<>();
-        plugin.getMongoManager().getCollection(false, "core_profiles", new MongoCollectionResult() {
-            @Override
-            public void call(MongoCollection<Document> mongoCollection) {
-                MongoCursor<Document> cursor = mongoCollection.find(new Document("ranks", rank.getUuid())).cursor();
-                while(cursor.hasNext()) {
-                    profileNames.add(cursor.next().getString("name"));
-                }
+    public Grant importGrant(UUID uuid) {
+        final Grant[] grant = {null};
+        plugin.getMongoManager().getDocument(false, "core_grants", uuid, document -> {
+            if(document != null) {
+                grant[0] = new Grant(uuid);
+                grant[0].importFromDocument(plugin, document);
             }
         });
 
-        return profileNames;
+        return grant[0];
+    }
+
+    public void exportGrant(Grant grant, boolean async) {
+        MongoUpdate mu = new MongoUpdate("core_grants", grant.getUuid());
+        mu.setUpdate(grant.exportToMap());
+        plugin.getMongoManager().massUpdate(async, mu);
     }
 
     public CoreProfile create(Player player) {

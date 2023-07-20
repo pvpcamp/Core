@@ -6,6 +6,15 @@ depend:
   - NetworkHelper
 
 commands:
+  # Personalization
+  sounds:
+    description: Turn message sounds on and off.
+  toggleglobalchat:
+    description: Turn global chat visibility on and off.
+    aliases: [tgc, togglegc]
+  togglemessages:
+    description: Turn private messages on and off.
+    aliases: [tpm, togglepms]
   # Punishments
   ban:
     description: Permanently ban a player.
@@ -13,12 +22,20 @@ commands:
   blacklist:
     description: Permanently blacklist a player.
     permission: core.commands.blacklist
+  history:
+    description: View punishment history of a player.
+    permission: core.commands.history
+    aliases: [hist]
   kick:
     description: Kick a player.
     permission: core.commands.kick
   mute:
     description: Permanently mute a player.
     permission: core.commands.mute
+  staffhistory:
+    description: View the issued punishments that a staff member issued.
+    permission: core.commands.staffhistory
+    aliases: [shistory, shist, staffhist]
   tempban:
     description: Temporarily ban a player.
     aliases: [tban]
@@ -36,13 +53,32 @@ commands:
   unmute:
     description: Unmute a player.
     permission: core.commands.unmute
+  grants:
+    description: Grant GUI.
+    permission: core.commands.grants
   grant:
-    description: Apply or remove a rank from a player.
+    description: Add, remove, or view a list of grants for a player.
     permission: core.commands.grant
+  granthistory:
+    aliases: [ghistory, ghist]
+    description: View the grant history of a player.
+    permission: core.commands.granthistory
   rank:
     aliases: [rankmanager, rm]
     description: Rank manager.
     permission: core.commands.rank
+  # Communication
   message:
     aliases: [msg, m, tell, whisper, reply, r]
     description: Send a message to a player.
+  ignore:
+    aliases: [block]
+    description: Block a player.
+  unignore:
+    aliases: [unblock]
+    description: Unblock a player.
+  # Staff
+  staffmode:
+    description: Toggle staff mode on and off.
+    permission: core.commands.staffmode
+    aliases: [staff]

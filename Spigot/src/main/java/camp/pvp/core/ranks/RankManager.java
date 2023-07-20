@@ -5,11 +5,9 @@ import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.mongo.MongoIterableResult;
 import camp.pvp.mongo.MongoUpdate;
 import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
-import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;

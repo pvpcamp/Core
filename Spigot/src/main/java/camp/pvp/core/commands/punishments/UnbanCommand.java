@@ -4,10 +4,6 @@ import camp.pvp.core.SpigotCore;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.utils.Colors;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -42,14 +38,17 @@ public class UnbanCommand implements CommandExecutor {
                 Punishment ban = targetProfile.getActivePunishment(Punishment.Type.BAN);
                 if(ban != null) {
                     String issueFromName = sender.getName();
+                    String issueFromColor = "&4";
                     UUID issuedFrom = null;
                     if(sender instanceof Player) {
                         Player player = (Player) sender;
                         CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
-                        issueFromName = profile.getHighestRank().getColor() + profile.getName();
+                        issueFromColor = profile.getHighestRank().getColor();
+                        issueFromName = profile.getName();
                         issuedFrom = player.getUniqueId();
                     }
 
+                    ban.setPardonerName(issueFromName);
                     ban.setPardoner(issuedFrom);
 
                     StringBuilder reasonBuilder = new StringBuilder();
@@ -79,7 +78,7 @@ public class UnbanCommand implements CommandExecutor {
                     plugin.getPunishmentManager().exportToDatabase(ban, true);
                     plugin.getCoreProfileManager().exportToDatabase(targetProfile, true, false);
 
-                    String punishmentMessage = "&f" + targetProfile.getHighestRank().getColor() + target + "&a has been unbanned by " + issueFromName + "&a.";
+                    String punishmentMessage = "&f" + targetProfile.getHighestRank().getColor() + target + "&a has been unbanned by " + issueFromColor + issueFromName + "&a.";
                     if(silent) {
                         plugin.getCoreProfileManager().staffBroadcast(punishmentMessage);
                     } else {

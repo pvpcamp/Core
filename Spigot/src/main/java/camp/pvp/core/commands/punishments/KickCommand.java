@@ -2,20 +2,13 @@ package camp.pvp.core.commands.punishments;
 
 import camp.pvp.core.SpigotCore;
 import camp.pvp.core.profiles.CoreProfile;
-import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.utils.Colors;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.UUID;
 
 public class KickCommand implements CommandExecutor {
 

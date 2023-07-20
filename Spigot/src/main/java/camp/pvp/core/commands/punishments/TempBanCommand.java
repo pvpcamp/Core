@@ -95,31 +95,41 @@ public class TempBanCommand implements CommandExecutor {
                     ban.setType(Punishment.Type.BAN);
                     ban.setIp(targetProfile.getIp());
                     ban.setIssuedTo(targetProfile.getUuid());
+                    ban.setIssuedToName(targetProfile.getName());
                     ban.setExpires(calendar.getTime());
+                    ban.setIssued(new Date());
 
                     String issueFromName = sender.getName();
+                    String issueFromColor = "&4";
                     UUID issuedFrom = null;
                     if(sender instanceof Player) {
                         Player player = (Player) sender;
                         CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
-                        issueFromName = profile.getHighestRank().getColor() + profile.getName();
+                        issueFromColor = profile.getHighestRank().getColor();
+                        issueFromName = profile.getName();
                         issuedFrom = player.getUniqueId();
                     }
 
                     ban.setIssuedFrom(issuedFrom);
+                    ban.setIssuedFromName(issueFromName);
 
                     StringBuilder reasonBuilder = new StringBuilder();
                     boolean silent = false;
                     if(args.length > 3) {
                         for(int i = 3; i < args.length; i++) {
-                            if(args[3].equalsIgnoreCase("-s")) {
-                                silent = true;
-                            } else {
-                                reasonBuilder.append(args[i]);
+                            switch(args[i]) {
+                                case "-s":
+                                    silent = true;
+                                    break;
+                                case "-ip":
+                                    ban.setIpPunished(true);
+                                    break;
+                                default:
+                                    reasonBuilder.append(args[i]);
 
-                                if(i + 1 != args.length) {
-                                    reasonBuilder.append(" ");
-                                }
+                                    if(i + 1 != args.length) {
+                                        reasonBuilder.append(" ");
+                                    }
                             }
                         }
                     }
@@ -139,7 +149,7 @@ public class TempBanCommand implements CommandExecutor {
                         targetProfile.getPlayer().kickPlayer(Colors.get("&cYou have been temporarily banned from PvP Camp."));
                     }
 
-                    String banMessage = "&f" + targetProfile.getHighestRank().getColor() + target + "&a has been temporarily banned by " + issueFromName + "&a.";
+                    String banMessage = "&f" + targetProfile.getHighestRank().getColor() + target + "&a has been temporarily banned by " + issueFromColor + issueFromName + "&a.";
                     if(silent) {
                         plugin.getCoreProfileManager().staffBroadcast(banMessage);
                     } else {
@@ -158,7 +168,7 @@ public class TempBanCommand implements CommandExecutor {
                 sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
             }
         } else {
-            sender.sendMessage(ChatColor.RED + "Usage: /tempban <player> <time> <format> [reason] [-s]");
+            sender.sendMessage(ChatColor.RED + "Usage: /tempban <player> <time> <format> [reason] [-s] [-ip]");
         }
 
         return true;

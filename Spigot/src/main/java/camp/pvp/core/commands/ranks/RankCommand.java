@@ -357,8 +357,8 @@ public class RankCommand implements CommandExecutor {
                             if(rank != null) {
                                 Rank parentRank = rankManager.getRankFromName(args[2]);
                                 if(parentRank != null) {
-                                    if(rank.getParents().contains(parentRank.getUuid())) {
-                                        player.sendMessage(ChatColor.RED + "This rank already has " + rank.getName() + " as a parent.");
+                                    if(!rank.getParents().contains(parentRank.getUuid())) {
+                                        player.sendMessage(ChatColor.RED + "This rank does not have " + rank.getName() + " as a parent.");
                                         return true;
                                     }
 
@@ -405,7 +405,7 @@ public class RankCommand implements CommandExecutor {
                                             }
                                         }
 
-                                        Bukkit.getServer().getPluginManager().callEvent(new MongoMessageEvent(sb.toString(), player.getUniqueId(), requestStarted, new Date()));
+                                        Bukkit.getServer().getPluginManager().callEvent(new MongoMessageEvent(sb.toString(), player.getUniqueId(), requestStarted));
                                     }
                                 });
                             } else {

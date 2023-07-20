@@ -95,31 +95,41 @@ public class TempMuteCommand implements CommandExecutor {
                     mute.setType(Punishment.Type.MUTE);
                     mute.setIp(targetProfile.getIp());
                     mute.setIssuedTo(targetProfile.getUuid());
+                    mute.setIssuedToName(targetProfile.getName());
                     mute.setExpires(calendar.getTime());
+                    mute.setIssued(new Date());
 
                     String issueFromName = sender.getName();
+                    String issueFromColor = "&4";
                     UUID issuedFrom = null;
                     if(sender instanceof Player) {
                         Player player = (Player) sender;
                         CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
-                        issueFromName = profile.getHighestRank().getColor() + profile.getName();
+                        issueFromColor = profile.getHighestRank().getColor();
+                        issueFromName = profile.getName();
                         issuedFrom = player.getUniqueId();
                     }
 
                     mute.setIssuedFrom(issuedFrom);
+                    mute.setIssuedFromName(issueFromName);
 
                     StringBuilder reasonBuilder = new StringBuilder();
                     boolean silent = false;
                     if(args.length > 3) {
                         for(int i = 3; i < args.length; i++) {
-                            if(args[3].equalsIgnoreCase("-s")) {
-                                silent = true;
-                            } else {
-                                reasonBuilder.append(args[i]);
+                            switch(args[i]) {
+                                case "-s":
+                                    silent = true;
+                                    break;
+                                case "-ip":
+                                    mute.setIpPunished(true);
+                                    break;
+                                default:
+                                    reasonBuilder.append(args[i]);
 
-                                if(i + 1 != args.length) {
-                                    reasonBuilder.append(" ");
-                                }
+                                    if(i + 1 != args.length) {
+                                        reasonBuilder.append(" ");
+                                    }
                             }
                         }
                     }
@@ -135,7 +145,7 @@ public class TempMuteCommand implements CommandExecutor {
                     plugin.getPunishmentManager().exportToDatabase(mute, true);
                     plugin.getCoreProfileManager().exportToDatabase(targetProfile, true, false);
 
-                    String banMessage = "&f" + targetProfile.getHighestRank().getColor() + target + "&a has been temporarily muted by " + issueFromName + "&a.";
+                    String banMessage = "&f" + targetProfile.getHighestRank().getColor() + target + "&a has been temporarily muted by " + issueFromColor + issueFromName + "&a.";
                     if(silent) {
                         plugin.getCoreProfileManager().staffBroadcast(banMessage);
                     } else {
@@ -154,7 +164,7 @@ public class TempMuteCommand implements CommandExecutor {
                 sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
             }
         } else {
-            sender.sendMessage(ChatColor.RED + "Usage: /tempmute <player> <time> <format> [reason] [-s]");
+            sender.sendMessage(ChatColor.RED + "Usage: /tempmute <player> <time> <format> [reason] [-s] [-ip]");
         }
 
         return true;

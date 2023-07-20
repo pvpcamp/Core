@@ -2,10 +2,7 @@ package camp.pvp.core.punishments;
 
 import camp.pvp.core.SpigotCore;
 import camp.pvp.core.profiles.CoreProfile;
-import camp.pvp.core.ranks.Rank;
-import camp.pvp.mongo.MongoCollectionResult;
 import camp.pvp.mongo.MongoUpdate;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import lombok.Getter;
 import lombok.Setter;

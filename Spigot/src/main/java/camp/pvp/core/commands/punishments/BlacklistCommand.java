@@ -15,6 +15,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Date;
 import java.util.UUID;
 
 public class BlacklistCommand implements CommandExecutor {
@@ -44,14 +45,16 @@ public class BlacklistCommand implements CommandExecutor {
                     boolean silent = false;
                     if(args.length > 1) {
                         for(int i = 1; i < args.length; i++) {
-                            if(args[i].equalsIgnoreCase("-s")) {
-                                silent = true;
-                            } else {
-                                reasonBuilder.append(args[i]);
+                            switch(args[i]) {
+                                case "-s":
+                                    silent = true;
+                                    break;
+                                default:
+                                    reasonBuilder.append(args[i]);
 
-                                if(i + 1 != args.length) {
-                                    reasonBuilder.append(" ");
-                                }
+                                    if(i + 1 != args.length) {
+                                        reasonBuilder.append(" ");
+                                    }
                             }
                         }
                     } else {
@@ -62,17 +65,23 @@ public class BlacklistCommand implements CommandExecutor {
                     blacklist = new Punishment(UUID.randomUUID());
                     blacklist.setType(Punishment.Type.BLACKLIST);
                     blacklist.setIssuedTo(targetProfile.getUuid());
+                    blacklist.setIssuedToName(targetProfile.getName());
+                    blacklist.setIssued(new Date());
 
                     String issueFromName = sender.getName();
+                    String issueFromColor = "&4";
                     UUID issuedFrom = null;
                     if(sender instanceof Player) {
                         Player player = (Player) sender;
                         CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
-                        issueFromName = profile.getHighestRank().getColor() + profile.getName();
+                        issueFromColor = profile.getHighestRank().getColor();
+                        issueFromName = profile.getName();
                         issuedFrom = player.getUniqueId();
                     }
 
                     blacklist.setIssuedFrom(issuedFrom);
+                    blacklist.setIssuedFromName(issueFromName);
+
                     blacklist.setIp(targetProfile.getIp());
                     blacklist.setIpPunished(true);
 
@@ -87,7 +96,7 @@ public class BlacklistCommand implements CommandExecutor {
                         targetProfile.getPlayer().kickPlayer(Colors.get("&4You have been blacklisted from PvP Camp."));
                     }
 
-                    String banMessage = "&f" + targetProfile.getHighestRank().getColor() + target + "&4 has been permanently blacklisted by " + issueFromName + "&4.";
+                    String banMessage = "&f" + targetProfile.getHighestRank().getColor() + target + "&4 has been permanently blacklisted by " + issueFromColor + issueFromName + "&4.";
                     if(silent) {
                         plugin.getCoreProfileManager().staffBroadcast(banMessage);
                     } else {

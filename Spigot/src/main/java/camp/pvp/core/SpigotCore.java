@@ -1,10 +1,19 @@
 package camp.pvp.core;
 
 import camp.pvp.NetworkHelper;
+import camp.pvp.core.commands.personalization.SoundsCommand;
+import camp.pvp.core.commands.personalization.ToggleGlobalChatCommand;
+import camp.pvp.core.commands.personalization.ToggleMessagesCommand;
 import camp.pvp.core.commands.punishments.*;
-import camp.pvp.core.commands.ranks.GrantCommand;
+import camp.pvp.core.commands.ranks.GrantHistoryCommand;
+import camp.pvp.core.commands.ranks.GrantsCommand;
 import camp.pvp.core.commands.ranks.RankCommand;
+import camp.pvp.core.commands.staff.StaffModeCommand;
+import camp.pvp.core.commands.users.IgnoreCommand;
 import camp.pvp.core.commands.users.MessageCommand;
+import camp.pvp.core.commands.users.UnignoreCommand;
+import camp.pvp.core.listeners.mongo.MongoGuiListener;
+import camp.pvp.core.listeners.pearls.PlayerTeleportListener;
 import camp.pvp.core.listeners.player.PlayerChatListener;
 import camp.pvp.core.listeners.player.PlayerJoinLeaveListeners;
 import camp.pvp.core.profiles.CoreProfileManager;
@@ -56,11 +65,18 @@ public class SpigotCore extends JavaPlugin {
     }
 
     public void registerCommands() {
+        // Personalization
+        new SoundsCommand(this);
+        new ToggleGlobalChatCommand(this);
+        new ToggleMessagesCommand(this);
+
         // Punishments
         new BanCommand(this);
         new BlacklistCommand(this);
+        new HistoryCommand(this);
         new KickCommand(this);
         new MuteCommand(this);
+        new StaffHistoryCommand(this);
         new TempBanCommand(this);
         new TempMuteCommand(this);
         new UnbanCommand(this);
@@ -68,15 +84,24 @@ public class SpigotCore extends JavaPlugin {
         new UnmuteCommand(this);
 
         // Ranks
-        new GrantCommand(this);
+        new GrantsCommand(this);
+        new GrantHistoryCommand(this);
         new RankCommand(this);
 
         // Communication
+        new IgnoreCommand(this);
         new MessageCommand(this);
+        new UnignoreCommand(this);
+
+        // Staff
+        new StaffModeCommand(this);
     }
 
     public void registerListeners() {
         new PlayerChatListener(this);
         new PlayerJoinLeaveListeners(this);
+        new PlayerTeleportListener(this);
+
+        new MongoGuiListener(this);
     }
 }
