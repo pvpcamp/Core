@@ -1,9 +1,11 @@
 package camp.pvp.core.profiles;
 
 import camp.pvp.core.SpigotCore;
+import camp.pvp.core.listeners.redis.RedisProfileUpdateListener;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.mongo.MongoCollectionResult;
 import camp.pvp.mongo.MongoUpdate;
+import com.google.gson.JsonObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import lombok.Getter;
@@ -31,6 +33,8 @@ public class CoreProfileManager {
         this.permissionAttachments = new HashMap<>();
 
         plugin.getLogger().info("Started CoreProfileManager.");
+
+        new RedisProfileUpdateListener(plugin);
     }
 
     public void updateAllPermissions() {
@@ -146,9 +150,18 @@ public class CoreProfileManager {
         mu.setUpdate(profile.exportToMap());
         plugin.getMongoManager().massUpdate(async, mu);
 
+        sendRedisUpdate(profile.getUuid());
+
         if(!store && profile.getPlayer() == null) {
             getLoadedProfiles().remove(profile.getUuid());
         }
+    }
+
+    public void sendRedisUpdate(UUID uuid) {
+        JsonObject json = new JsonObject();
+        json.addProperty("uuid", uuid.toString());
+
+        plugin.getNetworkHelper().getRedisPublisher().publishMessage("core_profile_updates", json);
     }
 
     public Grant importGrant(UUID uuid, boolean async) {

@@ -27,7 +27,7 @@ public class PlayerJoinLeaveListeners implements Listener {
     @EventHandler
     public void onPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
         UUID uuid = event.getUniqueId();
-        CoreProfile profile = plugin.getCoreProfileManager().find(uuid, true);
+        CoreProfile profile = plugin.getCoreProfileManager().importFromDatabase(uuid, true);
         Punishment punishment = null;
         if(profile != null) {
             punishment = profile.getActivePunishment(Punishment.Type.BLACKLIST);
@@ -82,6 +82,9 @@ public class PlayerJoinLeaveListeners implements Listener {
 
         if(player.hasPermission("core.staff")) {
             plugin.getCoreServerManager().sendStaffMessage("&d[Staff] " + profile.getHighestRank().getColor() + profile.getName() + " &dhas joined server &f" + plugin.getCoreServerManager().getCoreServer().getName() + "&d.");
+        } else {
+            profile.setStaffMode(false);
+            profile.setStaffChat(false);
         }
 
         event.setJoinMessage(null);
