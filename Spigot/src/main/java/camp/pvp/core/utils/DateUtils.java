@@ -12,7 +12,53 @@ public class DateUtils {
         long minutes = TimeUnit.MILLISECONDS.toMinutes(duration) % 60;
         long seconds = TimeUnit.MILLISECONDS.toSeconds(duration) % 60;
 
-        return days + " day(s), " + hours + " hour(s), " + minutes + " minute(s), and " + seconds + " second(s).";
+        StringBuilder sb = new StringBuilder();
+
+        if(days > 0) {
+            sb.append(days);
+            sb.append(" day");
+            if(days != 1) {
+                sb.append("s");
+            }
+        }
+
+        if(hours > 0) {
+            if(days != 0) {
+                sb.append(" ");
+            }
+
+            sb.append(hours);
+            sb.append(" hour");
+            if(hours != 1) {
+                sb.append("s");
+            }
+        }
+
+        if(minutes > 0) {
+            if(days != 0 || hours != 0) {
+                sb.append(" ");
+            }
+
+            sb.append(minutes);
+            sb.append(" minute");
+            if(minutes != 1) {
+                sb.append("s");
+            }
+        }
+
+        if(seconds > 0) {
+            if(days != 0 || hours != 0 || minutes != 0) {
+                sb.append(" ");
+            }
+
+            sb.append(seconds);
+            sb.append(" second");
+            if(seconds != 1) {
+                sb.append("s");
+            }
+        }
+
+        return sb.toString();
     }
 
 }

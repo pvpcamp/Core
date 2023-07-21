@@ -77,8 +77,20 @@ commands:
   unignore:
     aliases: [unblock]
     description: Unblock a player.
+  # Users
+  userhistory:
+    description: View the command, chat, and message history of a player.
+    permission: core.commands.userhistory
+    aliases: [uhistory, uhist]
+  list:
+    description: Gets the list of players online.
+    aliases: [players]
   # Staff
   staffmode:
     description: Toggle staff mode on and off.
     permission: core.commands.staffmode
     aliases: [staff]
+  staffchat:
+    description: Toggle staff chat on and off.
+    permission: core.commands.staffchat
+    aliases: [sc]

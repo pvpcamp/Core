@@ -17,18 +17,16 @@ public class Grant implements Comparable<Grant>{
         this.uuid = uuid;
     }
     public enum Type {
-        ADDED, ADDED_TEMPORARY, REMOVED;
+        ADDED, REMOVED;
 
 
         @Override
         public String toString() {
             switch(this) {
                 case ADDED:
-                    return "Added";
-                case ADDED_TEMPORARY:
-                    return "Added Temporarily";
+                    return "&6Added Rank";
                 default:
-                    return "Removed";
+                    return "&cRemoved Rank";
             }
         }
 
@@ -36,8 +34,6 @@ public class Grant implements Comparable<Grant>{
             switch(this) {
                 case ADDED:
                     return new ItemStack(Material.EMERALD);
-                case ADDED_TEMPORARY:
-                    return new ItemStack(Material.WATCH);
                 default:
                     return new ItemStack(Material.WEB);
             }
@@ -50,6 +46,7 @@ public class Grant implements Comparable<Grant>{
     private String issuedToName, issuedFromName;
     private Rank rank;
     private Type type;
+    private boolean deleted;
 
     public void importFromDocument(SpigotCore plugin, Document doc) {
         this.date = doc.getDate("date");

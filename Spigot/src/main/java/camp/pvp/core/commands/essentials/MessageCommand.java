@@ -1,6 +1,7 @@
-package camp.pvp.core.commands.users;
+package camp.pvp.core.commands.essentials;
 
 import camp.pvp.core.SpigotCore;
+import camp.pvp.core.profiles.ChatHistory;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.utils.Colors;
@@ -14,6 +15,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Date;
+import java.util.UUID;
 
 public class MessageCommand implements CommandExecutor {
 
@@ -109,6 +111,18 @@ public class MessageCommand implements CommandExecutor {
                     if(targetProfile.isMessageSounds()) {
                         target.playSound(target.getLocation(), Sound.NOTE_PLING, 1F, 1F);
                     }
+
+                    ChatHistory chatHistory = new ChatHistory(
+                            UUID.randomUUID(),
+                            player.getUniqueId(),
+                            player.getName(),
+                            target.getName() + " -> " + message.toString(),
+                            plugin.getCoreServerManager().getCoreServer().getName(),
+                            ChatHistory.Type.PRIVATE_MESSAGE,
+                            new Date(),
+                            false);
+
+                    plugin.getCoreProfileManager().exportHistory(chatHistory, true);
                 } else {
                     player.sendMessage(ChatColor.RED + "You cannot message " + target.getName() + " right now.");
                 }

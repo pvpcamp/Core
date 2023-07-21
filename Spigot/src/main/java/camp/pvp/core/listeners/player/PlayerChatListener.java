@@ -2,19 +2,23 @@ package camp.pvp.core.listeners.player;
 
 import camp.pvp.core.SpigotCore;
 import camp.pvp.core.chattags.ChatTag;
+import camp.pvp.core.profiles.ChatHistory;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.ranks.Rank;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.core.utils.DateUtils;
+import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import java.util.Date;
+import java.util.UUID;
 
 public class PlayerChatListener implements Listener {
 
@@ -65,17 +69,36 @@ public class PlayerChatListener implements Listener {
 
             event.setFormat(Colors.get(chatFormat.toString()));
 
-            for(Player p : Bukkit.getOnlinePlayers()) {
-                CoreProfile pr = plugin.getCoreProfileManager().getLoadedProfiles().get(p.getUniqueId());
-                if(pr != null) {
-                    if(!pr.isSeeGlobalChat()) {
-                        event.getRecipients().remove(p);
-                    }
+            if(!profile.isStaffChat()) {
+                for(Player p : Bukkit.getOnlinePlayers()) {
+                    CoreProfile pr = plugin.getCoreProfileManager().getLoadedProfiles().get(p.getUniqueId());
+                    if(pr != null) {
+                        if(!pr.isSeeGlobalChat()) {
+                            event.getRecipients().remove(p);
+                        }
 
-                    if(pr.getIgnored().contains(player.getUniqueId())) {
-                        event.getRecipients().remove(p);
+                        if(pr.getIgnored().contains(player.getUniqueId())) {
+                            event.getRecipients().remove(p);
+                        }
                     }
                 }
+
+                ChatHistory chatHistory = new ChatHistory(
+                        UUID.randomUUID(),
+                        player.getUniqueId(),
+                        player.getName(),
+                        event.getMessage(),
+                        plugin.getCoreServerManager().getCoreServer().getName(),
+                        ChatHistory.Type.PUBLIC_CHAT,
+                        new Date(),
+                        false);
+
+                plugin.getCoreProfileManager().exportHistory(chatHistory, true);
+            } else {
+                JsonObject json = new JsonObject();
+                json.addProperty("message",  "&5[Staff Chat] &7(" + plugin.getCoreServerManager().getCoreServer().getName() + "&7) " + profile.getHighestRank().getColor() + profile.getName() + "&7: &f" + event.getMessage());
+                plugin.getNetworkHelper().getRedisPublisher().publishMessage("core_staff", json);
+                event.setCancelled(true);
             }
         } else {
             event.setCancelled(true);

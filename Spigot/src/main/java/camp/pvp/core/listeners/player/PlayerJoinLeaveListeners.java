@@ -80,6 +80,10 @@ public class PlayerJoinLeaveListeners implements Listener {
             player.sendMessage(Colors.get(s));
         }
 
+        if(player.hasPermission("core.staff")) {
+            plugin.getCoreServerManager().sendStaffMessage("&d[Staff] " + profile.getHighestRank().getColor() + profile.getName() + " &dhas joined server &f" + plugin.getCoreServerManager().getCoreServer().getName() + "&d.");
+        }
+
         event.setJoinMessage(null);
     }
 
@@ -87,6 +91,10 @@ public class PlayerJoinLeaveListeners implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         CoreProfile profile = plugin.getCoreProfileManager().find(player.getUniqueId(), true);
+
+        if(player.hasPermission("core.staff")) {
+            plugin.getCoreServerManager().sendStaffMessage("&d[Staff] " + profile.getHighestRank().getColor() + profile.getName() + " &dhas left server &f" + plugin.getCoreServerManager().getCoreServer().getName() + "&d.");
+        }
 
         if(profile != null) {
             plugin.getCoreProfileManager().exportToDatabase(profile, true, false);

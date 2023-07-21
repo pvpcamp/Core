@@ -20,10 +20,14 @@ public class CoreProfileManager {
 
     private SpigotCore plugin;
     private Map<UUID, CoreProfile> loadedProfiles;
+    private Map<UUID, Grant> loadedGrants;
+    private Map<UUID, ChatHistory> loadedHistory;
     private Map<UUID, PermissionAttachment> permissionAttachments;
     public CoreProfileManager(SpigotCore plugin) {
         this.plugin = plugin;
         this.loadedProfiles = new HashMap<>();
+        this.loadedGrants = new HashMap<>();
+        this.loadedHistory = new HashMap<>();
         this.permissionAttachments = new HashMap<>();
 
         plugin.getLogger().info("Started CoreProfileManager.");
@@ -49,7 +53,7 @@ public class CoreProfileManager {
 
             player.setOp(false);
 
-            for (Map.Entry<String, Boolean> entry : profile.getPermissions(plugin.getCoreServer().getType()).entrySet()) {
+            for (Map.Entry<String, Boolean> entry : profile.getPermissions(plugin.getCoreServerManager().getCoreServer().getType()).entrySet()) {
                 String permission = entry.getKey();
                 if (permission.equalsIgnoreCase("*")) {
                     player.setOp(true);
@@ -124,24 +128,6 @@ public class CoreProfileManager {
         return profile[0];
     }
 
-    public Grant importGrant(UUID uuid) {
-        final Grant[] grant = {null};
-        plugin.getMongoManager().getDocument(false, "core_grants", uuid, document -> {
-            if(document != null) {
-                grant[0] = new Grant(uuid);
-                grant[0].importFromDocument(plugin, document);
-            }
-        });
-
-        return grant[0];
-    }
-
-    public void exportGrant(Grant grant, boolean async) {
-        MongoUpdate mu = new MongoUpdate("core_grants", grant.getUuid());
-        mu.setUpdate(grant.exportToMap());
-        plugin.getMongoManager().massUpdate(async, mu);
-    }
-
     public CoreProfile create(Player player) {
         CoreProfile profile = new CoreProfile(player.getUniqueId());
         profile.setName(player.getName());
@@ -163,6 +149,46 @@ public class CoreProfileManager {
         if(!store && profile.getPlayer() == null) {
             getLoadedProfiles().remove(profile.getUuid());
         }
+    }
+
+    public Grant importGrant(UUID uuid, boolean async) {
+        if(getLoadedGrants().containsKey(uuid)) {
+            return getLoadedGrants().get(uuid);
+        }
+
+        final Grant[] grant = {null};
+        plugin.getMongoManager().getDocument(async, "core_grants", uuid, document -> {
+            if(document != null) {
+                grant[0] = new Grant(uuid);
+                grant[0].importFromDocument(plugin, document);
+            }
+        });
+
+        return grant[0];
+    }
+
+    public void exportGrant(Grant grant, boolean async) {
+        MongoUpdate mu = new MongoUpdate("core_grants", grant.getUuid());
+        mu.setUpdate(grant.exportToMap());
+        plugin.getMongoManager().massUpdate(async, mu);
+    }
+
+    public ChatHistory importHistory(UUID uuid, boolean async) {
+        final ChatHistory[] chatHistory = {null};
+        plugin.getMongoManager().getDocument(async, "core_chat_history", uuid, document -> {
+            if(document != null) {
+                chatHistory[0] = new ChatHistory(document);
+                this.getLoadedHistory().put(uuid, chatHistory[0]);
+            }
+        });
+
+        return chatHistory[0];
+    }
+
+    public void exportHistory(ChatHistory history, boolean async) {
+        MongoUpdate mu = new MongoUpdate("core_chat_history", history.getUuid());
+        mu.setUpdate(history.exportToMap());
+        plugin.getMongoManager().massUpdate(async, mu);
     }
 
     public void shutdown() {

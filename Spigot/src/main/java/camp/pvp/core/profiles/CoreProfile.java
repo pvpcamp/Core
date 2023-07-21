@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 import java.util.*;
 
 @Getter @Setter
-public class CoreProfile {
+public class CoreProfile implements Comparable<CoreProfile>{
 
     private final UUID uuid;
     private String name, ip;
@@ -104,6 +104,10 @@ public class CoreProfile {
         return rank;
     }
 
+    public int getWeight() {
+        return getHighestRank().getWeight();
+    }
+
     public Punishment getActivePunishment(Punishment.Type type) {
         for(Punishment punishment : getPunishments()) {
             if(punishment.isActive() && punishment.getType().equals(type)) {
@@ -176,5 +180,15 @@ public class CoreProfile {
 
 
         return map;
+    }
+
+    @Override
+    public int compareTo(CoreProfile o) {
+        int weight = o.getWeight() - this.getWeight();
+
+        if(weight == 0) {
+            weight = this.getName().compareTo(o.getName());
+        }
+        return weight;
     }
 }

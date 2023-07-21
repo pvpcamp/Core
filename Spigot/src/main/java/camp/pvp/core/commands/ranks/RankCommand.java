@@ -405,7 +405,7 @@ public class RankCommand implements CommandExecutor {
                                             }
                                         }
 
-                                        Bukkit.getServer().getPluginManager().callEvent(new MongoMessageEvent(sb.toString(), player.getUniqueId(), requestStarted));
+                                        Bukkit.getServer().getPluginManager().callEvent(new MongoMessageEvent(sb.toString(), player, requestStarted));
                                     }
                                 });
                             } else {
