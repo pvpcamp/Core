@@ -6,6 +6,7 @@ import camp.pvp.core.commands.personalization.SoundsCommand;
 import camp.pvp.core.commands.personalization.ToggleGlobalChatCommand;
 import camp.pvp.core.commands.personalization.ToggleMessagesCommand;
 import camp.pvp.core.commands.punishments.*;
+import camp.pvp.core.commands.ranks.GrantCommand;
 import camp.pvp.core.commands.ranks.GrantHistoryCommand;
 import camp.pvp.core.commands.ranks.GrantsCommand;
 import camp.pvp.core.commands.ranks.RankCommand;
@@ -90,6 +91,7 @@ public class SpigotCore extends JavaPlugin {
         new UnmuteCommand(this);
 
         // Ranks
+        new GrantCommand(this);
         new GrantsCommand(this);
         new GrantHistoryCommand(this);
         new RankCommand(this);
