@@ -1,6 +1,7 @@
 package camp.pvp.core.commands.users;
 
 import camp.pvp.core.SpigotCore;
+import camp.pvp.core.guis.reports.ReportGui;
 import camp.pvp.core.profiles.CoreProfile;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -25,7 +26,11 @@ public class ReportCommand implements CommandExecutor {
             CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
             if(args.length > 0) {
                 Player target = Bukkit.getPlayer(args[0]);
-                
+                if(target != null) {
+                    new ReportGui(profile, target.getName()).open(player);
+                } else {
+                    player.sendMessage(ChatColor.RED + "The player that you specified is not on this server.");
+                }
             } else {
                 player.sendMessage(ChatColor.RED + "Usage: /" + label + " <player>");
             }

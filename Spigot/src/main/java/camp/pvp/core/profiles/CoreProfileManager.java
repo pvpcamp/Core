@@ -72,9 +72,8 @@ public class CoreProfileManager {
 
     public void staffBroadcast(String message) {
         for(Player player : Bukkit.getOnlinePlayers()) {
-            CoreProfile profile = getLoadedProfiles().get(player.getUniqueId());
-            if(profile.isStaffMode()) {
-                player.sendMessage(Colors.get("&7[Staff] " + message));
+            if(player.hasPermission("core.staff")) {
+                player.sendMessage(Colors.get("&7[Staff Broadcast] " + message));
             }
         }
     }

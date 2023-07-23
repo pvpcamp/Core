@@ -96,7 +96,7 @@ public class PlayerChatListener implements Listener {
                 plugin.getCoreProfileManager().exportHistory(chatHistory, true);
             } else {
                 JsonObject json = new JsonObject();
-                json.addProperty("message",  "&5[Staff Chat] &7(" + plugin.getCoreServerManager().getCoreServer().getName() + "&7) " + profile.getHighestRank().getColor() + profile.getName() + "&7: &f" + event.getMessage());
+                json.addProperty("message",  "&5[Staff Chat] &7(" + plugin.getCoreServerManager().getCoreServer().getName() + "&7) " + rank.getPrefix() + " " + rank.getColor() + profile.getName() + "&7: &f" + event.getMessage());
                 plugin.getNetworkHelper().getRedisPublisher().publishMessage("core_staff", json);
                 event.setCancelled(true);
             }

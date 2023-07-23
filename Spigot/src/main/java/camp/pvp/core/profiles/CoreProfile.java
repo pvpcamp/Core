@@ -30,7 +30,7 @@ public class CoreProfile implements Comparable<CoreProfile>{
     private UUID replyTo;
     private List<UUID> ignored;
 
-    private boolean seeGlobalChat, allowPrivateMessages, messageSounds, staffMode, staffChat;
+    private boolean seeGlobalChat, allowPrivateMessages, messageSounds, staffChat;
 
     public CoreProfile(UUID uuid) {
         this.uuid = uuid;
@@ -42,7 +42,6 @@ public class CoreProfile implements Comparable<CoreProfile>{
         this.seeGlobalChat = true;
         this.allowPrivateMessages = true;
         this.messageSounds = true;
-        this.staffMode = false;
         this.staffChat = false;
     }
 
@@ -124,7 +123,6 @@ public class CoreProfile implements Comparable<CoreProfile>{
         this.seeGlobalChat = doc.getBoolean("see_global_chat");
         this.allowPrivateMessages = doc.getBoolean("allow_private_messages");
         this.messageSounds = doc.getBoolean("message_sounds");
-        this.staffMode = doc.getBoolean("staff_mode");
         this.staffChat = doc.getBoolean("staff_chat");
 
         RankManager rm = plugin.getRankManager();
@@ -151,7 +149,6 @@ public class CoreProfile implements Comparable<CoreProfile>{
         map.put("see_global_chat", isSeeGlobalChat());
         map.put("allow_private_messages", isAllowPrivateMessages());
         map.put("message_sounds", isMessageSounds());
-        map.put("staff_mode", isStaffMode());
         map.put("staff_chat", isStaffChat());
 
         UUID chatTag = getChatTag() == null ? null : getChatTag().getUuid();

@@ -6,6 +6,11 @@ depend:
   - NetworkHelper
 
 commands:
+  helpop:
+    description: Request staff assistance.
+    aliases: [request]
+  report:
+    description: Report a player.
   # Personalization
   sounds:
     description: Turn message sounds on and off.
@@ -86,10 +91,6 @@ commands:
     description: Gets the list of players online.
     aliases: [players]
   # Staff
-  staffmode:
-    description: Toggle staff mode on and off.
-    permission: core.commands.staffmode
-    aliases: [staff]
   staffchat:
     description: Toggle staff chat on and off.
     permission: core.commands.staffchat

@@ -21,8 +21,7 @@ public class StaffMessageListener extends RedisSubscriberListener {
     @Override
     public void onReceive(JsonObject json) {
         for(Player player : Bukkit.getOnlinePlayers()) {
-            CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
-            if(profile != null && profile.isStaffMode()) {
+            if(player.hasPermission("core.staff")) {
                 player.sendMessage(Colors.get(json.get("message").getAsString()));
             }
         }

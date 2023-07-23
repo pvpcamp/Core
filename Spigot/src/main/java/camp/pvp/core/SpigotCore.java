@@ -11,11 +11,8 @@ import camp.pvp.core.commands.ranks.GrantHistoryCommand;
 import camp.pvp.core.commands.ranks.GrantsCommand;
 import camp.pvp.core.commands.ranks.RankCommand;
 import camp.pvp.core.commands.staff.StaffChatCommand;
-import camp.pvp.core.commands.staff.StaffModeCommand;
-import camp.pvp.core.commands.users.IgnoreCommand;
+import camp.pvp.core.commands.users.*;
 import camp.pvp.core.commands.essentials.MessageCommand;
-import camp.pvp.core.commands.users.UnignoreCommand;
-import camp.pvp.core.commands.users.UserHistoryCommand;
 import camp.pvp.core.listeners.mongo.MongoGuiListener;
 import camp.pvp.core.listeners.pearls.PlayerTeleportListener;
 import camp.pvp.core.listeners.player.PlayerChatListener;
@@ -97,15 +94,16 @@ public class SpigotCore extends JavaPlugin {
         new RankCommand(this);
 
         // Users
+        new HelpOpCommand(this);
         new IgnoreCommand(this);
         new ListCommand(this);
         new MessageCommand(this);
+        new ReportCommand(this);
         new UnignoreCommand(this);
         new UserHistoryCommand(this);
 
         // Staff
         new StaffChatCommand(this);
-        new StaffModeCommand(this);
     }
 
     public void registerListeners() {
