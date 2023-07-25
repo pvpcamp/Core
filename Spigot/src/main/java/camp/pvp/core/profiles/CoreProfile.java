@@ -30,7 +30,10 @@ public class CoreProfile implements Comparable<CoreProfile>{
     private UUID replyTo;
     private List<UUID> ignored;
 
-    private boolean seeGlobalChat, allowPrivateMessages, messageSounds, staffChat;
+    private Map<String, Date> commandCooldowns;
+    private Date chatCooldown;
+
+    private boolean namemc, seeGlobalChat, allowPrivateMessages, messageSounds, staffChat;
 
     public CoreProfile(UUID uuid) {
         this.uuid = uuid;
@@ -38,11 +41,42 @@ public class CoreProfile implements Comparable<CoreProfile>{
         this.ownedChatTags = new ArrayList<>();
         this.punishments = new ArrayList<>();
         this.ignored = new ArrayList<>();
+        this.commandCooldowns = new HashMap<>();
 
         this.seeGlobalChat = true;
         this.allowPrivateMessages = true;
         this.messageSounds = true;
         this.staffChat = false;
+    }
+
+    public boolean canChat() {
+        if(chatCooldown != null) {
+            return chatCooldown.before(new Date());
+        }
+        return true;
+    }
+
+    public boolean canUseCommand(String command) {
+        Date date = commandCooldowns.get(command);
+        if(date != null) {
+            return date.before(new Date());
+        }
+
+        return true;
+    }
+
+    public void addChatCooldown(int seconds) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.SECOND, seconds);
+        this.chatCooldown = calendar.getTime();
+    }
+
+    public void addCommandCooldown(String command, int seconds) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.SECOND, seconds);
+        commandCooldowns.put(command, calendar.getTime());
     }
 
     public Map<String, Boolean> getPermissions(String server) {
@@ -125,6 +159,10 @@ public class CoreProfile implements Comparable<CoreProfile>{
         this.messageSounds = doc.getBoolean("message_sounds");
         this.staffChat = doc.getBoolean("staff_chat");
 
+        if(doc.get("namemc") != null) {
+            this.namemc = doc.getBoolean("namemc");
+        }
+
         RankManager rm = plugin.getRankManager();
         List<UUID> rankIds = doc.getList("ranks", UUID.class);
         for(UUID uuid : rankIds) {
@@ -150,6 +188,7 @@ public class CoreProfile implements Comparable<CoreProfile>{
         map.put("allow_private_messages", isAllowPrivateMessages());
         map.put("message_sounds", isMessageSounds());
         map.put("staff_chat", isStaffChat());
+        map.put("namemc", isNamemc());
 
         UUID chatTag = getChatTag() == null ? null : getChatTag().getUuid();
         map.put("applied_chat_tag", chatTag);

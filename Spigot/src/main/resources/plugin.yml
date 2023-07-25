@@ -1,5 +1,6 @@
 name: SpigotCore
 version: ${plugin.desc}
+description: All around core for the PvP Camp Network.
 main: camp.pvp.core.SpigotCore
 author: leuo
 depend:
@@ -90,6 +91,8 @@ commands:
   list:
     description: Gets the list of players online.
     aliases: [players]
+  namemc:
+    description: Receive special rewards for liking the server on NameMC.
   # Staff
   staffchat:
     description: Toggle staff chat on and off.

@@ -9,14 +9,12 @@ import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-public class RedisProfileUpdateListener extends RedisSubscriberListener {
+public class RedisProfileUpdateListener implements RedisSubscriberListener {
 
     private SpigotCore plugin;
 
     public RedisProfileUpdateListener(SpigotCore plugin) {
-        super("core_profile_updates");
         this.plugin = plugin;
-        plugin.getNetworkHelper().getRedisSubscriber().getListeners().add(this);
     }
 
     @Override

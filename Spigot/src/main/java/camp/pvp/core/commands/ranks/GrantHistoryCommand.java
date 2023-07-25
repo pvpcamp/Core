@@ -43,7 +43,7 @@ public class GrantHistoryCommand implements CommandExecutor {
                 if (target != null) {
                     player.sendMessage(Colors.get("&aFetching grant history of " + target.getHighestRank().getColor() + target.getName() + "&a."));
 
-                    plugin.getMongoManager().getCollection(true, "core_grants", new MongoCollectionResult() {
+                    plugin.getCoreProfileManager().getMongoManager().getCollection(true, plugin.getConfig().getString("networking.mongo.grants_collection"), new MongoCollectionResult() {
                         @Override
                         public void call(MongoCollection<Document> mongoCollection) {
                             Date requestStarted = new Date();

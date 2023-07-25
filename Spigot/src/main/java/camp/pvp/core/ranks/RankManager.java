@@ -1,13 +1,19 @@
 package camp.pvp.core.ranks;
 
 import camp.pvp.core.SpigotCore;
+import camp.pvp.core.listeners.redis.RedisProfileUpdateListener;
+import camp.pvp.core.listeners.redis.RedisRankUpdateListener;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.mongo.MongoIterableResult;
+import camp.pvp.mongo.MongoManager;
 import camp.pvp.mongo.MongoUpdate;
+import camp.pvp.redis.RedisPublisher;
+import camp.pvp.redis.RedisSubscriber;
 import com.mongodb.client.FindIterable;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,13 +24,32 @@ public class RankManager {
 
     private SpigotCore plugin;
     private Map<UUID, Rank> ranks;
+
+    private MongoManager mongoManager;
+    private String ranksCollection;
+
+    private RedisPublisher redisPublisher;
+    private RedisSubscriber rankUpdateSubscriber;
     public RankManager(SpigotCore plugin) {
         this.plugin = plugin;
         this.ranks = new HashMap<>();
 
         plugin.getLogger().info("Importing ranks from MongoDB.");
 
-        plugin.getMongoManager().getCollectionIterable(false, "core_ranks", new MongoIterableResult() {
+        FileConfiguration config = plugin.getConfig();
+
+        this.mongoManager = new MongoManager(plugin, config.getString("networking.mongo.uri"), config.getString("networking.mongo.database"));
+        this.ranksCollection = config.getString("networking.mongo.ranks_collection");
+
+        this.redisPublisher = new RedisPublisher(plugin, config.getString("networking.redis.host"), config.getInt("networking.redis.port"));
+        this.rankUpdateSubscriber = new RedisSubscriber(
+                plugin,
+                config.getString("networking.redis.host"),
+                config.getInt("networking.redis.port"),
+                "core_rank_updates",
+                new RedisRankUpdateListener());
+
+        getMongoManager().getCollectionIterable(false, ranksCollection, new MongoIterableResult() {
             @Override
             public void call(FindIterable<Document> iterable) {
                 iterable.forEach(
@@ -71,7 +96,7 @@ public class RankManager {
 
     public Rank importFromDatabase(UUID uuid) {
         final Rank[] rank = {null};
-        plugin.getMongoManager().getDocument(false, "core_ranks", uuid, document -> {
+        getMongoManager().getDocument(false, ranksCollection, uuid, document -> {
             if(document != null) {
                 rank[0] = new Rank(uuid);
                 rank[0].importFromDocument(plugin, document);
@@ -101,13 +126,13 @@ public class RankManager {
 
         plugin.getCoreProfileManager().updateAllPermissions();
 
-        plugin.getMongoManager().deleteDocument(true, "core_ranks", rank.getUuid());
+        getMongoManager().deleteDocument(true, ranksCollection, rank.getUuid());
     }
 
     public void exportToDatabase(Rank rank, boolean async) {
-        MongoUpdate mu = new MongoUpdate("core_ranks", rank.getUuid());
+        MongoUpdate mu = new MongoUpdate(ranksCollection, rank.getUuid());
         mu.setUpdate(rank.exportToMap());
-        plugin.getMongoManager().massUpdate(async, mu);
+        getMongoManager().massUpdate(async, mu);
 
         if(plugin.getCoreProfileManager() != null) {
             plugin.getCoreProfileManager().updateAllPermissions();

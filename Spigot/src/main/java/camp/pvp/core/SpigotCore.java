@@ -1,6 +1,5 @@
 package camp.pvp.core;
 
-import camp.pvp.NetworkHelper;
 import camp.pvp.core.commands.essentials.ListCommand;
 import camp.pvp.core.commands.personalization.SoundsCommand;
 import camp.pvp.core.commands.personalization.ToggleGlobalChatCommand;
@@ -18,7 +17,6 @@ import camp.pvp.core.listeners.pearls.PlayerTeleportListener;
 import camp.pvp.core.listeners.player.PlayerChatListener;
 import camp.pvp.core.listeners.player.PlayerCommandPreprocessListener;
 import camp.pvp.core.listeners.player.PlayerJoinLeaveListeners;
-import camp.pvp.core.listeners.redis.StaffMessageListener;
 import camp.pvp.core.profiles.CoreProfileManager;
 import camp.pvp.core.punishments.PunishmentManager;
 import camp.pvp.core.ranks.RankManager;
@@ -32,9 +30,6 @@ public class SpigotCore extends JavaPlugin {
 
     private @Getter static SpigotCore instance;
 
-    private @Getter NetworkHelper networkHelper;
-    private @Getter MongoManager mongoManager;
-
     private @Getter CoreServerManager coreServerManager;
     private @Getter ChatTagManager chatTagManager;
     private @Getter CoreProfileManager coreProfileManager;
@@ -46,9 +41,6 @@ public class SpigotCore extends JavaPlugin {
         instance = this;
 
         this.saveDefaultConfig();
-
-        this.networkHelper = NetworkHelper.getInstance();
-        this.mongoManager = networkHelper.getMongoManager();
 
         this.coreServerManager = new CoreServerManager(this);
         this.chatTagManager = new ChatTagManager(this);
@@ -98,6 +90,7 @@ public class SpigotCore extends JavaPlugin {
         new IgnoreCommand(this);
         new ListCommand(this);
         new MessageCommand(this);
+        new NameMcCommand(this);
         new ReportCommand(this);
         new UnignoreCommand(this);
         new UserHistoryCommand(this);
@@ -113,7 +106,5 @@ public class SpigotCore extends JavaPlugin {
         new PlayerTeleportListener(this);
 
         new MongoGuiListener(this);
-
-        new StaffMessageListener(this);
     }
 }

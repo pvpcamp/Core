@@ -8,16 +8,7 @@ import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-public class StaffMessageListener extends RedisSubscriberListener {
-
-    private SpigotCore plugin;
-
-    public StaffMessageListener(SpigotCore plugin) {
-        super("core_staff");
-        this.plugin = plugin;
-        plugin.getNetworkHelper().getRedisSubscriber().getListeners().add(this);
-    }
-
+public class StaffMessageListener implements RedisSubscriberListener {
     @Override
     public void onReceive(JsonObject json) {
         for(Player player : Bukkit.getOnlinePlayers()) {

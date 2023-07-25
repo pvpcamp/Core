@@ -2,10 +2,15 @@ package camp.pvp.core.server;
 
 import camp.pvp.core.SpigotCore;
 import camp.pvp.core.listeners.redis.CoreServerListener;
+import camp.pvp.core.listeners.redis.RedisRankUpdateListener;
+import camp.pvp.mongo.MongoManager;
+import camp.pvp.redis.RedisPublisher;
+import camp.pvp.redis.RedisSubscriber;
 import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
@@ -20,13 +25,24 @@ public class CoreServerManager {
     private List<CoreServer> coreServers;
     private BukkitTask coreServerUpdater, currentServerUpdater;
 
+    private RedisPublisher redisPublisher;
+    private RedisSubscriber serverUpdateSubscriber;
+
     public CoreServerManager(SpigotCore plugin) {
         this.plugin = plugin;
         this.coreServers = new ArrayList<>();
 
         this.coreServer = new CoreServer(plugin.getConfig().getString("server.name"), plugin.getConfig().getString("server.type"));
 
-        new CoreServerListener(plugin);
+        FileConfiguration config = plugin.getConfig();
+
+        this.redisPublisher = new RedisPublisher(plugin, config.getString("networking.redis.host"), config.getInt("networking.redis.port"));
+        this.serverUpdateSubscriber = new RedisSubscriber(
+                plugin,
+                config.getString("networking.redis.host"),
+                config.getInt("networking.redis.port"),
+                "core_server_updates",
+                new CoreServerListener(this));
 
         this.coreServerUpdater = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
             @Override
@@ -50,7 +66,7 @@ public class CoreServerManager {
                 json.addProperty("currently_online", coreServer.isCurrentlyOnline());
                 json.addProperty("last_update", coreServer.getLastUpdate());
 
-                plugin.getNetworkHelper().getRedisPublisher().publishMessage("core_server_updates", json);
+                getRedisPublisher().publishMessage("core_server_updates", json);
             }
         }, 0, 40);
 
@@ -70,7 +86,7 @@ public class CoreServerManager {
     public void sendStaffMessage(String s) {
         JsonObject json = new JsonObject();
         json.addProperty("message", s);
-        plugin.getNetworkHelper().getRedisPublisher().publishMessage("core_staff", json);
+        getRedisPublisher().publishMessage("core_staff", json);
     }
 
     public void shutdown() {
@@ -84,9 +100,10 @@ public class CoreServerManager {
         json.addProperty("type", coreServer.getType());
         json.addProperty("online", coreServer.getOnline());
         json.addProperty("slots", coreServer.getSlots());
+        json.addProperty("currently_online", false);
         json.addProperty("last_update", coreServer.getLastUpdate());
 
-        plugin.getNetworkHelper().getRedisPublisher().publishMessage("core_server_updates", json);
+        getRedisPublisher().publishMessage("core_server_updates", json);
         this.sendStaffMessage("&c&l[Server Updater] &r&cServer &f" + coreServer.getName() + "&c has been shutdown.");
     }
 }

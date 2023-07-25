@@ -1,5 +1,6 @@
 package camp.pvp.core.utils;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -59,6 +60,13 @@ public class DateUtils {
         }
 
         return sb.toString();
+    }
+
+    public static String getTimeUntil(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.SECOND, -1);
+        return getDifference(date, calendar.getTime());
     }
 
 }

@@ -29,6 +29,8 @@ public class ReportGui extends StandardGui {
                 CoreServerManager csm = SpigotCore.getInstance().getCoreServerManager();
                 csm.sendStaffMessage("&c[Report] &f" + profile.getName() + " &chas reported &f" + target + "&c on server &f" + csm.getCoreServer().getName() + "&c for: &fCombat Hacks");
                 player.sendMessage(ChatColor.GREEN + "Your report of " + ChatColor.WHITE + target + ChatColor.GREEN + " has been submitted and sent to online staff.");
+
+                profile.addCommandCooldown("/report", 30);
             }
         });
 
@@ -48,6 +50,8 @@ public class ReportGui extends StandardGui {
                 CoreServerManager csm = SpigotCore.getInstance().getCoreServerManager();
                 csm.sendStaffMessage("&c[Report] &f" + profile.getName() + " &chas reported &f" + target + "&c on server &f" + csm.getCoreServer().getName() + "&c for: &fCamping or Hiding");
                 player.sendMessage(ChatColor.GREEN + "Your report of " + ChatColor.WHITE + target + ChatColor.GREEN + " has been submitted and sent to online staff.");
+
+                profile.addCommandCooldown("/report", 30);
             }
         });
 
@@ -68,6 +72,8 @@ public class ReportGui extends StandardGui {
                 CoreServerManager csm = SpigotCore.getInstance().getCoreServerManager();
                 csm.sendStaffMessage("&c[Report] &f" + profile.getName() + " &chas reported &f" + target + "&c on server &f" + csm.getCoreServer().getName() + "&c for: &fDelaying Fight or Event");
                 player.sendMessage(ChatColor.GREEN + "Your report of " + ChatColor.WHITE + target + ChatColor.GREEN + " has been submitted and sent to online staff.");
+
+                profile.addCommandCooldown("/report", 30);
             }
         });
 
@@ -88,6 +94,8 @@ public class ReportGui extends StandardGui {
                 CoreServerManager csm = SpigotCore.getInstance().getCoreServerManager();
                 csm.sendStaffMessage("&c[Report] &f" + profile.getName() + " &chas reported &f" + target + "&c on server &f" + csm.getCoreServer().getName() + "&c for: &fDelaying Fight or Event");
                 player.sendMessage(ChatColor.GREEN + "Your report of " + ChatColor.WHITE + target + ChatColor.GREEN + " has been submitted and sent to online staff.");
+
+                profile.addCommandCooldown("/report", 30);
             }
         });
 

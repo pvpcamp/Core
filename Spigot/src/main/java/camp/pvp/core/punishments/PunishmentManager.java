@@ -1,12 +1,17 @@
 package camp.pvp.core.punishments;
 
 import camp.pvp.core.SpigotCore;
+import camp.pvp.core.listeners.redis.RedisProfileUpdateListener;
 import camp.pvp.core.profiles.CoreProfile;
+import camp.pvp.mongo.MongoManager;
 import camp.pvp.mongo.MongoUpdate;
+import camp.pvp.redis.RedisPublisher;
+import camp.pvp.redis.RedisSubscriber;
 import com.mongodb.client.model.Filters;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.*;
 
@@ -15,9 +20,17 @@ public class PunishmentManager {
 
     private SpigotCore plugin;
     private Map<UUID, Punishment> loadedPunishments;
+
+    private MongoManager mongoManager;
+    private String punishmentsCollection;
     public PunishmentManager(SpigotCore plugin) {
         this.plugin = plugin;
         this.loadedPunishments = new HashMap<>();
+
+        FileConfiguration config = plugin.getConfig();
+
+        this.mongoManager = new MongoManager(plugin, config.getString("networking.mongo.uri"), config.getString("networking.mongo.database"));
+        this.punishmentsCollection = config.getString("networking.mongo.punishments_collection");
 
         plugin.getLogger().info("Started PunishmentManager.");
     }
@@ -30,7 +43,7 @@ public class PunishmentManager {
      */
     public List<Punishment> getPunishmentsPlayerUUID(UUID uuid, String field) {
         List<Punishment> punishments = new ArrayList<>();
-        plugin.getMongoManager().getCollection(false, "core_punishments",
+        getMongoManager().getCollection(false, punishmentsCollection,
                 mongoCollection -> mongoCollection.find(new Document(field, uuid)).forEach(
                         document -> {
                             UUID punishmentId = document.get("_id", UUID.class);
@@ -46,7 +59,7 @@ public class PunishmentManager {
 
     public List<Punishment> getPunishmentsIp(String ip) {
         List<Punishment> punishments = new ArrayList<>();
-        plugin.getMongoManager().getCollection(false, "core_punishments",
+        getMongoManager().getCollection(false, punishmentsCollection,
                 mongoCollection -> mongoCollection.find(Filters.regex("ip", "(?i)" + ip)).forEach(
                 document -> {
                     UUID uuid = document.get("_id", UUID.class);
@@ -62,7 +75,7 @@ public class PunishmentManager {
 
     public Punishment importFromDatabase(UUID uuid) {
         final Punishment[] punishment = {null};
-        plugin.getMongoManager().getDocument(false, "core_punishments", uuid, document -> {
+        getMongoManager().getDocument(false, punishmentsCollection, uuid, document -> {
             if (document != null) {
                 punishment[0] = new Punishment(uuid);
                 punishment[0].importFromDocument(document);
@@ -74,8 +87,8 @@ public class PunishmentManager {
     }
 
     public void exportToDatabase(Punishment punishment, boolean async) {
-        MongoUpdate mu = new MongoUpdate("core_punishments", punishment.getUuid());
+        MongoUpdate mu = new MongoUpdate(punishmentsCollection, punishment.getUuid());
         mu.setUpdate(punishment.exportToMap());
-        plugin.getMongoManager().massUpdate(async, mu);
+        getMongoManager().massUpdate(async, mu);
     }
 }

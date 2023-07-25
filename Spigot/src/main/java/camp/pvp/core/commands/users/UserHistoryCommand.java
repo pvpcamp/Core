@@ -54,7 +54,7 @@ public class UserHistoryCommand implements CommandExecutor {
             PaginatedMessage message = new PaginatedMessage("&6History for &f" + name + "&6 for type &f" + (type == null ? "any" : type.name().toLowerCase()) + "&6. &7(<page>/<pages>)", 10);
             final int fPage = page;
             final ChatHistory.Type fType = type;
-            plugin.getMongoManager().getCollection(true, "core_chat_history", new MongoCollectionResult() {
+            plugin.getCoreProfileManager().getMongoManager().getCollection(true, plugin.getConfig().getString("networking.mongo.chat_history_collection"), new MongoCollectionResult() {
                 @Override
                 public void call(MongoCollection<Document> mongoCollection) {
                     Date date = new Date();

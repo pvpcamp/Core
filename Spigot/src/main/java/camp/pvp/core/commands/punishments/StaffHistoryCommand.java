@@ -45,7 +45,7 @@ public class StaffHistoryCommand implements CommandExecutor {
                 if(profile != null) {
                     player.sendMessage(Colors.get("&aLoading staff history of " + profile.getHighestRank().getColor() + profile.getName() + "&a."));
                     List<Punishment> punishments = new ArrayList<>();
-                    plugin.getMongoManager().getCollection(true, "core_punishments", new MongoCollectionResult() {
+                    plugin.getPunishmentManager().getMongoManager().getCollection(true, plugin.getConfig().getString("networking.mongo.punishments_collection"), new MongoCollectionResult() {
                                 @Override
                                 public void call(MongoCollection<Document> mongoCollection) {
                                     Date started = new Date();

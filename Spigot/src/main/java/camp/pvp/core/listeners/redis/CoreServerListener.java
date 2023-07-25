@@ -2,27 +2,26 @@ package camp.pvp.core.listeners.redis;
 
 import camp.pvp.core.SpigotCore;
 import camp.pvp.core.server.CoreServer;
+import camp.pvp.core.server.CoreServerManager;
 import camp.pvp.redis.RedisSubscriberListener;
 import com.google.gson.JsonObject;
 
-public class CoreServerListener extends RedisSubscriberListener {
+public class CoreServerListener implements RedisSubscriberListener {
 
-    private SpigotCore plugin;
+    private CoreServerManager csm;
 
-    public CoreServerListener(SpigotCore plugin) {
-        super("core_server_updates");
-        this.plugin = plugin;
-        plugin.getNetworkHelper().getRedisSubscriber().getListeners().add(this);
+    public CoreServerListener(CoreServerManager csm) {
+        this.csm = csm;
     }
 
     @Override
     public void onReceive(JsonObject json) {
         String name = json.get("name").getAsString();
-        CoreServer server = plugin.getCoreServerManager().findServer(name);
+        CoreServer server = csm.findServer(name);
 
         if(server == null) {
             server = new CoreServer(name);
-            plugin.getCoreServerManager().getCoreServers().add(server);
+            csm.getCoreServers().add(server);
         }
 
         server.setType(json.get("type").getAsString());
@@ -32,7 +31,7 @@ public class CoreServerListener extends RedisSubscriberListener {
         server.setLastUpdate(json.get("last_update").getAsLong());
 
         if(!server.isCurrentlyOnline()) {
-            plugin.getCoreServerManager().getCoreServers().remove(server);
+            csm.getCoreServers().remove(server);
         }
     }
 }

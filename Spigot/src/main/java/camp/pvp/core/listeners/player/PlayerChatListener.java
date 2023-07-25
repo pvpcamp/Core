@@ -70,34 +70,48 @@ public class PlayerChatListener implements Listener {
             event.setFormat(Colors.get(chatFormat.toString()));
 
             if(!profile.isStaffChat()) {
-                for(Player p : Bukkit.getOnlinePlayers()) {
-                    CoreProfile pr = plugin.getCoreProfileManager().getLoadedProfiles().get(p.getUniqueId());
-                    if(pr != null) {
-                        if(!pr.isSeeGlobalChat()) {
-                            event.getRecipients().remove(p);
-                        }
 
-                        if(pr.getIgnored().contains(player.getUniqueId())) {
-                            event.getRecipients().remove(p);
+                if(profile.canChat()) {
+
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        CoreProfile pr = plugin.getCoreProfileManager().getLoadedProfiles().get(p.getUniqueId());
+                        if (pr != null) {
+                            if (!pr.isSeeGlobalChat()) {
+                                event.getRecipients().remove(p);
+                            }
+
+                            if (pr.getIgnored().contains(player.getUniqueId())) {
+                                event.getRecipients().remove(p);
+                            }
                         }
                     }
+
+                    ChatHistory chatHistory = new ChatHistory(
+                            UUID.randomUUID(),
+                            player.getUniqueId(),
+                            player.getName(),
+                            event.getMessage(),
+                            plugin.getCoreServerManager().getCoreServer().getName(),
+                            ChatHistory.Type.PUBLIC_CHAT,
+                            new Date(),
+                            false);
+
+                    plugin.getCoreProfileManager().exportHistory(chatHistory, true);
+
+                    if(!player.hasPermission("core.chat.bypass.cooldown")) {
+                        profile.addChatCooldown(3);
+                    }
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("&cYou must wait " + DateUtils.getTimeUntil(profile.getChatCooldown()) + " before using global chat again.");
+                    sb.append("\n&cIf you would like to bypass this cooldown, please purchase &c&lPlus Rank &r&cor higher here: &fstore.pvp.camp");
+                    player.sendMessage(Colors.get(sb.toString()));
+                    event.setCancelled(true);
                 }
-
-                ChatHistory chatHistory = new ChatHistory(
-                        UUID.randomUUID(),
-                        player.getUniqueId(),
-                        player.getName(),
-                        event.getMessage(),
-                        plugin.getCoreServerManager().getCoreServer().getName(),
-                        ChatHistory.Type.PUBLIC_CHAT,
-                        new Date(),
-                        false);
-
-                plugin.getCoreProfileManager().exportHistory(chatHistory, true);
             } else {
                 JsonObject json = new JsonObject();
                 json.addProperty("message",  "&5[Staff Chat] &7(" + plugin.getCoreServerManager().getCoreServer().getName() + "&7) " + rank.getPrefix() + " " + rank.getColor() + profile.getName() + "&7: &f" + event.getMessage());
-                plugin.getNetworkHelper().getRedisPublisher().publishMessage("core_staff", json);
+                plugin.getCoreProfileManager().getRedisPublisher().publishMessage("core_staff", json);
                 event.setCancelled(true);
             }
         } else {

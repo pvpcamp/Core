@@ -341,7 +341,7 @@ public class RankCommand implements CommandExecutor {
 
                                     rank.getParents().add(parentRank.getUuid());
                                     rankManager.exportToDatabase(rank, true);
-                                    player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a now has the parent &f" + parentRank.getColor() + parentRank.getDisplayName() + "&a."));
+                                    player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a now has the parent &f" + parentRank.getColor() + parentRank.getName() + "&a."));
                                 } else {
                                     player.sendMessage(ChatColor.RED + "The parent rank you specified does not exist.");
                                 }
@@ -364,7 +364,7 @@ public class RankCommand implements CommandExecutor {
 
                                     rank.getParents().remove(parentRank.getUuid());
                                     rankManager.exportToDatabase(rank, true);
-                                    player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a no longer has the parent &f" + parentRank.getColor() + parentRank.getDisplayName() + "&a."));
+                                    player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a no longer has the parent &f" + parentRank.getColor() + parentRank.getName()+ "&a."));
                                 } else {
                                     player.sendMessage(ChatColor.RED + "The parent rank you specified does not exist.");
                                 }
@@ -374,12 +374,24 @@ public class RankCommand implements CommandExecutor {
                             return true;
                         }
                         break;
+                    case "namemc":
+                        if(args.length > 2) {
+                            rank = rankManager.getRankFromName(args[1]);
+                            if(rank != null) {
+                                boolean b = Boolean.parseBoolean(args[2]);
+                                rank.setNameMcAward(b);
+                                rankManager.exportToDatabase(rank, true);
+                                player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getName() + "&a NameMC reward status has been set to &f" + b + "&a."));
+                            } else {
+                                player.sendMessage(ChatColor.RED + "The rank you specified does not exist.");
+                            }
+                        }
                     case "assigned":
                         if(args.length > 1) {
                             rank = rankManager.getRankFromName(args[1]);
                             if(rank != null) {
                                 Rank finalRank = rank;
-                                plugin.getMongoManager().getCollection(true, "core_profiles", new MongoCollectionResult() {
+                                plugin.getCoreProfileManager().getMongoManager().getCollection(true, plugin.getConfig().getString("networking.mongo.profiles_collection"), new MongoCollectionResult() {
                                     @Override
                                     public void call(MongoCollection<Document> mongoCollection) {
                                         Date requestStarted = new Date();
@@ -435,6 +447,7 @@ public class RankCommand implements CommandExecutor {
             help.append("\n&6/rank parents <name> &7- &fView parents of a rank.");
             help.append("\n&6/rank addparent <name> <parent> &7- &fAdds a parent to a rank.");
             help.append("\n&6/rank delparent <name> <parent> &7- &fRemoves a parent from a rank.");
+            help.append("\n&6/rank namemc <name> <boolean> &7- &fDefines if a rank is a NameMC reward or not.");
             help.append("\n&6/rank assigned <name> &7- &fShows users that are assigned this rank.");
 
             player.sendMessage(Colors.get(help.toString()));

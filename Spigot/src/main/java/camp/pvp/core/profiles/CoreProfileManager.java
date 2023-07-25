@@ -2,9 +2,14 @@ package camp.pvp.core.profiles;
 
 import camp.pvp.core.SpigotCore;
 import camp.pvp.core.listeners.redis.RedisProfileUpdateListener;
+import camp.pvp.core.listeners.redis.StaffMessageListener;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.mongo.MongoCollectionResult;
+import camp.pvp.mongo.MongoManager;
 import camp.pvp.mongo.MongoUpdate;
+import camp.pvp.redis.RedisPublisher;
+import camp.pvp.redis.RedisSubscriber;
+import camp.pvp.redis.RedisSubscriberListener;
 import com.google.gson.JsonObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -12,6 +17,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 
@@ -25,6 +31,12 @@ public class CoreProfileManager {
     private Map<UUID, Grant> loadedGrants;
     private Map<UUID, ChatHistory> loadedHistory;
     private Map<UUID, PermissionAttachment> permissionAttachments;
+
+    private MongoManager mongoManager;
+    private String profilesCollection, chatHistoryCollection, grantsCollection;
+
+    private RedisPublisher redisPublisher;
+    private RedisSubscriber profileUpdateSubscriber, staffMessageSubscriber;
     public CoreProfileManager(SpigotCore plugin) {
         this.plugin = plugin;
         this.loadedProfiles = new HashMap<>();
@@ -32,9 +44,29 @@ public class CoreProfileManager {
         this.loadedHistory = new HashMap<>();
         this.permissionAttachments = new HashMap<>();
 
-        plugin.getLogger().info("Started CoreProfileManager.");
+        FileConfiguration config = plugin.getConfig();
 
-        new RedisProfileUpdateListener(plugin);
+        this.mongoManager = new MongoManager(plugin, config.getString("networking.mongo.uri"), config.getString("networking.mongo.database"));
+        this.profilesCollection = config.getString("networking.mongo.profiles_collection");
+        this.chatHistoryCollection = config.getString("networking.mongo.chat_history_collection");
+        this.grantsCollection = config.getString("networking.mongo.grants_collection");
+
+        this.redisPublisher = new RedisPublisher(plugin, config.getString("networking.redis.host"), config.getInt("networking.redis.port"));
+        this.profileUpdateSubscriber = new RedisSubscriber(
+                plugin,
+                config.getString("networking.redis.host"),
+                config.getInt("networking.redis.port"),
+                "core_profile_updates",
+                new RedisProfileUpdateListener(plugin));
+
+        this.staffMessageSubscriber = new RedisSubscriber(
+                plugin,
+                config.getString("networking.redis.host"),
+                config.getInt("networking.redis.port"),
+                "core_staff",
+                new StaffMessageListener());
+
+        plugin.getLogger().info("Started CoreProfileManager.");
     }
 
     public void updateAllPermissions() {
@@ -99,7 +131,7 @@ public class CoreProfileManager {
             }
         }
 
-        plugin.getMongoManager().getCollection(false, "core_profiles", new MongoCollectionResult() {
+        getMongoManager().getCollection(false, profilesCollection, new MongoCollectionResult() {
             @Override
             public void call(MongoCollection<Document> mongoCollection) {
                 mongoCollection.find(Filters.regex("name", "(?i)" + name)).forEach(
@@ -118,7 +150,7 @@ public class CoreProfileManager {
 
     public CoreProfile importFromDatabase(UUID uuid, boolean store) {
         final CoreProfile[] profile = {null};
-        plugin.getMongoManager().getDocument(false, "core_profiles", uuid, document -> {
+        getMongoManager().getDocument(false, profilesCollection, uuid, document -> {
             if(document != null) {
                 profile[0] = new CoreProfile(uuid);
                 profile[0].importFromDocument(plugin, document);
@@ -136,18 +168,18 @@ public class CoreProfileManager {
         profile.setName(player.getName());
         profile.getRanks().add(plugin.getRankManager().getDefaultRank());
 
-        MongoUpdate mu = new MongoUpdate("core_profiles", profile.getUuid());
+        MongoUpdate mu = new MongoUpdate(profilesCollection, profile.getUuid());
         mu.setUpdate(profile.exportToMap());
 
-        plugin.getMongoManager().massUpdate(false, mu);
+        getMongoManager().massUpdate(false, mu);
         this.loadedProfiles.put(player.getUniqueId(), profile);
         return profile;
     }
 
     public void exportToDatabase(CoreProfile profile, boolean async, boolean store) {
-        MongoUpdate mu = new MongoUpdate("core_profiles", profile.getUuid());
+        MongoUpdate mu = new MongoUpdate(profilesCollection, profile.getUuid());
         mu.setUpdate(profile.exportToMap());
-        plugin.getMongoManager().massUpdate(async, mu);
+        getMongoManager().massUpdate(async, mu);
 
         sendRedisUpdate(profile.getUuid());
 
@@ -160,7 +192,7 @@ public class CoreProfileManager {
         JsonObject json = new JsonObject();
         json.addProperty("uuid", uuid.toString());
 
-        plugin.getNetworkHelper().getRedisPublisher().publishMessage("core_profile_updates", json);
+        getRedisPublisher().publishMessage("core_profile_updates", json);
     }
 
     public Grant importGrant(UUID uuid, boolean async) {
@@ -169,7 +201,7 @@ public class CoreProfileManager {
         }
 
         final Grant[] grant = {null};
-        plugin.getMongoManager().getDocument(async, "core_grants", uuid, document -> {
+        getMongoManager().getDocument(async, grantsCollection, uuid, document -> {
             if(document != null) {
                 grant[0] = new Grant(uuid);
                 grant[0].importFromDocument(plugin, document);
@@ -180,14 +212,14 @@ public class CoreProfileManager {
     }
 
     public void exportGrant(Grant grant, boolean async) {
-        MongoUpdate mu = new MongoUpdate("core_grants", grant.getUuid());
+        MongoUpdate mu = new MongoUpdate(grantsCollection, grant.getUuid());
         mu.setUpdate(grant.exportToMap());
-        plugin.getMongoManager().massUpdate(async, mu);
+        getMongoManager().massUpdate(async, mu);
     }
 
     public ChatHistory importHistory(UUID uuid, boolean async) {
         final ChatHistory[] chatHistory = {null};
-        plugin.getMongoManager().getDocument(async, "core_chat_history", uuid, document -> {
+        getMongoManager().getDocument(async, chatHistoryCollection, uuid, document -> {
             if(document != null) {
                 chatHistory[0] = new ChatHistory(document);
                 this.getLoadedHistory().put(uuid, chatHistory[0]);
@@ -198,9 +230,9 @@ public class CoreProfileManager {
     }
 
     public void exportHistory(ChatHistory history, boolean async) {
-        MongoUpdate mu = new MongoUpdate("core_chat_history", history.getUuid());
+        MongoUpdate mu = new MongoUpdate(chatHistoryCollection, history.getUuid());
         mu.setUpdate(history.exportToMap());
-        plugin.getMongoManager().massUpdate(async, mu);
+        getMongoManager().massUpdate(async, mu);
     }
 
     public void shutdown() {

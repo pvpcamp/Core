@@ -10,3 +10,21 @@ messages:
     - " "
     - "&cNOTICE: &fWe are still in early beta. Please report any bugs to the developers."
     - "&7&m--------------------------------------------"
+networking:
+  mongo:
+    uri: "uri"
+    database: "db"
+    chat_history_collection: "core_chat_history"
+    grants_collection: "core_grants"
+    profiles_collection: "core_profiles"
+    punishments_collection: "core_punishments"
+    ranks_collection: "core_ranks"
+    tags_collection: "core_tags"
+  redis:
+    host: "127.0.0.1"
+    port: 6379
+chat:
+  enabled: true
+  cooldown: 3
+namemc:
+  api_server: "pvp.camp"
