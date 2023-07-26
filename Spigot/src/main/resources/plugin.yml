@@ -83,6 +83,14 @@ commands:
   unignore:
     aliases: [unblock]
     description: Unblock a player.
+  # Tags
+  tags:
+    description: Apply or remove a tag.
+    aliases: [tag]
+  tagmanager:
+    description: Tag manager.
+    permission: core.commands.tagmanager
+    aliases: [tmanager, tman, tagm]
   # Users
   userhistory:
     description: View the command, chat, and message history of a player.

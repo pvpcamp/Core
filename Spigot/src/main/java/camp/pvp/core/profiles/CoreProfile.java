@@ -2,6 +2,7 @@ package camp.pvp.core.profiles;
 
 import camp.pvp.core.SpigotCore;
 import camp.pvp.core.chattags.ChatTag;
+import camp.pvp.core.chattags.ChatTagManager;
 import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.punishments.PunishmentManager;
 import camp.pvp.core.ranks.Rank;
@@ -161,6 +162,17 @@ public class CoreProfile implements Comparable<CoreProfile>{
 
         if(doc.get("namemc") != null) {
             this.namemc = doc.getBoolean("namemc");
+        }
+
+        this.chatTag = plugin.getChatTagManager().getChatTags().get(doc.get("applied_chat_tag", UUID.class));
+
+        ChatTagManager ctm = plugin.getChatTagManager();
+        List<UUID> tagIds = doc.getList("owned_chat_tags", UUID.class);
+        for(UUID uuid : tagIds) {
+            ChatTag tag = ctm.getChatTags().get(uuid);
+            if(tag != null) {
+                getOwnedChatTags().add(tag);
+            }
         }
 
         RankManager rm = plugin.getRankManager();

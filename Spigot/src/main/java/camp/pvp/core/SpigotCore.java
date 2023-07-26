@@ -10,6 +10,8 @@ import camp.pvp.core.commands.ranks.GrantHistoryCommand;
 import camp.pvp.core.commands.ranks.GrantsCommand;
 import camp.pvp.core.commands.ranks.RankCommand;
 import camp.pvp.core.commands.staff.StaffChatCommand;
+import camp.pvp.core.commands.tags.TagManagerCommand;
+import camp.pvp.core.commands.tags.TagsCommand;
 import camp.pvp.core.commands.users.*;
 import camp.pvp.core.commands.essentials.MessageCommand;
 import camp.pvp.core.listeners.mongo.MongoGuiListener;
@@ -94,6 +96,10 @@ public class SpigotCore extends JavaPlugin {
         new ReportCommand(this);
         new UnignoreCommand(this);
         new UserHistoryCommand(this);
+
+        // Tags
+        new TagsCommand(this);
+        new TagManagerCommand(this);
 
         // Staff
         new StaffChatCommand(this);

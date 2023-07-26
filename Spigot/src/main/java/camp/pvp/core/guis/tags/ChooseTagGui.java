@@ -1,0 +1,70 @@
+package camp.pvp.core.guis.tags;
+
+import camp.pvp.core.SpigotCore;
+import camp.pvp.core.chattags.ChatTag;
+import camp.pvp.core.profiles.CoreProfile;
+import camp.pvp.core.utils.Colors;
+import camp.pvp.utils.buttons.GuiButton;
+import camp.pvp.utils.guis.Gui;
+import camp.pvp.utils.guis.GuiAction;
+import camp.pvp.utils.guis.paginated.PaginatedGui;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class ChooseTagGui extends PaginatedGui {
+
+    public ChooseTagGui(CoreProfile profile) {
+        super("&6&lChoose a Tag", 27);
+
+        List<ChatTag> tags = new ArrayList<>(SpigotCore.getInstance().getChatTagManager().getChatTags().values());
+        Collections.sort(tags);
+
+        for (ChatTag tag : tags) {
+            GuiButton button = new GuiButton(Material.NAME_TAG, "&f" + tag.getDisplayName());
+
+            List<String> lines = new ArrayList<>();
+            lines.add("&6Tag: &f" + tag.getTag());
+            lines.add(" ");
+
+            if(profile.getChatTag() != null && profile.getChatTag().equals(tag)) {
+                button.updateName(tag.getDisplayName() + " &7(Selected)");
+                button.setAction(new GuiAction() {
+                    @Override
+                    public void run(Player player, Gui gui) {
+                        profile.setChatTag(null);
+                        player.sendMessage(ChatColor.GREEN + "You no longer have a chat tag applied.");
+                    }
+                });
+
+                button.setCloseOnClick(true);
+
+                lines.add("&7Click to remove this tag.");
+            } else {
+                if(profile.getOwnedChatTags().contains(tag) || profile.getPlayer().hasPermission("core.tags.all")) {
+                    button.setAction(new GuiAction() {
+                        @Override
+                        public void run(Player player, Gui gui) {
+                            profile.setChatTag(tag);
+                            player.sendMessage(Colors.get("&aYou applied have the chat tag &f" + tag.getDisplayName() + "&a."));
+                        }
+                    });
+
+                    lines.add("&aClick to apply this tag.");
+                    button.setCloseOnClick(true);
+                } else {
+                    button.setType(Material.PAPER);
+                    lines.add("&cYou do not own this tag.");
+                }
+            }
+
+            button.setLore(lines);
+
+            this.addButton(button, false);
+        }
+    }
+}

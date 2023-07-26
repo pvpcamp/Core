@@ -62,7 +62,7 @@ public class PlayerChatListener implements Listener {
             chatFormat.append(rank.getColor() + player.getName());
 
             if(tag != null) {
-                chatFormat.append(" " + tag);
+                chatFormat.append(" &f" + tag.getTag());
             }
 
             chatFormat.append("&7:&f %2$s");

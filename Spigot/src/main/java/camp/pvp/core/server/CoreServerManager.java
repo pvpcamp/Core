@@ -2,8 +2,6 @@ package camp.pvp.core.server;
 
 import camp.pvp.core.SpigotCore;
 import camp.pvp.core.listeners.redis.CoreServerListener;
-import camp.pvp.core.listeners.redis.RedisRankUpdateListener;
-import camp.pvp.mongo.MongoManager;
 import camp.pvp.redis.RedisPublisher;
 import camp.pvp.redis.RedisSubscriber;
 import com.google.gson.JsonObject;
@@ -23,7 +21,7 @@ public class CoreServerManager {
     private SpigotCore plugin;
     private CoreServer coreServer;
     private List<CoreServer> coreServers;
-    private BukkitTask coreServerUpdater, currentServerUpdater;
+    private BukkitTask coreServerUpdater, currentServerUpdater, announcer;
 
     private RedisPublisher redisPublisher;
     private RedisSubscriber serverUpdateSubscriber;
@@ -51,7 +49,9 @@ public class CoreServerManager {
             }
         }, 0, 100);
 
-        this.coreServerUpdater = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
+        this.announcer = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new ChatAnnouncer(plugin), 2400, 2400);
+
+        this.currentServerUpdater = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
             @Override
             public void run() {
                 coreServer.setOnline(Bukkit.getOnlinePlayers().size());
