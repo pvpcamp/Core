@@ -2,7 +2,7 @@ name: SpigotCore
 version: ${plugin.desc}
 description: All around core for the PvP Camp Network.
 main: camp.pvp.core.SpigotCore
-author: leuo
+author: PvP Camp Dev Team
 depend:
   - NetworkHelper
 
