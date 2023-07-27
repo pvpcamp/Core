@@ -36,7 +36,6 @@ public class GrantHistoryCommand implements CommandExecutor {
         if(args.length > 0) {
             if(sender instanceof Player) {
                 String name = args[0];
-                name = name.replaceAll("\\$[A-Za-z0-9]+(_[A-Za-z0-9]+)*\\$", "");
                 Player player = (Player) sender;
 
                 CoreProfile target = plugin.getCoreProfileManager().find(name, false);

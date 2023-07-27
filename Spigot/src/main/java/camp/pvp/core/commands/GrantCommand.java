@@ -26,7 +26,6 @@ public class GrantCommand implements CommandExecutor {
 
         if(args.length > 1) {
             String name = args[1];
-            name = name.replaceAll("\\$[A-Za-z0-9]+(_[A-Za-z0-9]+)*\\$", "");
             CoreProfile profile = plugin.getCoreProfileManager().find(name, false);
             Rank rank = null;
 

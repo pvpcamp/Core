@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
@@ -123,6 +124,10 @@ public class CoreProfileManager {
     }
 
     public CoreProfile find(String name, boolean store) {
+        if(!name.matches("^[a-zA-Z0-9_]{1,16}$")) {
+            return null;
+        }
+
         final CoreProfile[] profile = {null};
 
         for(Player player : Bukkit.getOnlinePlayers()) {

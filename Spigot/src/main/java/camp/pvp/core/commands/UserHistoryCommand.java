@@ -29,7 +29,7 @@ public class UserHistoryCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
         if(args.length > 0) {
-            String name = args[0];
+            String name = args[0].replaceAll("^[a-zA-Z0-9_]{1,16}$", "");
             ChatHistory.Type type = null;
             int page = 1;
 
@@ -72,7 +72,6 @@ public class UserHistoryCommand implements CommandExecutor {
                     if(history.isEmpty()) {
                         Bukkit.getServer().getPluginManager().callEvent(new MongoMessageEvent(Colors.get("&cNo message history found for " + name + "."), sender, date));
                     } else {
-
                         Collections.sort(history, new Comparator<ChatHistory>() {
                             @Override
                             public int compare(ChatHistory o1, ChatHistory o2) {
