@@ -1,19 +1,14 @@
 package camp.pvp.core;
 
-import camp.pvp.core.commands.essentials.ListCommand;
-import camp.pvp.core.commands.personalization.SoundsCommand;
-import camp.pvp.core.commands.personalization.ToggleGlobalChatCommand;
-import camp.pvp.core.commands.personalization.ToggleMessagesCommand;
-import camp.pvp.core.commands.punishments.*;
-import camp.pvp.core.commands.ranks.GrantCommand;
-import camp.pvp.core.commands.ranks.GrantHistoryCommand;
-import camp.pvp.core.commands.ranks.GrantsCommand;
-import camp.pvp.core.commands.ranks.RankCommand;
-import camp.pvp.core.commands.staff.StaffChatCommand;
-import camp.pvp.core.commands.tags.TagManagerCommand;
-import camp.pvp.core.commands.tags.TagsCommand;
-import camp.pvp.core.commands.users.*;
-import camp.pvp.core.commands.essentials.MessageCommand;
+import camp.pvp.core.commands.*;
+import camp.pvp.core.commands.GrantCommand;
+import camp.pvp.core.commands.GrantHistoryCommand;
+import camp.pvp.core.commands.GrantsCommand;
+import camp.pvp.core.commands.RankCommand;
+import camp.pvp.core.commands.StaffChatCommand;
+import camp.pvp.core.commands.TagManagerCommand;
+import camp.pvp.core.commands.TagsCommand;
+import camp.pvp.core.commands.DemoCommand;
 import camp.pvp.core.listeners.mongo.MongoGuiListener;
 import camp.pvp.core.listeners.pearls.PlayerTeleportListener;
 import camp.pvp.core.listeners.player.PlayerChatListener;
@@ -24,7 +19,6 @@ import camp.pvp.core.punishments.PunishmentManager;
 import camp.pvp.core.ranks.RankManager;
 import camp.pvp.core.chattags.ChatTagManager;
 import camp.pvp.core.server.CoreServerManager;
-import camp.pvp.mongo.MongoManager;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -63,46 +57,38 @@ public class SpigotCore extends JavaPlugin {
     }
 
     public void registerCommands() {
-        // Personalization
-        new SoundsCommand(this);
-        new ToggleGlobalChatCommand(this);
-        new ToggleMessagesCommand(this);
-
-        // Punishments
         new BanCommand(this);
         new BlacklistCommand(this);
-        new HistoryCommand(this);
-        new KickCommand(this);
-        new MuteCommand(this);
-        new StaffHistoryCommand(this);
-        new TempBanCommand(this);
-        new TempMuteCommand(this);
-        new UnbanCommand(this);
-        new UnblacklistCommand(this);
-        new UnmuteCommand(this);
-
-        // Ranks
+        new DemoCommand(this);
         new GrantCommand(this);
-        new GrantsCommand(this);
         new GrantHistoryCommand(this);
-        new RankCommand(this);
-
-        // Users
+        new GrantsCommand(this);
         new HelpOpCommand(this);
+        new HistoryCommand(this);
         new IgnoreCommand(this);
+        new InventorySeeCommand(this);
+        new KickCommand(this);
         new ListCommand(this);
         new MessageCommand(this);
+        new MoreCommand(this);
+        new MuteCommand(this);
         new NameMcCommand(this);
+        new RankCommand(this);
         new ReportCommand(this);
-        new UnignoreCommand(this);
-        new UserHistoryCommand(this);
-
-        // Tags
-        new TagsCommand(this);
-        new TagManagerCommand(this);
-
-        // Staff
+        new SoundsCommand(this);
         new StaffChatCommand(this);
+        new StaffHistoryCommand(this);
+        new TagManagerCommand(this);
+        new TagsCommand(this);
+        new TempBanCommand(this);
+        new TempMuteCommand(this);
+        new ToggleGlobalChatCommand(this);
+        new ToggleMessagesCommand(this);
+        new UnbanCommand(this);
+        new UnblacklistCommand(this);
+        new UnignoreCommand(this);
+        new UnmuteCommand(this);
+        new UserHistoryCommand(this);
     }
 
     public void registerListeners() {
