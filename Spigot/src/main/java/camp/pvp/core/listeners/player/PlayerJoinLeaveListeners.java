@@ -81,7 +81,7 @@ public class PlayerJoinLeaveListeners implements Listener {
         }
 
         if(player.hasPermission("core.staff")) {
-            plugin.getCoreServerManager().sendStaffMessage("&6[Join] &f" + profile.getHighestRank().getColor() + profile.getName() + " &6has joined server &f" + plugin.getCoreServerManager().getCoreServer().getName() + "&6.");
+            plugin.getCoreServerManager().sendStaffMessage("&6[S] " + profile.getHighestRank().getColor() + profile.getName() + " &6has joined &f" + plugin.getCoreServerManager().getCoreServer().getName() + "&6.");
         } else {
             profile.setStaffChat(false);
         }
@@ -95,7 +95,7 @@ public class PlayerJoinLeaveListeners implements Listener {
         CoreProfile profile = plugin.getCoreProfileManager().find(player.getUniqueId(), true);
 
         if(player.hasPermission("core.staff")) {
-            plugin.getCoreServerManager().sendStaffMessage("&6[Leave] &f" + profile.getHighestRank().getColor() + profile.getName() + " &6has left server &f" + plugin.getCoreServerManager().getCoreServer().getName() + "&6.");
+            plugin.getCoreServerManager().sendStaffMessage("&6[S] " + profile.getHighestRank().getColor() + profile.getName() + " &6has left &f" + plugin.getCoreServerManager().getCoreServer().getName() + "&6.");
         }
 
         if(profile != null) {

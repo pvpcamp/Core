@@ -19,6 +19,9 @@ commands:
     aliases: [bl]
     description: Blacklist a player permanently.
     permission: core.commands.ban
+  chat:
+    description: Mute, unmute, or slow global chat.
+    permission: core.commands.chat
   demo:
     description: Show a player the demo menu.
     permission: core.commands.demo
@@ -26,6 +29,7 @@ commands:
     description: Add, remove, or show the grants of a player.
     permission: core.commands.grant
   granthistory:
+    aliases: [granthist, ghistory, ghist]
     description: Look at the grant history of a player.
     permission: core.commands.granthistory
   grants:

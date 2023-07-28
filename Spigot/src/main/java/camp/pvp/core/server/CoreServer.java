@@ -13,6 +13,7 @@ public class CoreServer {
     private int online, slots;
     private long lastUpdate;
     private boolean currentlyOnline;
+    private boolean mutedChat;
 
     public CoreServer(String name) {
         this.name = name;
@@ -23,5 +24,6 @@ public class CoreServer {
         this.name = name;
         this.type = type;
         this.currentlyOnline = true;
+        this.mutedChat = false;
     }
 }

@@ -53,6 +53,12 @@ public class PlayerChatListener implements Listener {
             Rank rank = profile.getHighestRank();
             ChatTag tag = profile.getChatTag();
 
+            if (plugin.getCoreServerManager().getCoreServer().isMutedChat() && !player.hasPermission("core.staff")) {
+                event.setCancelled(true);
+                player.sendMessage(ChatColor.RED + "Global Chat is currently muted.");
+                return;
+            }
+
             StringBuilder chatFormat = new StringBuilder();
 
             if(rank.getPrefix() != null) {
@@ -99,7 +105,7 @@ public class PlayerChatListener implements Listener {
                     plugin.getCoreProfileManager().exportHistory(chatHistory, true);
 
                     if(!player.hasPermission("core.chat.bypass.cooldown")) {
-                        profile.addChatCooldown(3);
+                        profile.addChatCooldown(plugin.getConfig().getInt("chat.cooldown"));
                     }
                 } else {
                     StringBuilder sb = new StringBuilder();

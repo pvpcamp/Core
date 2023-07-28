@@ -64,6 +64,7 @@ public class CoreServerManager {
                 json.addProperty("online", coreServer.getOnline());
                 json.addProperty("slots", coreServer.getSlots());
                 json.addProperty("currently_online", coreServer.isCurrentlyOnline());
+                json.addProperty("muted_chat", coreServer.isMutedChat());
                 json.addProperty("last_update", coreServer.getLastUpdate());
 
                 getRedisPublisher().publishMessage("core_server_updates", json);
@@ -101,6 +102,7 @@ public class CoreServerManager {
         json.addProperty("online", coreServer.getOnline());
         json.addProperty("slots", coreServer.getSlots());
         json.addProperty("currently_online", false);
+        json.addProperty("muted_chat", false);
         json.addProperty("last_update", coreServer.getLastUpdate());
 
         getRedisPublisher().publishMessage("core_server_updates", json);
