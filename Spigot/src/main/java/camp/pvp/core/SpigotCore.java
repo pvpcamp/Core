@@ -91,7 +91,6 @@ public class SpigotCore extends JavaPlugin {
         new UnignoreCommand(this);
         new UnmuteCommand(this);
         new UserHistoryCommand(this);
-        new WipePunishmentsCommand(this);
     }
 
     public void registerListeners() {
