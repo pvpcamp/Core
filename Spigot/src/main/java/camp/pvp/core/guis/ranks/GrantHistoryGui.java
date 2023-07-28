@@ -38,7 +38,7 @@ public class GrantHistoryGui extends PaginatedGui {
             button.setLore(
                     "&6Date: &f" + grant.getDate().toString(),
                     "&6Issued By: &f" + grant.getIssuedFromName(),
-                    "&6Rank: &f" + grant.getRank().getColor() + grant.getRank().getDisplayName()
+                    "&6Rank: &f" + (grant.getRank() == null ? "&oRank Deleted" : grant.getRank().getColor() + grant.getRank().getDisplayName())
             );
 
             this.addButton(button, false);
