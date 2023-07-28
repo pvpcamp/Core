@@ -54,7 +54,12 @@ public class Grant implements Comparable<Grant>{
         this.issuedFrom = doc.get("issued_from", UUID.class);
         this.issuedToName = doc.getString("issued_to_name");
         this.issuedFromName = doc.getString("issued_from_name");
-        this.rank = plugin.getRankManager().getRanks().get(doc.get("rank", UUID.class));
+        Rank rank = plugin.getRankManager().getRanks().get(doc.get("rank", UUID.class));
+        if(rank != null) {
+            this.rank = plugin.getRankManager().getRanks().get(doc.get("rank", UUID.class));
+        } else {
+            this.rank = null;
+        }
         this.type = Type.valueOf(doc.getString("type"));
     }
 
