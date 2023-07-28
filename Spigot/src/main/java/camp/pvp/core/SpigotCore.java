@@ -60,6 +60,7 @@ public class SpigotCore extends JavaPlugin {
         new AltsCommand(this);
         new BanCommand(this);
         new BlacklistCommand(this);
+        new ChatCommand(this);
         new DemoCommand(this);
         new GrantCommand(this);
         new GrantHistoryCommand(this);

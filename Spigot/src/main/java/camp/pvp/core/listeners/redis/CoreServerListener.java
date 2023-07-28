@@ -28,6 +28,7 @@ public class CoreServerListener implements RedisSubscriberListener {
         server.setOnline(json.get("online").getAsInt());
         server.setSlots(json.get("slots").getAsInt());
         server.setCurrentlyOnline(json.get("currently_online").getAsBoolean());
+        server.setMutedChat(json.get("muted_chat").getAsBoolean());
         server.setLastUpdate(json.get("last_update").getAsLong());
 
         if(!server.isCurrentlyOnline()) {
