@@ -57,6 +57,7 @@ public class SpigotCore extends JavaPlugin {
     }
 
     public void registerCommands() {
+        new AltsCommand(this);
         new BanCommand(this);
         new BlacklistCommand(this);
         new DemoCommand(this);
@@ -89,7 +90,6 @@ public class SpigotCore extends JavaPlugin {
         new UnignoreCommand(this);
         new UnmuteCommand(this);
         new UserHistoryCommand(this);
-        new AltsCommand(this);
     }
 
     public void registerListeners() {
