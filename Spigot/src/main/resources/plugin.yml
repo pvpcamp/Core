@@ -5,6 +5,7 @@ main: camp.pvp.core.SpigotCore
 author: PvP Camp Development Team.
 depend:
   - NetworkHelper
+  - Gooey2
 
 commands:
   ban:
@@ -112,3 +113,6 @@ commands:
     aliases: [userhist, uhistory, uhist]
     description: View the chat, command, and PM history of a player.
     permission: core.commands.userhistory
+  alts:
+    description: View the alts of a player.
+    permission: core.commands.alts
