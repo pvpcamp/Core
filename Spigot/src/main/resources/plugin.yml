@@ -5,12 +5,18 @@ main: camp.pvp.core.SpigotCore
 author: PvP Camp Development Team
 depend:
   - NetworkHelper
+  - Gooey2
 
 commands:
+  alts:
+    description: View the alts of a player.
+    permission: core.commands.alts
   ban:
+    aliases: [b]
     description: Ban a player permanently.
     permission: core.commands.ban
   blacklist:
+    aliases: [bl]
     description: Blacklist a player permanently.
     permission: core.commands.ban
   demo:
@@ -26,8 +32,10 @@ commands:
     description: Open the grants GUI.
     permission: core.commands.grants
   helpop:
+    aliases: [request]
     description: Send a request to online staff.
   history:
+    aliases: [hist, check, c]
     description: View the punishment history of a player.
     permission: core.commands.history
   ignore:
@@ -66,7 +74,7 @@ commands:
     description: Enable or disable staff chat.
     permission: core.commands.staffchat
   staffhistory:
-    aliases: [shistory]
+    aliases: [shistory, shist]
     description: View the staff history of a staff member.
     permission: core.commands.staffhistory
   tagmanager:
@@ -91,9 +99,11 @@ commands:
     aliases: [messages, tpm]
     description: Enable or disable private messages.
   unban:
+    aliases: [ub]
     description: Unban a player.
     permission: core.commands.unban
   unblacklist:
+    aliases: [unbl]
     description: Unblacklist a player.
     permission: core.commands.unblacklist
   unignore:
@@ -103,5 +113,6 @@ commands:
     description: Unmute a player.
     permission: core.commands.unmute
   userhistory:
+    aliases: [userhist, uhistory, uhist]
     description: View the chat, command, and PM history of a player.
     permission: core.commands.userhistory

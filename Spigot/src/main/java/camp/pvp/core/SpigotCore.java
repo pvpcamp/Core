@@ -57,6 +57,7 @@ public class SpigotCore extends JavaPlugin {
     }
 
     public void registerCommands() {
+        new AltsCommand(this);
         new BanCommand(this);
         new BlacklistCommand(this);
         new DemoCommand(this);
