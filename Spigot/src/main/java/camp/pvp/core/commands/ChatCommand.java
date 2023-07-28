@@ -25,26 +25,10 @@ public class ChatCommand implements CommandExecutor {
 
         String senderName = (sender instanceof Player ? plugin.getCoreProfileManager().find(sender.getName(), false).getHighestRank().getColor() + sender.getName() : "&4CONSOLE");
 
-        if (args.length == 0) {
-            sender.sendMessage(new String[] {
-                    Colors.get("&7&m--------------------------"),
-                    Colors.get("&6&lChat Commands:"),
-                    " ",
-                    Colors.get("&6/chat mute &7- &fMute global chat"),
-                    Colors.get("&6/chat slow &7- &fSlow global chat"),
-                    Colors.get("&6/chat clear &7- &fClear global chat"),
-                    Colors.get("&7&m--------------------------")
-            });
-            return true;
-        }
+        if (args.length > 0) {
+            switch (args[0].toLowerCase()) {
 
-        String type = args[0];
-
-        if (args.length == 1) {
-
-            switch (type) {
-
-                case "mute": {
+                case "mute":
                     boolean mute = plugin.getCoreServerManager().getCoreServer().isMutedChat();
                     plugin.getCoreServerManager().getCoreServer().setMutedChat(!mute);
                     boolean updatedMute = plugin.getCoreServerManager().getCoreServer().isMutedChat();
@@ -57,16 +41,25 @@ public class ChatCommand implements CommandExecutor {
                             sender.sendMessage(Colors.get("&aYou have unmuted the chat."));
                         }
                     }
-                    break;
-                }
+                    return true;
 
-                case "slow": {
-                    int slow = plugin.getConfig().getInt("chat.cooldown");
-                    sender.sendMessage(Colors.get("&aGlobal chat slowdown is currently &f" + slow + "&a."));
-                    break;
-                }
-
-                case "clear": {
+                case "slow":
+                    if(args.length > 1) {
+                        int time;
+                        try {
+                            time = Integer.parseInt(args[1]);
+                            plugin.getConfig().set("chat.cooldown", time);
+                            plugin.saveConfig();
+                            sender.sendMessage(Colors.get("&aYou set the chat slowdown to &f" + time + "&as."));
+                        } catch (NumberFormatException ex) {
+                            sender.sendMessage(ChatColor.RED + "Invalid number. Usage: /chat slow <seconds>");
+                        }
+                    } else {
+                        int slow = plugin.getConfig().getInt("chat.cooldown");
+                        sender.sendMessage(Colors.get("&aGlobal chat slowdown is currently &f" + slow + "&a."));
+                    }
+                    return true;
+                case "clear":
                     for (Player all : Bukkit.getOnlinePlayers()) {
                         for (int i = 0; i < 1000; i++) {
                             if (!all.hasPermission("core.staff")) {
@@ -76,23 +69,16 @@ public class ChatCommand implements CommandExecutor {
                         all.sendMessage(Colors.get("&cGlobal Chat has been cleared by " + senderName + "&c."));
                     }
                     sender.sendMessage(ChatColor.GREEN + "You have cleared global chat.");
-                    break;
-                }
+                    return true;
             }
-            return true;
         }
 
-        int time;
-
-        try {
-            time = Integer.parseInt(args[1]);
-            plugin.getConfig().set("chat.cooldown", time);
-            plugin.saveConfig();
-            sender.sendMessage(Colors.get("&aYou set the chat slowdown to &f" + time + "&as."));
-            return true;
-        } catch (NumberFormatException ex) {
-            sender.sendMessage(ChatColor.RED + "Invalid number. Usage: /chat slow <seconds>");
-            return true;
-        }
+        sender.sendMessage(new String[] {
+                Colors.get("&6&l/chat &r&6Help"),
+                Colors.get("&6/chat mute &7- &fMute global chat"),
+                Colors.get("&6/chat slow &7- &fSlow global chat"),
+                Colors.get("&6/chat clear &7- &fClear global chat")
+        });
+        return true;
     }
 }
