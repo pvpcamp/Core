@@ -29,7 +29,12 @@ public class UserHistoryCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
         if(args.length > 0) {
-            String name = args[0].replaceAll("^[a-zA-Z0-9_]{1,16}$", "");
+            String name = args[0];
+            if(!name.matches("^[a-zA-Z0-9_]{1,16}$")) {
+                sender.sendMessage(ChatColor.RED + "Invalid username provided.");
+                return true;
+            }
+
             ChatHistory.Type type = null;
             int page = 1;
 
