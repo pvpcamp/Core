@@ -35,12 +35,12 @@ public class ChatCommand implements CommandExecutor {
                     for (Player all : Bukkit.getOnlinePlayers()) {
                         if (updatedMute) {
                             all.sendMessage(Colors.get("&cGlobal Chat has been muted by " + senderName + "&c."));
-                            sender.sendMessage(Colors.get("&cYou have muted the chat."));
                         } else {
                             all.sendMessage(Colors.get("&aGlobal Chat has been unmuted by " + senderName + "&a."));
-                            sender.sendMessage(Colors.get("&aYou have unmuted the chat."));
                         }
                     }
+
+                    sender.sendMessage(Colors.get("&cYou have " + (updatedMute ? "muted" : "unmuted") + " the chat."));
                     return true;
 
                 case "slow":
