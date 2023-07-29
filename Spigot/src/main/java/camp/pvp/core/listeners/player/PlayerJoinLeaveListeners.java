@@ -12,13 +12,12 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerJoinLeaveListeners implements Listener {
 
     private SpigotCore plugin;
+
     public PlayerJoinLeaveListeners(SpigotCore plugin) {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -29,6 +28,7 @@ public class PlayerJoinLeaveListeners implements Listener {
         UUID uuid = event.getUniqueId();
         CoreProfile profile = plugin.getCoreProfileManager().importFromDatabase(uuid, true);
         Punishment punishment = null;
+
         if(profile != null) {
             punishment = profile.getActivePunishment(Punishment.Type.BLACKLIST);
             if(punishment == null) {
@@ -73,6 +73,7 @@ public class PlayerJoinLeaveListeners implements Listener {
 
         String ip = player.getAddress().getAddress().getHostAddress();
         profile.setIp(ip);
+        profile.setLastLogin(new Date());
 
         if(!profile.getIpList().contains(ip)) {
             profile.getIpList().add(ip);
