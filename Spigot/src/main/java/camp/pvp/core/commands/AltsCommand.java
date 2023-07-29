@@ -157,11 +157,11 @@ public class AltsCommand implements CommandExecutor {
             });*/
 
             StringBuilder g = new StringBuilder();
-            g.append(coreProfile.getHighestRank().getColor() + coreProfile.getName() + "&7, ");
+            g.append(name).append("&7, ");
 
             alts.forEach(alt -> {
                 CoreProfile altProfile = plugin.getCoreProfileManager().find(alt, false);
-                g.append(altProfile.getHighestRank().getColor() + alt);
+                g.append(altProfile.getHighestRank().getColor()).append(alt);
                 if (alts.get(alts.size() - 1).equals(alt)) {
                     g.append("&7.");
                 } else {
@@ -170,7 +170,7 @@ public class AltsCommand implements CommandExecutor {
             });
 
             //sender.sendMessage(Colors.get("&7[&aOnline&7, &7Offline, &f&oMuted&7, &cBan, &4Blacklist&7]"));
-            sender.sendMessage(Colors.get(name + "&6's alts &f(" + alts.size() + ")&6:"));
+            sender.sendMessage(Colors.get(name + "&6's alts &f(" + altSize + ")&6:"));
             if (sender instanceof Player) {
                 Player player = (Player) sender;
                 //player.spigot().sendMessage(altList);
