@@ -6,8 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 public class DateUtils {
 
-    public static String getDifference(Date date1, Date date2) {
-        long duration = date1.getTime() - date2.getTime();
+    public static String getTimeFormat(long duration) {
         long days = TimeUnit.MILLISECONDS.toDays(duration);
         long hours = TimeUnit.MILLISECONDS.toHours(duration) % 24;
         long minutes = TimeUnit.MILLISECONDS.toMinutes(duration) % 60;
@@ -60,6 +59,10 @@ public class DateUtils {
         }
 
         return sb.toString();
+    }
+
+    public static String getDifference(Date date1, Date date2) {
+        return getTimeFormat(date1.getTime() - date2.getTime());
     }
 
     public static String getTimeUntil(Date date) {
