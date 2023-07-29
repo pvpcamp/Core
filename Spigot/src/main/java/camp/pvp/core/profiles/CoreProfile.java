@@ -158,6 +158,10 @@ public class CoreProfile implements Comparable<CoreProfile>{
         return null;
     }
 
+    public long getTotalPlaytime() {
+        return playtime + getLastLogin().getTime() + new Date().getTime();
+    }
+
     public void importFromDocument(SpigotCore plugin, Document doc) {
         this.name = doc.getString("name");
         this.ip = doc.getString("ip");
