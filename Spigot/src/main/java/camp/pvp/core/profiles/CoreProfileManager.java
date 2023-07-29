@@ -172,6 +172,7 @@ public class CoreProfileManager {
         CoreProfile profile = new CoreProfile(player.getUniqueId());
         profile.setName(player.getName());
         profile.getRanks().add(plugin.getRankManager().getDefaultRank());
+        profile.setFirstLogin(new Date());
 
         MongoUpdate mu = new MongoUpdate(profilesCollection, profile.getUuid());
         mu.setUpdate(profile.exportToMap());
