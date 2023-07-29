@@ -71,7 +71,12 @@ public class PlayerJoinLeaveListeners implements Listener {
             profile.getRanks().add(plugin.getRankManager().getDefaultRank());
         }
 
-        profile.setIp(player.getAddress().getAddress().getHostAddress());
+        String ip = player.getAddress().getAddress().getHostAddress();
+        profile.setIp(ip);
+
+        if(!profile.getIpList().contains(ip)) {
+            profile.getIpList().add(ip);
+        }
 
         plugin.getCoreProfileManager().updatePermissions(profile);
 
@@ -99,6 +104,10 @@ public class PlayerJoinLeaveListeners implements Listener {
         }
 
         if(profile != null) {
+            profile.setLastLogout(new Date());
+
+            profile.setPlaytime(profile.getPlaytime() + (profile.getLastLogout().getTime() - profile.getLastLogin().getTime()));
+
             plugin.getCoreProfileManager().exportToDatabase(profile, true, false);
         }
 

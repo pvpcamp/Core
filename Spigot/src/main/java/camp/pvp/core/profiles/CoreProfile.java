@@ -21,6 +21,8 @@ public class CoreProfile implements Comparable<CoreProfile>{
     private final UUID uuid;
     private String name, ip;
 
+    private List<String> ipList;
+
     private List<Rank> ranks;
 
     private ChatTag chatTag;
@@ -34,10 +36,14 @@ public class CoreProfile implements Comparable<CoreProfile>{
     private Map<String, Date> commandCooldowns;
     private Date chatCooldown;
 
+    private Date firstLogin, lastLogin, lastLogout;
+    private long playtime;
+
     private boolean namemc, seeGlobalChat, allowPrivateMessages, messageSounds, staffChat;
 
     public CoreProfile(UUID uuid) {
         this.uuid = uuid;
+        this.ipList = new ArrayList<>();
         this.ranks = new ArrayList<>();
         this.ownedChatTags = new ArrayList<>();
         this.punishments = new ArrayList<>();
@@ -155,6 +161,11 @@ public class CoreProfile implements Comparable<CoreProfile>{
     public void importFromDocument(SpigotCore plugin, Document doc) {
         this.name = doc.getString("name");
         this.ip = doc.getString("ip");
+        this.ipList = doc.getList("ip_list", String.class);
+        this.firstLogin = doc.getDate("first_login");
+        this.lastLogin = doc.getDate("last_login");
+        this.lastLogout = doc.getDate("last_logout");
+        this.playtime = doc.getLong("playtime");
         this.seeGlobalChat = doc.getBoolean("see_global_chat");
         this.allowPrivateMessages = doc.getBoolean("allow_private_messages");
         this.messageSounds = doc.getBoolean("message_sounds");
@@ -196,6 +207,11 @@ public class CoreProfile implements Comparable<CoreProfile>{
         Map<String, Object> map = new HashMap<>();
         map.put("name", getName());
         map.put("ip", getIp());
+        map.put("ip_list", getIpList());
+        map.put("first_login", getFirstLogin());
+        map.put("last_login", getLastLogin());
+        map.put("last_logout", getLastLogout());
+        map.put("playtime", getPlaytime());
         map.put("see_global_chat", isSeeGlobalChat());
         map.put("allow_private_messages", isAllowPrivateMessages());
         map.put("message_sounds", isMessageSounds());
