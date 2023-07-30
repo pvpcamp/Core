@@ -159,7 +159,11 @@ public class CoreProfile implements Comparable<CoreProfile>{
     }
 
     public long getCurrentPlaytime() {
-        return playtime + (new Date().getTime() - getLastLogin().getTime());
+        if (Bukkit.getPlayer(getName()) != null && Bukkit.getPlayer(getName()).isOnline()) {
+            return playtime + (new Date().getTime() - getLastLogin().getTime());
+        } else {
+            return playtime;
+        }
     }
 
     public void importFromDocument(SpigotCore plugin, Document doc) {
