@@ -174,10 +174,7 @@ public class CoreProfile implements Comparable<CoreProfile>{
         this.allowPrivateMessages = doc.getBoolean("allow_private_messages");
         this.messageSounds = doc.getBoolean("message_sounds");
         this.staffChat = doc.getBoolean("staff_chat");
-
-        if(doc.get("namemc") != null) {
-            this.namemc = doc.getBoolean("namemc");
-        }
+        this.namemc = doc.getBoolean("namemc");
 
         this.chatTag = plugin.getChatTagManager().getChatTags().get(doc.get("applied_chat_tag", UUID.class));
 
