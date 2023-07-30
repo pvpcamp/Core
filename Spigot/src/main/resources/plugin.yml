@@ -8,9 +8,6 @@ depend:
   - Gooey2
 
 commands:
-  alts:
-    description: View the alts of a player.
-    permission: core.commands.alts
   ban:
     aliases: [b]
     description: Ban a player permanently.
