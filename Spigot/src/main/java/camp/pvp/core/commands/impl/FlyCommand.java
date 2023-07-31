@@ -26,7 +26,7 @@ public class FlyCommand {
             Player target = Bukkit.getPlayer(name);
             target.setAllowFlight(!target.getAllowFlight());
             target.sendMessage(Colors.get("&6Your flight has been " + (target.getAllowFlight() ? "&aenabled" : "&cdisabled" + "&6.")));
-            player.sendMessage(Colors.get("&6You have set &f" + target.getName() + "&6's flight to " + (player.getAllowFlight() ? "&aenabled" : "&cdisabled") + "&6."));
+            player.sendMessage(Colors.get("&6You have set &f" + target.getName() + "&6's flight to " + (target.getAllowFlight() ? "&aenabled" : "&cdisabled") + "&6."));
         } else {
             player.sendMessage(ChatColor.RED + name + " is not online.");
         }
