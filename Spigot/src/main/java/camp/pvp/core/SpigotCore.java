@@ -68,7 +68,6 @@ public class SpigotCore extends JavaPlugin {
         new MessageCommand(this);
         new MoreCommand(this);
         new MuteCommand(this);
-        new NameMcCommand(this);
         new RankCommand(this);
         new ReportCommand(this);
         new SoundsCommand(this);

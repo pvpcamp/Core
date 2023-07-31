@@ -61,8 +61,6 @@ commands:
     aliases: [m]
     description: Mute a player permanently.
     permission: core.commands.mute
-  namemc:
-    description: Redeem your free NameMC rewards for liking the server.
   rank:
     description: Rank manager.
     permission: core.commands.rank

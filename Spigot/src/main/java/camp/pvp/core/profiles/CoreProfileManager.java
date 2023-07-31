@@ -3,6 +3,7 @@ package camp.pvp.core.profiles;
 import camp.pvp.core.SpigotCore;
 import camp.pvp.core.listeners.redis.RedisProfileUpdateListener;
 import camp.pvp.core.listeners.redis.StaffMessageListener;
+import camp.pvp.core.profiles.tasks.NameMcVerifier;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.mongo.MongoCollectionResult;
 import camp.pvp.mongo.MongoManager;
@@ -22,6 +23,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 
+import javax.naming.Name;
 import java.util.*;
 
 @Getter @Setter
@@ -66,6 +68,8 @@ public class CoreProfileManager {
                 config.getInt("networking.redis.port"),
                 "core_staff",
                 new StaffMessageListener());
+
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new NameMcVerifier(this), 0, 1200);
 
         plugin.getLogger().info("Started CoreProfileManager.");
     }
