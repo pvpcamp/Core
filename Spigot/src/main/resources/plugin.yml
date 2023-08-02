@@ -81,7 +81,6 @@ commands:
     description: Tag manager.
     permission: core.commands.tagmanager
   tags:
-    aliases: [tag]
     description: View and apply a chat tag.
   tempban:
     aliases: [tban]
