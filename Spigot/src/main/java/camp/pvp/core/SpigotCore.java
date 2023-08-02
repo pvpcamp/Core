@@ -1,7 +1,8 @@
 package camp.pvp.core;
 
+import camp.pvp.NetworkHelper;
+import camp.pvp.command.CommandHandler;
 import camp.pvp.core.commands.*;
-import camp.pvp.core.commands.impl.*;
 import camp.pvp.core.listeners.mongo.MongoGuiListener;
 import camp.pvp.core.listeners.pearls.PlayerTeleportListener;
 import camp.pvp.core.listeners.player.PlayerChatListener;
@@ -24,7 +25,6 @@ public class SpigotCore extends JavaPlugin {
     private @Getter CoreProfileManager coreProfileManager;
     private @Getter PunishmentManager punishmentManager;
     private @Getter RankManager rankManager;
-    private @Getter CMDHandler cmdHandler;
 
     @Override
     public void onEnable() {
@@ -37,7 +37,6 @@ public class SpigotCore extends JavaPlugin {
         this.rankManager = new RankManager(this);
         this.punishmentManager = new PunishmentManager(this);
         this.coreProfileManager = new CoreProfileManager(this);
-        cmdHandler = new CMDHandler();
 
         registerCommands();
         registerListeners();
@@ -68,7 +67,6 @@ public class SpigotCore extends JavaPlugin {
         new MessageCommand(this);
         new MoreCommand(this);
         new MuteCommand(this);
-        new NameMcCommand(this);
         new RankCommand(this);
         new ReportCommand(this);
         new SoundsCommand(this);
@@ -86,6 +84,17 @@ public class SpigotCore extends JavaPlugin {
         new UnmuteCommand(this);
         new UserHistoryCommand(this);
         new WipePunishmentsCommand(this);
+
+        CommandHandler commandHandler = NetworkHelper.getInstance().getCommandHandler();
+        commandHandler.registerCommand(new AltsCommand());
+        commandHandler.registerCommand(new FeedCommand());
+        commandHandler.registerCommand(new FlyCommand());
+        commandHandler.registerCommand(new GamemodeCommand());
+        commandHandler.registerCommand(new HealCommand());
+        commandHandler.registerCommand(new PlayerLookupCommand());
+        commandHandler.registerCommand(new PlaytimeCommand());
+        commandHandler.registerCommand(new SeenCommand());
+        commandHandler.registerCommand(new TagCommand(this));
     }
 
     public void registerListeners() {
