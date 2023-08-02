@@ -13,6 +13,10 @@ import camp.pvp.core.punishments.PunishmentManager;
 import camp.pvp.core.ranks.RankManager;
 import camp.pvp.core.chattags.ChatTagManager;
 import camp.pvp.core.server.CoreServerManager;
+import camp.pvp.core.tablist.Tab;
+import camp.pvp.core.tablist.TabAdapter;
+import camp.pvp.core.tablist.Tablist;
+import io.github.thatkawaiisam.ziggurat.Ziggurat;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -25,6 +29,8 @@ public class SpigotCore extends JavaPlugin {
     private @Getter CoreProfileManager coreProfileManager;
     private @Getter PunishmentManager punishmentManager;
     private @Getter RankManager rankManager;
+    private @Getter Tablist tablist;
+    private Ziggurat ziggurat;
 
     @Override
     public void onEnable() {
@@ -40,6 +46,11 @@ public class SpigotCore extends JavaPlugin {
 
         registerCommands();
         registerListeners();
+
+        this.tablist = new Tab(this);
+        ziggurat = new Ziggurat(this, new TabAdapter(tablist));
+        ziggurat.setTicks(5);
+        ziggurat.setHook(true);
     }
 
     @Override
