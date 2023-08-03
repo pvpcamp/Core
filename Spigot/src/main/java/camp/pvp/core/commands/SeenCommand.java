@@ -14,6 +14,12 @@ import java.util.Date;
 
 public class SeenCommand {
 
+    private SpigotCore plugin;
+
+    public SeenCommand(SpigotCore plugin) {
+        this.plugin = plugin;
+    }
+
     @Command(name = "seen", aliases = {"lastseen"}, description = "Check a players status.", permission = "core.commands.seen")
     public void playtime(CommandArgs args) {
 
@@ -23,7 +29,7 @@ public class SeenCommand {
         }
 
         String target = args.getArgs(0);
-        CoreProfile coreProfile = SpigotCore.getInstance().getCoreProfileManager().find(target, false);
+        CoreProfile coreProfile = plugin.getCoreProfileManager().find(target, false);
 
         if (coreProfile == null) {
             args.getSender().sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");

@@ -16,6 +16,12 @@ import java.util.List;
 
 public class PlayerLookupCommand {
 
+    private SpigotCore plugin;
+
+    public PlayerLookupCommand(SpigotCore plugin) {
+        this.plugin = plugin;
+    }
+
     @Command(name = "playerlookup", aliases = {"plookup", "lookup", "lu"}, description = "See detailed information about a player.", permission = "core.commands.playerlookup")
     public void playtime(CommandArgs args) {
 
@@ -25,7 +31,7 @@ public class PlayerLookupCommand {
         }
 
         String target = args.getArgs(0);
-        CoreProfile coreProfile = SpigotCore.getInstance().getCoreProfileManager().find(target, false);
+        CoreProfile coreProfile = plugin.getCoreProfileManager().find(target, false);
 
         if (coreProfile == null) {
             args.getSender().sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");

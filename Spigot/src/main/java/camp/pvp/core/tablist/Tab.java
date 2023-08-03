@@ -13,14 +13,17 @@ import java.util.Map;
 
 public class Tab implements Tablist {
 
+    @Override
     public String getHeader() {
         return null;
     }
 
+    @Override
     public String getFooter() {
         return null;
     }
 
+    @Override
     public Map<Integer, String> getSlots(Player player) {
 
         Map<Integer, String> slots = new HashMap<>();
@@ -67,8 +70,7 @@ public class Tab implements Tablist {
                     break;
                 }
             }
-            CoreProfile tabProfile = coreProfileManager.getLoadedProfiles().get(player.getUniqueId());
-            slots.put(slot, tabProfile.getHighestRank().getColor() + tabPlayer.getName());
+            slots.put(slot, tabPlayer.getRank().getColor() + tabPlayer.getName());
             lastColumn = newColumn;
         }
         return slots;
