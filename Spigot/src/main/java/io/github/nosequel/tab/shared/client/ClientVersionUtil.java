@@ -4,7 +4,6 @@ import com.viaversion.viaversion.api.Via;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
-import protocolsupport.api.ProtocolSupportAPI;
 
 public class ClientVersionUtil {
 
@@ -21,8 +20,6 @@ public class ClientVersionUtil {
 
         if(pluginManager.getPlugin("ViaVersion") != null) {
             return Via.getAPI().getPlayerVersion(player.getUniqueId());
-        } else if(pluginManager.getPlugin("ProtocolSupport") != null) {
-            return ProtocolSupportAPI.getProtocolVersion(player).getId();
         }
 
         return -1;
