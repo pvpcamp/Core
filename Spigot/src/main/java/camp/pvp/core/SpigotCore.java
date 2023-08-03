@@ -50,10 +50,10 @@ public class SpigotCore extends JavaPlugin {
         registerCommands();
         registerListeners();
 
-//        this.tablist = new Tab();
-//        ziggurat = new Ziggurat(this, new TabAdapter(tablist));
-//        ziggurat.setTicks(5);
-//        ziggurat.setHook(true);
+        this.tablist = new Tab();
+        ziggurat = new Ziggurat(this, new TabAdapter(tablist));
+        ziggurat.setTicks(5);
+        ziggurat.setHook(true);
     }
 
     @Override
@@ -62,6 +62,7 @@ public class SpigotCore extends JavaPlugin {
         coreProfileManager.shutdown();
 
         instance = null;
+        ziggurat.disable();
     }
 
     public void registerCommands() {
@@ -100,18 +101,20 @@ public class SpigotCore extends JavaPlugin {
         new WipePunishmentsCommand(this);
 
         CommandHandler commandHandler = NetworkHelper.getInstance().getCommandHandler();
-        commandHandler.registerCommand(new AltsCommand());
+        commandHandler.registerCommand(new AlertCommand());
+        commandHandler.registerCommand(new AltsCommand(this));
         commandHandler.registerCommand(new FeedCommand());
         commandHandler.registerCommand(new FlyCommand());
         commandHandler.registerCommand(new GamemodeCommand());
         commandHandler.registerCommand(new HealCommand());
         commandHandler.registerCommand(new PlayCommand(this));
-        commandHandler.registerCommand(new PlayerLookupCommand());
-        commandHandler.registerCommand(new PlaytimeCommand());
-        commandHandler.registerCommand(new SeenCommand());
+        commandHandler.registerCommand(new PlayerLookupCommand(this));
+        commandHandler.registerCommand(new PlaytimeCommand(this));
+        commandHandler.registerCommand(new SeenCommand(this));
         commandHandler.registerCommand(new ServerInfoCommand(this));
         commandHandler.registerCommand(new SudoCommand(this));
         commandHandler.registerCommand(new TagCommand(this));
+        commandHandler.registerCommand(new TeleportCommand());
     }
 
     public void registerListeners() {

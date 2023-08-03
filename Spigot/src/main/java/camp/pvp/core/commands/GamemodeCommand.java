@@ -14,7 +14,6 @@ public class GamemodeCommand {
     @Command(name = "gamemode", aliases = {"gm"}, description = "Change a players gamemode.", permission = "core.commands.gamemode")
     public void gm(CommandArgs args) {
         args.getSender().sendMessage(ChatColor.RED + "Usage: /" + args.getLabel() + " <gamemode> <player>");
-        return;
     }
 
     @Command(name = "gamemode.creative", aliases = {"gamemode.c", "gm.creative", "gm.c", "gm.1", "gmc", "gm1"}, permission = "core.commands.gamemode")

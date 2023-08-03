@@ -14,6 +14,12 @@ import java.util.Date;
 
 public class PlaytimeCommand {
 
+    private SpigotCore plugin;
+
+    public PlaytimeCommand(SpigotCore plugin) {
+        this.plugin = plugin;
+    }
+
     @Command(name = "playtime", aliases = {"pt"}, description = "Check the playtime of a player.", permission = "core.commands.playtime")
     public void playtime(CommandArgs args) {
 
@@ -23,7 +29,7 @@ public class PlaytimeCommand {
         }
 
         String target = args.getArgs(0);
-        CoreProfile coreProfile = SpigotCore.getInstance().getCoreProfileManager().find(target, false);
+        CoreProfile coreProfile = plugin.getCoreProfileManager().find(target, false);
 
         if (coreProfile == null) {
             args.getSender().sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");

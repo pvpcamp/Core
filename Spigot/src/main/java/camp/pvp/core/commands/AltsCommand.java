@@ -24,6 +24,12 @@ import java.util.Date;
 import java.util.List;
 
 public class AltsCommand {
+    
+    private SpigotCore plugin;
+    
+    public AltsCommand(SpigotCore plugin) {
+        this.plugin = plugin;
+    }
 
     @Command(name = "alts", description = "Check the alts of a player.", permission = "core.commands.alts")
     public void alts(CommandArgs args) {
@@ -34,7 +40,7 @@ public class AltsCommand {
         }
 
         String target = args.getArgs(0);
-        CoreProfile coreProfile = SpigotCore.getInstance().getCoreProfileManager().find(target, false);
+        CoreProfile coreProfile = plugin.getCoreProfileManager().find(target, false);
 
         if (coreProfile == null) {
             args.getSender().sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
@@ -44,7 +50,7 @@ public class AltsCommand {
         List<String> ips = coreProfile.getIpList();
         List<String> alts = new ArrayList<>();
 
-        SpigotCore.getInstance().getCoreProfileManager().getMongoManager().getCollection(false, SpigotCore.getInstance().getConfig().getString("networking.mongo.profiles_collection"), new MongoCollectionResult() {
+        plugin.getCoreProfileManager().getMongoManager().getCollection(false, plugin.getConfig().getString("networking.mongo.profiles_collection"), new MongoCollectionResult() {
             @Override
             public void call(MongoCollection<Document> mongoCollection) {
                 for (String ip : ips) {
@@ -115,7 +121,7 @@ public class AltsCommand {
 
                 TextComponent altHover = new TextComponent("");
 
-                CoreProfile altProfile = SpigotCore.getInstance().getCoreProfileManager().find(alt, false);
+                CoreProfile altProfile = plugin.getCoreProfileManager().find(alt, false);
                 String altName = altProfile.getHighestRank().getColor() + altProfile.getName();
                 boolean isOnline = (Bukkit.getPlayer(alt) != null && Bukkit.getPlayer(alt).isOnline());
                 //boolean isMatching = (coreProfile.getIp().equals(altProfile.getIp()));
