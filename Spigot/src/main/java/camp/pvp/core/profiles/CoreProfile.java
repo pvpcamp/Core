@@ -204,7 +204,9 @@ public class CoreProfile implements Comparable<CoreProfile>{
         List<UUID> punishmentIds = doc.getList("punishments", UUID.class);
         for(UUID uuid : punishmentIds) {
             Punishment punishment = pm.importFromDatabase(uuid);
-            this.getPunishments().add(punishment);
+            if (punishment != null) {
+                this.getPunishments().add(punishment);
+            }
         }
     }
 

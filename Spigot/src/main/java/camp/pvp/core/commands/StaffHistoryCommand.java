@@ -53,7 +53,7 @@ public class StaffHistoryCommand implements CommandExecutor {
                                                 plugin.getPunishmentManager().getLoadedPunishments().put(punishmentId, punishment);
                                                 punishments.add(punishment);
                                             });
-                                    Bukkit.getServer().getPluginManager().callEvent(new MongoGuiEvent(new HistoryGui(profile.getName() + " Staff History", punishments), player.getUniqueId(), started));;
+                                    Bukkit.getServer().getPluginManager().callEvent(new MongoGuiEvent(new HistoryGui(profile.getName() + " Staff History", punishments, true), player.getUniqueId(), started));;
 
                                 }
                             }

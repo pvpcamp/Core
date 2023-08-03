@@ -29,7 +29,7 @@ public class HistoryCommand implements CommandExecutor {
 
                 if(targetProfile != null) {
                     if(targetProfile.getPunishments().size() > 0) {
-                        new HistoryGui(targetProfile.getName() + " History", targetProfile.getPunishments()).open(player);
+                        new HistoryGui(targetProfile.getName() + " History", targetProfile.getPunishments(), false).open(player);
                     } else {
                         sender.sendMessage(ChatColor.GREEN + "Player " + ChatColor.WHITE +  targetProfile.getName() + ChatColor.GREEN + " does not have any punishments.");
                     }
