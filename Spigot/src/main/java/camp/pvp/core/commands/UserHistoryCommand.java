@@ -39,16 +39,16 @@ public class UserHistoryCommand implements CommandExecutor {
             int page = 1;
 
             if(args.length > 1) {
+                type = ChatHistory.Type.fromString(args[1]);
+            }
+
+            if(args.length > 2) {
                 try {
-                    page = Integer.parseInt(args[1]);
+                    page = Integer.parseInt(args[2]);
                 } catch (NumberFormatException ignored) {
                     sender.sendMessage(ChatColor.RED + "Invalid page number.");
                     return true;
                 }
-            }
-
-            if(args.length > 2) {
-                type = ChatHistory.Type.fromString(args[2]);
             }
 
             if (page < 1) {
@@ -100,7 +100,7 @@ public class UserHistoryCommand implements CommandExecutor {
                 }
             });
         } else {
-            sender.sendMessage(ChatColor.RED + "Usage: /" + label + " <user> [page] [type]");
+            sender.sendMessage(ChatColor.RED + "Usage: /" + label + " <user> [type] [page]");
         }
 
         return true;

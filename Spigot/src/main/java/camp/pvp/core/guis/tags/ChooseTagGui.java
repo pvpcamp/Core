@@ -37,6 +37,11 @@ public class ChooseTagGui extends PaginatedGui {
             lines.add("&6Preview: &f" + (prefix == null ? "" : prefix + " ") + rank.getColor() + profile.getName() + " " + tag.getTag());
             lines.add(" ");
 
+            boolean show = false;
+            if(tag.equals(profile.getChatTag()) || profile.getOwnedChatTags().contains(tag) || profile.getPlayer().hasPermission("core.tags.all")) {
+                show = true;
+            }
+
             if(profile.getChatTag() != null && profile.getChatTag().equals(tag)) {
                 button.updateName(tag.getDisplayName() + " &7(Selected)");
                 button.setAction(new GuiAction() {
@@ -72,7 +77,9 @@ public class ChooseTagGui extends PaginatedGui {
 
             button.setLore(lines);
 
-            this.addButton(button, false);
+            if(show) {
+                this.addButton(button, false);
+            }
         }
     }
 }

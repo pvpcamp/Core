@@ -35,28 +35,6 @@ public class PunishmentManager {
         plugin.getLogger().info("Started PunishmentManager.");
     }
 
-    /**
-     * Find the punishments of either a player that was issued the punishments, or the player that issued the punishments.
-     * @param uuid Player UUID.
-     * @param field Must either be "issued_to" or "issued_from".
-     * @return
-     */
-    public List<Punishment> getPunishmentsPlayerUUID(UUID uuid, String field) {
-        List<Punishment> punishments = new ArrayList<>();
-        getMongoManager().getCollection(false, punishmentsCollection,
-                mongoCollection -> mongoCollection.find(new Document(field, uuid)).forEach(
-                        document -> {
-                            UUID punishmentId = document.get("_id", UUID.class);
-                            Punishment punishment = new Punishment(punishmentId);
-                            punishment.importFromDocument(document);
-                            getLoadedPunishments().put(punishmentId, punishment);
-                            punishments.add(punishment);
-                        })
-        );
-
-        return punishments;
-    }
-
     public List<Punishment> getPunishmentsIp(String ip) {
         List<Punishment> punishments = new ArrayList<>();
         getMongoManager().getCollection(false, punishmentsCollection,
@@ -90,5 +68,15 @@ public class PunishmentManager {
         MongoUpdate mu = new MongoUpdate(punishmentsCollection, punishment.getUuid());
         mu.setUpdate(punishment.exportToMap());
         getMongoManager().massUpdate(async, mu);
+    }
+
+    public void delete(Punishment punishment, boolean async) {
+        getLoadedPunishments().remove(punishment.getUuid());
+
+        CoreProfile profile = getPlugin().getCoreProfileManager().find(punishment.getIssuedTo(), false);
+        profile.getPunishments().removeIf(p -> p.getUuid().equals(punishment.getUuid()));
+
+        getPlugin().getCoreProfileManager().exportToDatabase(profile, true, false);
+        getMongoManager().deleteDocument(async, punishmentsCollection, punishment.getUuid());
     }
 }

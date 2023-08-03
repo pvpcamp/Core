@@ -105,6 +105,7 @@ public class SpigotCore extends JavaPlugin {
         commandHandler.registerCommand(new PlaytimeCommand(this));
         commandHandler.registerCommand(new SeenCommand(this));
         commandHandler.registerCommand(new ServerInfoCommand(this));
+        commandHandler.registerCommand(new SudoCommand(this));
         commandHandler.registerCommand(new TagCommand(this));
         commandHandler.registerCommand(new TeleportCommand());
     }
