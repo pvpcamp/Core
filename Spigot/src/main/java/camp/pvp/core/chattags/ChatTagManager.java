@@ -10,10 +10,12 @@ import camp.pvp.mongo.MongoManager;
 import camp.pvp.mongo.MongoUpdate;
 import camp.pvp.redis.RedisPublisher;
 import camp.pvp.redis.RedisSubscriber;
+import com.google.gson.JsonObject;
 import com.mongodb.client.FindIterable;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.HashMap;
@@ -48,7 +50,7 @@ public class ChatTagManager {
                 config.getString("networking.redis.host"),
                 config.getInt("networking.redis.port"),
                 "core_tag_updates",
-                new RedisTagUpdateListener());
+                new RedisTagUpdateListener(plugin, this));
 
         getMongoManager().getCollectionIterable(false, tagsCollection, new MongoIterableResult() {
             @Override
@@ -113,11 +115,30 @@ public class ChatTagManager {
         }
 
         getMongoManager().deleteDocument(true, tagsCollection, tag.getUuid());
+
+        Bukkit.getScheduler().runTaskLater(getPlugin(), ()-> sendRedisUpdate(tag, true), 10);
     }
 
     public void exportToDatabase(ChatTag tag, boolean async) {
         MongoUpdate mu = new MongoUpdate(tagsCollection, tag.getUuid());
         mu.setUpdate(tag.exportToMap());
         getMongoManager().massUpdate(async, mu);
+
+        if(async) {
+            Bukkit.getScheduler().runTaskLater(getPlugin(), ()-> this.sendRedisUpdate(tag, false), 10);
+        } else {
+            sendRedisUpdate(tag, false);
+        }
+    }
+
+    public void sendRedisUpdate(ChatTag tag, boolean deleted) {
+        JsonObject json = new JsonObject();
+        json.addProperty("uuid", tag.getUuid().toString());
+
+        String server = getPlugin().getCoreServerManager().getCoreServer().getName();
+        json.addProperty("from_server", server);
+        json.addProperty("deleted", deleted);
+
+        getRedisPublisher().publishMessage("core_tag_updates", json);
     }
 }

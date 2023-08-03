@@ -3,6 +3,7 @@ package camp.pvp.core.tablist;
 import camp.pvp.core.SpigotCore;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.profiles.CoreProfileManager;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -11,12 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 public class Tab implements Tablist {
-
-    private SpigotCore plugin;
-
-    public Tab(SpigotCore plugin) {
-        this.plugin = plugin;
-    }
 
     public String getHeader() {
         return null;
@@ -31,10 +26,13 @@ public class Tab implements Tablist {
         Map<Integer, String> slots = new HashMap<>();
         List<TabPlayer> tabPlayerList = new ArrayList<>();
 
-        CoreProfileManager coreProfileManager = plugin.getCoreProfileManager();
-        CoreProfile coreProfile = coreProfileManager.find(player.getName(), false);
+        CoreProfileManager coreProfileManager = SpigotCore.getInstance().getCoreProfileManager();
 
-        tabPlayerList.add(new TabPlayer(player.getName(), coreProfile.getHighestRank()));
+        Bukkit.getOnlinePlayers().forEach(p -> {
+            CoreProfile coreProfile = coreProfileManager.getLoadedProfiles().get(p.getUniqueId());
+            tabPlayerList.add(new TabPlayer(p.getName(), coreProfile.getHighestRank()));
+        });
+
 
         int left = 0;
         int middle = 0;
@@ -69,7 +67,7 @@ public class Tab implements Tablist {
                     break;
                 }
             }
-            CoreProfile tabProfile = coreProfileManager.find(tabPlayer.getName(), false);
+            CoreProfile tabProfile = coreProfileManager.getLoadedProfiles().get(player.getUniqueId());
             slots.put(slot, tabProfile.getHighestRank().getColor() + tabPlayer.getName());
             lastColumn = newColumn;
         }

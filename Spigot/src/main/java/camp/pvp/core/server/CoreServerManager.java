@@ -45,7 +45,14 @@ public class CoreServerManager {
         this.coreServerUpdater = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
             @Override
             public void run() {
-
+                for(CoreServer server : getCoreServers()) {
+                    if(server.isCurrentlyOnline()) {
+                        if (new Date().getTime() - server.getLastUpdate() > 5000) {
+                            server.setCurrentlyOnline(false);
+                            plugin.getCoreProfileManager().staffBroadcast("&cServer &f" + server.getName() + " &chas not sent an update for 5 seconds, assuming offline.");
+                        }
+                    }
+                }
             }
         }, 0, 100);
 
@@ -63,15 +70,12 @@ public class CoreServerManager {
                 json.addProperty("type", coreServer.getType());
                 json.addProperty("online", coreServer.getOnline());
                 json.addProperty("slots", coreServer.getSlots());
-                json.addProperty("currently_online", coreServer.isCurrentlyOnline());
                 json.addProperty("muted_chat", coreServer.isMutedChat());
                 json.addProperty("last_update", coreServer.getLastUpdate());
 
                 getRedisPublisher().publishMessage("core_server_updates", json);
             }
         }, 0, 40);
-
-        this.sendStaffMessage("&c&l[Server Updater] &r&cServer &f" + coreServer.getName() + "&c is now online.");
     }
 
     public CoreServer findServer(String s) {
@@ -91,21 +95,6 @@ public class CoreServerManager {
     }
 
     public void shutdown() {
-        coreServer.setOnline(0);
-        coreServer.setSlots(0);
-        coreServer.setCurrentlyOnline(false);
-        coreServer.setLastUpdate(new Date().getTime());
 
-        JsonObject json = new JsonObject();
-        json.addProperty("name", coreServer.getName());
-        json.addProperty("type", coreServer.getType());
-        json.addProperty("online", coreServer.getOnline());
-        json.addProperty("slots", coreServer.getSlots());
-        json.addProperty("currently_online", false);
-        json.addProperty("muted_chat", false);
-        json.addProperty("last_update", coreServer.getLastUpdate());
-
-        getRedisPublisher().publishMessage("core_server_updates", json);
-        this.sendStaffMessage("&c&l[Server Updater] &r&cServer &f" + coreServer.getName() + "&c has been shutdown.");
     }
 }

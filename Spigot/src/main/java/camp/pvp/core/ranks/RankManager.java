@@ -9,10 +9,12 @@ import camp.pvp.mongo.MongoManager;
 import camp.pvp.mongo.MongoUpdate;
 import camp.pvp.redis.RedisPublisher;
 import camp.pvp.redis.RedisSubscriber;
+import com.google.gson.JsonObject;
 import com.mongodb.client.FindIterable;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.HashMap;
@@ -47,7 +49,7 @@ public class RankManager {
                 config.getString("networking.redis.host"),
                 config.getInt("networking.redis.port"),
                 "core_rank_updates",
-                new RedisRankUpdateListener());
+                new RedisRankUpdateListener(plugin, this));
 
         getMongoManager().getCollectionIterable(false, ranksCollection, new MongoIterableResult() {
             @Override
@@ -104,6 +106,21 @@ public class RankManager {
             }
         });
 
+        for(CoreProfile profile : plugin.getCoreProfileManager().getLoadedProfiles().values()) {
+            Rank oldRank = null;
+            for(Rank r : profile.getRanks()) {
+                if(r.getUuid().equals(uuid)) {
+                    oldRank = r;
+                    break;
+                }
+            }
+
+            if(oldRank != null) {
+                profile.getRanks().remove(oldRank);
+                profile.getRanks().add(rank[0]);
+            }
+        }
+
         return rank[0];
     }
 
@@ -127,6 +144,8 @@ public class RankManager {
         plugin.getCoreProfileManager().updateAllPermissions();
 
         getMongoManager().deleteDocument(true, ranksCollection, rank.getUuid());
+
+        Bukkit.getScheduler().runTaskLater(getPlugin(), ()-> this.sendRedisUpdate(rank, true), 10);
     }
 
     public void exportToDatabase(Rank rank, boolean async) {
@@ -134,9 +153,26 @@ public class RankManager {
         mu.setUpdate(rank.exportToMap());
         getMongoManager().massUpdate(async, mu);
 
+        if(async) {
+            Bukkit.getScheduler().runTaskLater(getPlugin(), ()-> this.sendRedisUpdate(rank, false), 10);
+        } else {
+            sendRedisUpdate(rank, false);
+        }
+
         if(plugin.getCoreProfileManager() != null) {
             plugin.getCoreProfileManager().updateAllPermissions();
         }
+    }
+
+    public void sendRedisUpdate(Rank rank, boolean deleted) {
+        JsonObject json = new JsonObject();
+        json.addProperty("uuid", rank.getUuid().toString());
+
+        String server = getPlugin().getCoreServerManager().getCoreServer().getName();
+        json.addProperty("from_server", server);
+        json.addProperty("deleted", deleted);
+
+        getRedisPublisher().publishMessage("core_rank_updates", json);
     }
 
     public Rank getDefaultRank() {

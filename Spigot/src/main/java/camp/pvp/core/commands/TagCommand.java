@@ -53,6 +53,12 @@ public class TagCommand {
 
                         sender.sendMessage(Colors.get(sb.toString()));
                         return;
+                    case "clear":
+                        target.setChatTag(null);
+                        sender.sendMessage(ChatColor.WHITE + target.getName() + ChatColor.GREEN + " no longer has a chat tag applied.");
+
+                        plugin.getCoreProfileManager().exportToDatabase(target, true, false);
+                        return;
                     case "add":
                         if(cArgs.length > 2) {
                             ChatTag tag = plugin.getChatTagManager().getTagFromName(cArgs[2]);
@@ -102,6 +108,7 @@ public class TagCommand {
 
         StringBuilder help = new StringBuilder();
         help.append("&6&l/tag &r&6Help");
+        help.append("\n&6/tag clear <player> &7- &fClears the currently applied tag from a profile.");
         help.append("\n&6/tag list <player> &7- &fView a list of owned tags.");
         help.append("\n&6/tag add <player> <tag> &7- &fAdd a tag to a profile.");
         help.append("\n&6/tag remove <player> <tag> &7- &fRemove a tag from a profile.");

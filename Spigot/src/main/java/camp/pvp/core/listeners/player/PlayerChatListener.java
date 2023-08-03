@@ -6,6 +6,7 @@ import camp.pvp.core.profiles.ChatHistory;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.ranks.Rank;
+import camp.pvp.core.utils.ChatUtils;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.core.utils.DateUtils;
 import com.google.gson.JsonObject;
@@ -78,6 +79,11 @@ public class PlayerChatListener implements Listener {
             if(!profile.isStaffChat()) {
 
                 if(profile.canChat()) {
+
+                    boolean filtered = ChatUtils.isFiltered(event.getMessage());
+                    if(filtered) {
+                        player.sendMessage(ChatColor.RED + "Your message would have been filtered.");
+                    }
 
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         CoreProfile pr = plugin.getCoreProfileManager().getLoadedProfiles().get(p.getUniqueId());

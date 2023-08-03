@@ -110,7 +110,7 @@ public class CoreProfileManager {
     public void staffBroadcast(String message) {
         for(Player player : Bukkit.getOnlinePlayers()) {
             if(player.hasPermission("core.staff")) {
-                player.sendMessage(Colors.get("&7[Staff Broadcast] " + message));
+                player.sendMessage(Colors.get("&c[SB] " + message));
             }
         }
     }

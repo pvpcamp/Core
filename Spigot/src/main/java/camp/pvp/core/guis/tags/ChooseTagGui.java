@@ -3,6 +3,7 @@ package camp.pvp.core.guis.tags;
 import camp.pvp.core.SpigotCore;
 import camp.pvp.core.chattags.ChatTag;
 import camp.pvp.core.profiles.CoreProfile;
+import camp.pvp.core.ranks.Rank;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.utils.buttons.GuiButton;
 import camp.pvp.utils.guis.Gui;
@@ -24,11 +25,16 @@ public class ChooseTagGui extends PaginatedGui {
         List<ChatTag> tags = new ArrayList<>(SpigotCore.getInstance().getChatTagManager().getChatTags().values());
         Collections.sort(tags);
 
+        Rank rank = profile.getHighestRank();
+        String prefix = rank.getPrefix();
+
         for (ChatTag tag : tags) {
             GuiButton button = new GuiButton(Material.NAME_TAG, "&f" + tag.getDisplayName());
 
             List<String> lines = new ArrayList<>();
             lines.add("&6Tag: &f" + tag.getTag());
+
+            lines.add("&6Preview: &f" + (prefix == null ? "" : prefix + " ") + rank.getColor() + profile.getName() + " " + tag.getTag());
             lines.add(" ");
 
             if(profile.getChatTag() != null && profile.getChatTag().equals(tag)) {
@@ -59,6 +65,8 @@ public class ChooseTagGui extends PaginatedGui {
                 } else {
                     button.setType(Material.PAPER);
                     lines.add("&cYou do not own this tag.");
+                    lines.add("&eYou can purchase tags here:");
+                    lines.add("&fstore.pvp.camp");
                 }
             }
 

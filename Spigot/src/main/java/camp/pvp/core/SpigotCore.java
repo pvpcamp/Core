@@ -6,6 +6,7 @@ import camp.pvp.core.commands.*;
 import camp.pvp.core.listeners.mongo.MongoGuiListener;
 import camp.pvp.core.listeners.pearls.PlayerTeleportListener;
 import camp.pvp.core.listeners.player.PlayerChatListener;
+import camp.pvp.core.listeners.player.PlayerChatTabCompleteListener;
 import camp.pvp.core.listeners.player.PlayerCommandPreprocessListener;
 import camp.pvp.core.listeners.player.PlayerJoinLeaveListeners;
 import camp.pvp.core.profiles.CoreProfileManager;
@@ -38,6 +39,8 @@ public class SpigotCore extends JavaPlugin {
 
         this.saveDefaultConfig();
 
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+
         this.coreServerManager = new CoreServerManager(this);
         this.chatTagManager = new ChatTagManager(this);
         this.rankManager = new RankManager(this);
@@ -47,10 +50,10 @@ public class SpigotCore extends JavaPlugin {
         registerCommands();
         registerListeners();
 
-        this.tablist = new Tab(this);
-        ziggurat = new Ziggurat(this, new TabAdapter(tablist));
-        ziggurat.setTicks(5);
-        ziggurat.setHook(true);
+//        this.tablist = new Tab();
+//        ziggurat = new Ziggurat(this, new TabAdapter(tablist));
+//        ziggurat.setTicks(5);
+//        ziggurat.setHook(true);
     }
 
     @Override
@@ -102,14 +105,17 @@ public class SpigotCore extends JavaPlugin {
         commandHandler.registerCommand(new FlyCommand());
         commandHandler.registerCommand(new GamemodeCommand());
         commandHandler.registerCommand(new HealCommand());
+        commandHandler.registerCommand(new PlayCommand(this));
         commandHandler.registerCommand(new PlayerLookupCommand());
         commandHandler.registerCommand(new PlaytimeCommand());
         commandHandler.registerCommand(new SeenCommand());
+        commandHandler.registerCommand(new ServerInfoCommand(this));
         commandHandler.registerCommand(new TagCommand(this));
     }
 
     public void registerListeners() {
         new PlayerChatListener(this);
+        new PlayerChatTabCompleteListener(this);
         new PlayerCommandPreprocessListener(this);
         new PlayerJoinLeaveListeners(this);
         new PlayerTeleportListener(this);

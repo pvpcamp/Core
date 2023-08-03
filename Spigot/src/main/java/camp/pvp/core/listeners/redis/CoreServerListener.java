@@ -22,17 +22,19 @@ public class CoreServerListener implements RedisSubscriberListener {
         if(server == null) {
             server = new CoreServer(name);
             csm.getCoreServers().add(server);
+
+            csm.getPlugin().getCoreProfileManager().staffBroadcast("&cServer &f" + name + " &chas been found.");
         }
 
         server.setType(json.get("type").getAsString());
         server.setOnline(json.get("online").getAsInt());
         server.setSlots(json.get("slots").getAsInt());
-        server.setCurrentlyOnline(json.get("currently_online").getAsBoolean());
         server.setMutedChat(json.get("muted_chat").getAsBoolean());
         server.setLastUpdate(json.get("last_update").getAsLong());
 
         if(!server.isCurrentlyOnline()) {
-            csm.getCoreServers().remove(server);
+            server.setCurrentlyOnline(true);
+            csm.getPlugin().getCoreProfileManager().staffBroadcast("&cServer &f" + name + " &csent online status.");
         }
     }
 }
