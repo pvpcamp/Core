@@ -4,6 +4,7 @@ import camp.pvp.core.SpigotCore;
 import camp.pvp.core.profiles.ChatHistory;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.punishments.Punishment;
+import camp.pvp.core.utils.ChatUtils;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.core.utils.DateUtils;
 import org.bukkit.Bukkit;
@@ -31,7 +32,7 @@ public class MessageCommand implements CommandExecutor {
             Player player = (Player) sender;
             Player target = null;
             CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
-            CoreProfile targetProfile = null;
+            CoreProfile targetProfile;
             StringBuilder message = new StringBuilder();
 
             Punishment mute = profile.getActivePunishment(Punishment.Type.MUTE);
@@ -103,13 +104,16 @@ public class MessageCommand implements CommandExecutor {
                     }
 
                     profile.setReplyTo(target.getUniqueId());
-                    targetProfile.setReplyTo(player.getUniqueId());
-
                     player.sendMessage(Colors.get("&7(To " + targetProfile.getHighestRank().getColor() + target.getName() + "&7) &f" + message.toString()));
-                    target.sendMessage(Colors.get("&7(From " + profile.getHighestRank().getColor() + player.getName() + "&7) &f" + message.toString()));
 
-                    if(targetProfile.isMessageSounds()) {
-                        target.playSound(target.getLocation(), Sound.NOTE_PLING, 1F, 1F);
+                    boolean filtered = false;
+                    if(ChatUtils.isFiltered(message.toString())) {
+                        if(!player.hasPermission("core.chat.bypass.filter")) {
+                            plugin.getCoreServerManager().sendStaffMessage("&c[Filtered] &7(" + plugin.getCoreServerManager().getCoreServer().getName() + "&7) &f" + player.getName() + " -> " + target.getName() + "&7: &f" + message.toString());
+                            filtered = true;
+                        } else {
+                            player.sendMessage(ChatColor.RED + "Your message would have been filtered.");
+                        }
                     }
 
                     ChatHistory chatHistory = new ChatHistory(
@@ -120,9 +124,17 @@ public class MessageCommand implements CommandExecutor {
                             plugin.getCoreServerManager().getCoreServer().getName(),
                             ChatHistory.Type.PRIVATE_MESSAGE,
                             new Date(),
-                            false);
-
+                            filtered);
                     plugin.getCoreProfileManager().exportHistory(chatHistory, true);
+
+                    if(!filtered) {
+                        targetProfile.setReplyTo(player.getUniqueId());
+                        target.sendMessage(Colors.get("&7(From " + profile.getHighestRank().getColor() + player.getName() + "&7) &f" + message.toString()));
+
+                        if(targetProfile.isMessageSounds()) {
+                            target.playSound(target.getLocation(), Sound.NOTE_PLING, 1F, 1F);
+                        }
+                    }
                 } else {
                     player.sendMessage(ChatColor.RED + "You cannot message " + target.getName() + " right now.");
                 }

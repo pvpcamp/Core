@@ -16,14 +16,14 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewTab implements TabElementHandler {
+public class TabListAdapter implements TabElementHandler {
 
     @Override
     public TabElement getElement(Player player) {
 
         TabElement tabElement = new TabElement();
-        tabElement.setHeader(ChatColor.GOLD + "Practice");
-        tabElement.setFooter(ChatColor.GOLD + "pvp.camp");
+        tabElement.setHeader(Colors.get("&6Welcome to &6&lPvP Camp"));
+        tabElement.setFooter(Colors.get("&fpvp.camp &7- &fstore.pvp.camp"));
 
         List<TabPlayer> tabPlayerList = new ArrayList<>();
 

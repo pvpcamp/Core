@@ -25,7 +25,12 @@ public class IgnoreCommand implements CommandExecutor {
             CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
             if(args.length > 0) {
                 Player target = Bukkit.getPlayer(args[0]);
-                if(target != null && player != target) {
+                if(target != null) {
+                    if(player == target) {
+                        player.sendMessage(ChatColor.LIGHT_PURPLE + "Are you retarded?");
+                        return true;
+                    }
+
                     if(!profile.getIgnored().contains(target.getUniqueId())) {
                         profile.getIgnored().add(target.getUniqueId());
                         player.sendMessage(ChatColor.GREEN + "You will no longer receive any messages from " + ChatColor.WHITE + target.getName() + ChatColor.GREEN + ".");

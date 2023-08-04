@@ -22,6 +22,10 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+        <repository>
+            <id>viaversion-repo</id>
+            <url>https://repo.viaversion.com</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -30,14 +34,6 @@
             <artifactId>spigot-api</artifactId>
             <version>1.8.8-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
-        </dependency>
-        <!--Spigot 1.7-->
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-1.7</artifactId>
-            <version>1.7.10</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/Spigot1.7.jar</systemPath>
         </dependency>
         <!-- Spigot 1.8 -->
         <dependency>
@@ -66,17 +62,10 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>us.myles</groupId>
-            <artifactId>ViaVersion</artifactId>
+            <groupId>com.viaversion</groupId>
+            <artifactId>viaversion-api</artifactId>
             <version>4.7.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/ViaVersion.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>io.github.thatkawaiisam</groupId>
-            <artifactId>utils</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

@@ -32,7 +32,7 @@ public class TabHandler {
         this.handler = handler;
         this.ticks = ticks;
 
-        Bukkit.getScheduler().runTaskTimer(plugin, new TabRunnable(this), 1L, 20L);
+        Bukkit.getScheduler().runTaskTimer(plugin, new TabRunnable(this), 1L, ticks);
 /*        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(new TabRunnable(this), 1L, ticks / 20, TimeUnit.SECONDS);*/
         // register listener for hiding players from tab

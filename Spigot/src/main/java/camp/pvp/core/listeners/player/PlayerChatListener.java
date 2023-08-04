@@ -81,9 +81,6 @@ public class PlayerChatListener implements Listener {
                 if(profile.canChat()) {
 
                     boolean filtered = ChatUtils.isFiltered(event.getMessage());
-                    if(filtered) {
-                        player.sendMessage(ChatColor.RED + "Your message would have been filtered.");
-                    }
 
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         CoreProfile pr = plugin.getCoreProfileManager().getLoadedProfiles().get(p.getUniqueId());
@@ -92,9 +89,19 @@ public class PlayerChatListener implements Listener {
                                 event.getRecipients().remove(p);
                             }
 
-                            if (pr.getIgnored().contains(player.getUniqueId())) {
-                                event.getRecipients().remove(p);
+                            if (pr.getIgnored().contains(player.getUniqueId()) || (filtered && !player.hasPermission("core.chat.bypass.filter"))) {
+                                if(p != player) {
+                                    event.getRecipients().remove(p);
+                                }
                             }
+                        }
+                    }
+
+                    if(filtered) {
+                        if(player.hasPermission("core.chat.bypass.filter")) {
+                            player.sendMessage(ChatColor.RED + "Your message would have been filtered.");
+                        } else {
+                            plugin.getCoreServerManager().sendStaffMessage("&c[Filtered] &7(" + plugin.getCoreServerManager().getCoreServer().getName() + "&7) &f" + player.getName() + "&7: &f" + event.getMessage());
                         }
                     }
 
@@ -106,8 +113,7 @@ public class PlayerChatListener implements Listener {
                             plugin.getCoreServerManager().getCoreServer().getName(),
                             ChatHistory.Type.PUBLIC_CHAT,
                             new Date(),
-                            false);
-
+                            filtered);
                     plugin.getCoreProfileManager().exportHistory(chatHistory, true);
 
                     if(!player.hasPermission("core.chat.bypass.cooldown")) {
