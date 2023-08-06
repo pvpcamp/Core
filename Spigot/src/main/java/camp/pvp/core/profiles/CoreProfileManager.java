@@ -67,7 +67,7 @@ public class CoreProfileManager {
                 config.getString("networking.redis.host"),
                 config.getInt("networking.redis.port"),
                 "core_staff",
-                new StaffMessageListener());
+                new StaffMessageListener(plugin));
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new NameMcVerifier(this), 0, 1200);
 

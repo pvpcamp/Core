@@ -5,11 +5,13 @@ import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.core.utils.DateUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.*;
@@ -87,7 +89,10 @@ public class PlayerJoinLeaveListeners implements Listener {
         }
 
         if(player.hasPermission("core.staff")) {
-            plugin.getCoreServerManager().sendStaffMessage("&6[S] " + profile.getHighestRank().getColor() + profile.getName() + " &6has joined &f" + plugin.getCoreServerManager().getCoreServer().getName() + "&6.");
+            plugin.getCoreServerManager().sendStaffJoinMessage(player.getUniqueId(), profile.getHighestRank().getColor() + profile.getName());
+            if(profile.isStaffChat()) {
+                player.sendMessage(ChatColor.GREEN + "REMINDER: You are currently in staff chat.");
+            }
         } else {
             profile.setStaffChat(false);
         }
@@ -101,7 +106,7 @@ public class PlayerJoinLeaveListeners implements Listener {
         CoreProfile profile = plugin.getCoreProfileManager().find(player.getUniqueId(), true);
 
         if(player.hasPermission("core.staff")) {
-            plugin.getCoreServerManager().sendStaffMessage("&6[S] " + profile.getHighestRank().getColor() + profile.getName() + " &6has left &f" + plugin.getCoreServerManager().getCoreServer().getName() + "&6.");
+            plugin.getCoreServerManager().sendStaffLeaveMessage(player.getUniqueId(), profile.getHighestRank().getColor() + profile.getName());
         }
 
         if(profile != null) {
@@ -115,5 +120,19 @@ public class PlayerJoinLeaveListeners implements Listener {
         plugin.getCoreProfileManager().getPermissionAttachments().remove(player.getUniqueId());
 
         event.setQuitMessage(null);
+    }
+
+    @EventHandler
+    public void onPlayerKick(PlayerKickEvent event) {
+        Player player = event.getPlayer();
+        CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
+
+        if(profile != null) {
+            profile.setLastLogout(new Date());
+
+            profile.setPlaytime(profile.getPlaytime() + (profile.getLastLogout().getTime() - profile.getLastLogin().getTime()));
+
+            plugin.getCoreProfileManager().exportToDatabase(profile, true, false);
+        }
     }
 }

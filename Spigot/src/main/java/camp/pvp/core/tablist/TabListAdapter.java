@@ -56,9 +56,12 @@ public class TabListAdapter implements TabElementHandler {
         if (tabPlayerList.size() > i) {
             TabPlayer tabPlayer = tabPlayerList.get(i);
             Player p = Bukkit.getPlayer(tabPlayer.getName());
-            tabElement.add(x, y, Colors.get(tabPlayer.getRank().getColor() + tabPlayer.getName()), ((CraftPlayer) p).getHandle().ping, SkinType.fromUsername(p.getName()));
-        } else {
-            tabElement.add(x, y, " ");
+            String text = Colors.get(tabPlayer.getRank().getColor() + tabPlayer.getName());
+            if(tabElement.getEntry(x, y) == null || !tabElement.getEntry(x, y).getText().equals(text)) {
+                tabElement.add(x, y, text, ((CraftPlayer) p).getHandle().ping, SkinType.fromUsername(p.getName()));
+            }
         }
     }
+
+
 }

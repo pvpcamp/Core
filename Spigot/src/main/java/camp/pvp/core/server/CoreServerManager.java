@@ -14,6 +14,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Getter @Setter
 public class CoreServerManager {
@@ -90,7 +91,26 @@ public class CoreServerManager {
 
     public void sendStaffMessage(String s) {
         JsonObject json = new JsonObject();
+        json.addProperty("type", StaffMessageType.MESSAGE.toString());
         json.addProperty("message", s);
+        getRedisPublisher().publishMessage("core_staff", json);
+    }
+
+    public void sendStaffJoinMessage(UUID uuid, String name) {
+        JsonObject json = new JsonObject();
+        json.addProperty("type", StaffMessageType.JOIN.toString());
+        json.addProperty("uuid", uuid.toString());
+        json.addProperty("name", name);
+        json.addProperty("server", getCoreServer().getName());
+        getRedisPublisher().publishMessage("core_staff", json);
+    }
+
+    public void sendStaffLeaveMessage(UUID uuid, String name) {
+        JsonObject json = new JsonObject();
+        json.addProperty("type", StaffMessageType.LEAVE.toString());
+        json.addProperty("uuid", uuid.toString());
+        json.addProperty("name", name);
+        json.addProperty("server", getCoreServer().getName());
         getRedisPublisher().publishMessage("core_staff", json);
     }
 
