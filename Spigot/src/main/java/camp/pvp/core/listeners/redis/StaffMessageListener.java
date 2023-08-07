@@ -31,11 +31,11 @@ public class StaffMessageListener implements RedisSubscriberListener {
                     MiniProfile leavePlayer = leavePlayers.get(joinPlayer.getUuid());
 
                     if(leavePlayer != null) {
-                        if (time - joinPlayer.getDate().getTime() < 500 && time - leavePlayer.getDate().getTime() < 500) {
+                        if (time - joinPlayer.getDate().getTime() < 300 && time - leavePlayer.getDate().getTime() < 300) {
                             sendStaffMessage("&6[S] &f" + joinPlayer.getName() + "&6 joined &f" + joinPlayer.getServer() + "&6 from &f" + leavePlayer.getServer() + "&6.");
                             remove.add(joinPlayer.getUuid());
                         }
-                    } else if (time - joinPlayer.getDate().getTime() > 300) {
+                    } else if (time - joinPlayer.getDate().getTime() > 200) {
                         sendStaffMessage("&6[S] &f" + joinPlayer.getName() + "&6 joined &f" + joinPlayer.getServer() + "&6.");
                         remove.add(joinPlayer.getUuid());
                     }
@@ -46,7 +46,7 @@ public class StaffMessageListener implements RedisSubscriberListener {
                     MiniProfile leavePlayer = entry.getValue();
                     MiniProfile joinPlayer = joinPlayers.get(leavePlayer.getUuid());
 
-                    if(joinPlayer == null && time - leavePlayer.getDate().getTime() > 500) {
+                    if(joinPlayer == null && time - leavePlayer.getDate().getTime() > 300) {
                         sendStaffMessage("&6[S] &f" + leavePlayer.getName() + "&6 left &f" + leavePlayer.getServer() + "&6.");
                         remove.add(leavePlayer.getUuid());
                     }

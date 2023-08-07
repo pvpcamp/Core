@@ -7,6 +7,7 @@ import camp.pvp.core.utils.DateUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
@@ -21,17 +22,25 @@ public class PlayerCommandPreprocessListener implements Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         Player player = event.getPlayer();
         CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
 
         if(profile != null) {
+
+            String message = event.getMessage();
+            if(profile.getAuthKey() != null && !profile.isAuthenticated() && message.toLowerCase().startsWith("2fa") || message.toLowerCase().startsWith("auth")) {
+                event.setCancelled(true);
+                player.sendMessage(ChatColor.RED + "You are not authenticated.");
+                return;
+            }
+
             ChatHistory chatHistory = new ChatHistory(
                     UUID.randomUUID(),
                     player.getUniqueId(),
                     player.getName(),
-                    event.getMessage(),
+                    message,
                     plugin.getCoreServerManager().getCoreServer().getName(),
                     ChatHistory.Type.COMMAND,
                     new Date(),

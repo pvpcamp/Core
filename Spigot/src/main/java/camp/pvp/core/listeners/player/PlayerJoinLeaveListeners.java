@@ -65,6 +65,11 @@ public class PlayerJoinLeaveListeners implements Listener {
         Player player = event.getPlayer();
         CoreProfile profile = plugin.getCoreProfileManager().find(player.getUniqueId(), true);
 
+        List<String> welcomeMessages = plugin.getConfig().getStringList("messages.welcome");
+        for(String s : welcomeMessages) {
+            player.sendMessage(Colors.get(s));
+        }
+
         if(profile == null) {
             profile = plugin.getCoreProfileManager().create(player);
         }
@@ -74,6 +79,15 @@ public class PlayerJoinLeaveListeners implements Listener {
         }
 
         String ip = player.getAddress().getAddress().getHostAddress();
+
+        if(profile.getIp() != null && !profile.getIp().equals(ip)) {
+            if(profile.getAuthKey() != null) {
+                profile.setAuthenticated(false);
+                player.sendMessage(Colors.get("&c&lYour IP address has changed, please authenticate yourself."));
+                plugin.getCoreProfileManager().exportToDatabase(profile, true, true);
+            }
+        }
+
         profile.setIp(ip);
         profile.setLastLogin(new Date());
 
@@ -82,11 +96,6 @@ public class PlayerJoinLeaveListeners implements Listener {
         }
 
         plugin.getCoreProfileManager().updatePermissions(profile);
-
-        List<String> welcomeMessages = plugin.getConfig().getStringList("messages.welcome");
-        for(String s : welcomeMessages) {
-            player.sendMessage(Colors.get(s));
-        }
 
         if(player.hasPermission("core.staff")) {
             plugin.getCoreServerManager().sendStaffJoinMessage(player.getUniqueId(), profile.getHighestRank().getColor() + profile.getName());

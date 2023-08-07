@@ -93,6 +93,7 @@ public class SpigotCore extends JavaPlugin {
         CommandHandler commandHandler = NetworkHelper.getInstance().getCommandHandler();
         commandHandler.registerCommand(new AlertCommand());
         commandHandler.registerCommand(new AltsCommand(this));
+        commandHandler.registerCommand(new AuthCommand(this));
         commandHandler.registerCommand(new FeedCommand());
         commandHandler.registerCommand(new FlyCommand());
         commandHandler.registerCommand(new GamemodeCommand());

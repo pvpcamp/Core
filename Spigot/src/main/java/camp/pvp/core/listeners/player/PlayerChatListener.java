@@ -36,6 +36,13 @@ public class PlayerChatListener implements Listener {
         CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
 
         if(profile != null && !event.isCancelled()) {
+
+            if(profile.getAuthKey() != null && !profile.isAuthenticated()) {
+                event.setCancelled(true);
+                player.sendMessage(ChatColor.RED + "You are not authenticated.");
+                return;
+            }
+
             Punishment mute = profile.getActivePunishment(Punishment.Type.MUTE);
             if(mute != null) {
                 player.sendMessage(Colors.get(mute.getType().getMessage()));

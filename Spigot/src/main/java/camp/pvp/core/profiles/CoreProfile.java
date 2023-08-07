@@ -19,7 +19,7 @@ import java.util.*;
 public class CoreProfile implements Comparable<CoreProfile>{
 
     private final UUID uuid;
-    private String name, ip;
+    private String name, ip, authKey;
 
     private List<String> ipList;
 
@@ -39,7 +39,7 @@ public class CoreProfile implements Comparable<CoreProfile>{
     private Date firstLogin, lastLogin, lastLogout;
     private long playtime;
 
-    private boolean namemc, seeGlobalChat, allowPrivateMessages, messageSounds, staffChat;
+    private boolean authenticated, namemc, seeGlobalChat, allowPrivateMessages, messageSounds, staffChat;
 
     public CoreProfile(UUID uuid) {
         this.uuid = uuid;
@@ -182,6 +182,11 @@ public class CoreProfile implements Comparable<CoreProfile>{
 
         this.chatTag = plugin.getChatTagManager().getChatTags().get(doc.get("applied_chat_tag", UUID.class));
 
+        if(doc.containsKey("auth_key")) {
+            this.authKey = doc.getString("auth_key");
+            this.authenticated = doc.getBoolean("authenticated");
+        }
+
         ChatTagManager ctm = plugin.getChatTagManager();
         List<UUID> tagIds = doc.getList("owned_chat_tags", UUID.class);
         for(UUID uuid : tagIds) {
@@ -227,6 +232,11 @@ public class CoreProfile implements Comparable<CoreProfile>{
 
         UUID chatTag = getChatTag() == null ? null : getChatTag().getUuid();
         map.put("applied_chat_tag", chatTag);
+
+        if(getAuthKey() != null) {
+            map.put("auth_key", getAuthKey());
+            map.put("authenticated", isAuthenticated());
+        }
 
         List<UUID> tagIds = new ArrayList<>();
         for(ChatTag tag : getOwnedChatTags()) {
