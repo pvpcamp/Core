@@ -1,22 +1,20 @@
 package camp.pvp.core.listeners.redis;
 
 import camp.pvp.core.SpigotCore;
-import camp.pvp.core.profiles.CoreProfile;
-import camp.pvp.core.profiles.TempProfile;
+import camp.pvp.core.profiles.MiniProfile;
 import camp.pvp.core.server.StaffMessageType;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.redis.RedisSubscriberListener;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
 public class StaffMessageListener implements RedisSubscriberListener {
 
     private SpigotCore plugin;
-    private Map<UUID, TempProfile> joinPlayers, leavePlayers;
+    private Map<UUID, MiniProfile> joinPlayers, leavePlayers;
 
     public StaffMessageListener(SpigotCore plugin) {
         this.plugin = plugin;
@@ -28,9 +26,9 @@ public class StaffMessageListener implements RedisSubscriberListener {
             public void run() {
                 List<UUID> remove = new ArrayList<>();
                 long time = new Date().getTime();
-                for(Map.Entry<UUID, TempProfile> entry : joinPlayers.entrySet()) {
-                    TempProfile joinPlayer = entry.getValue();
-                    TempProfile leavePlayer = leavePlayers.get(joinPlayer.getUuid());
+                for(Map.Entry<UUID, MiniProfile> entry : joinPlayers.entrySet()) {
+                    MiniProfile joinPlayer = entry.getValue();
+                    MiniProfile leavePlayer = leavePlayers.get(joinPlayer.getUuid());
 
                     if(leavePlayer != null) {
                         if (time - joinPlayer.getDate().getTime() < 500 && time - leavePlayer.getDate().getTime() < 500) {
@@ -44,9 +42,9 @@ public class StaffMessageListener implements RedisSubscriberListener {
                 }
 
 
-                for(Map.Entry<UUID, TempProfile> entry : leavePlayers.entrySet()) {
-                    TempProfile leavePlayer = entry.getValue();
-                    TempProfile joinPlayer = joinPlayers.get(leavePlayer.getUuid());
+                for(Map.Entry<UUID, MiniProfile> entry : leavePlayers.entrySet()) {
+                    MiniProfile leavePlayer = entry.getValue();
+                    MiniProfile joinPlayer = joinPlayers.get(leavePlayer.getUuid());
 
                     if(joinPlayer == null && time - leavePlayer.getDate().getTime() > 500) {
                         sendStaffMessage("&6[S] &f" + leavePlayer.getName() + "&6 left &f" + leavePlayer.getServer() + "&6.");
@@ -66,18 +64,17 @@ public class StaffMessageListener implements RedisSubscriberListener {
 
     @Override
     public void onReceive(JsonObject json) {
-        System.out.println(json.toString());
         StaffMessageType stm = StaffMessageType.valueOf(json.get("type").getAsString());
         switch(stm) {
             case MESSAGE:
                 sendStaffMessage(json.get("message").getAsString());
                 break;
             case JOIN:
-                TempProfile profile = new TempProfile(UUID.fromString(json.get("uuid").getAsString()), json.get("name").getAsString(), json.get("server").getAsString());
+                MiniProfile profile = new MiniProfile(UUID.fromString(json.get("uuid").getAsString()), json.get("name").getAsString(), json.get("server").getAsString());
                 joinPlayers.put(profile.getUuid(), profile);
                 break;
             case LEAVE:
-                profile = new TempProfile(UUID.fromString(json.get("uuid").getAsString()), json.get("name").getAsString(), json.get("server").getAsString());
+                profile = new MiniProfile(UUID.fromString(json.get("uuid").getAsString()), json.get("name").getAsString(), json.get("server").getAsString());
                 leavePlayers.put(profile.getUuid(), profile);
                 break;
         }

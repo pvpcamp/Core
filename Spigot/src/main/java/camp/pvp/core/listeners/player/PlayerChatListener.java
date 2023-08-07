@@ -6,6 +6,7 @@ import camp.pvp.core.profiles.ChatHistory;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.ranks.Rank;
+import camp.pvp.core.server.StaffMessageType;
 import camp.pvp.core.utils.ChatUtils;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.core.utils.DateUtils;
@@ -127,9 +128,7 @@ public class PlayerChatListener implements Listener {
                     event.setCancelled(true);
                 }
             } else {
-                JsonObject json = new JsonObject();
-                json.addProperty("message",  "&5[SC] &7[" + plugin.getCoreServerManager().getCoreServer().getName() + "&7] " + rank.getColor() + profile.getName() + "&7: &f" + event.getMessage());
-                plugin.getCoreProfileManager().getRedisPublisher().publishMessage("core_staff", json);
+                plugin.getCoreServerManager().sendStaffMessage("&5[SC] &7[" + plugin.getCoreServerManager().getCoreServer().getName() + "&7] " + rank.getColor() + profile.getName() + "&7: &f" + event.getMessage());
                 event.setCancelled(true);
             }
         } else {
