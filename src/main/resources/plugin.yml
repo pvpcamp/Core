@@ -1,0 +1,118 @@
+name: Core
+version: ${plugin.desc}
+description: All around core for the PvP Camp Network.
+main: camp.pvp.core.Core
+author: PvP Camp Development Team
+depend:
+  - NetworkHelper
+  - Gooey2
+
+commands:
+  ban:
+    aliases: [b]
+    description: Ban a player permanently.
+    permission: core.commands.ban
+  blacklist:
+    aliases: [bl]
+    description: Blacklist a player permanently.
+    permission: core.commands.blacklist
+  chat:
+    description: Mute, unmute, or slow global chat.
+    permission: core.commands.chat
+  demo:
+    description: Show a player the demo menu.
+    permission: core.commands.demo
+  grant:
+    description: Add, remove, or show the grants of a player.
+    permission: core.commands.grant
+  granthistory:
+    aliases: [granthist, ghistory, ghist]
+    description: Look at the grant history of a player.
+    permission: core.commands.granthistory
+  grants:
+    description: Open the grants GUI.
+    permission: core.commands.grants
+  helpop:
+    aliases: [request]
+    description: Send a request to online staff.
+  history:
+    aliases: [hist, check, c]
+    description: View the punishment history of a player.
+    permission: core.commands.history
+  ignore:
+    aliases: [block]
+    description: Ignore a player from PMs and global chat.
+  inventorysee:
+    aliases: [invsee]
+    description: View the inventory of a player.
+    permission: core.commands.inventorysee
+  kick:
+    description: Kick a player from the server.
+    permission: core.commands.kick
+  list:
+    description: View the list of players online.
+  message:
+    aliases: [msg, pm, message, reply, r]
+    description: Message a player.
+  more:
+    description: Get a full stack of any item in your hand.
+    permission: core.commands.more
+  mute:
+    description: Mute a player permanently.
+    permission: core.commands.mute
+  rank:
+    description: Rank manager.
+    permission: core.commands.rank
+  report:
+    description: Report a player.
+  sounds:
+    description: Enable or disable message sounds.
+  staffchat:
+    aliases: [sc]
+    description: Enable or disable staff chat.
+    permission: core.commands.staffchat
+  staffhistory:
+    aliases: [shistory, shist]
+    description: View the staff history of a staff member.
+    permission: core.commands.staffhistory
+  tagmanager:
+    aliases: [tmanager, tagm]
+    description: Tag manager.
+    permission: core.commands.tagmanager
+  tags:
+    description: View and apply a chat tag.
+  tempban:
+    aliases: [tban]
+    description: Temporarily ban a player.
+    permission: core.commands.tempban
+  tempmute:
+    aliases: [tm, tmute]
+    description: Temporarily mute a player.
+    permission: core.commands.tempmute
+  toggleglobalchat:
+    aliases: [tgc]
+    description: Enable or disable global chat.
+  togglemessages:
+    aliases: [messages, tpm]
+    description: Enable or disable private messages.
+  unban:
+    aliases: [ub]
+    description: Unban a player.
+    permission: core.commands.unban
+  unblacklist:
+    aliases: [unbl]
+    description: Unblacklist a player.
+    permission: core.commands.unblacklist
+  unignore:
+    aliases: [unblock]
+    description: Unignore a player.
+  unmute:
+    description: Unmute a player.
+    permission: core.commands.unmute
+  userhistory:
+    aliases: [userhist, uhistory, uhist]
+    description: View the chat, command, and PM history of a player.
+    permission: core.commands.userhistory
+  wipepunishments:
+    description: Wipe all punishments from players.
+    permission: core.commands.wipepunishments
