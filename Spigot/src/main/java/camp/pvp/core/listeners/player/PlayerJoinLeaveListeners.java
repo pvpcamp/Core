@@ -88,14 +88,18 @@ public class PlayerJoinLeaveListeners implements Listener {
             }
         }
 
+        plugin.getCoreProfileManager().updatePermissions(profile);
+
+        if(player.hasPermission("core.staff") && profile.getAuthKey() == null) {
+            player.sendMessage(ChatColor.RED + "REMINDER: " + ChatColor.WHITE + "You need to set up two factor authentication on your account, please type /2fa setup.");
+        }
+
         profile.setIp(ip);
         profile.setLastLogin(new Date());
 
         if(!profile.getIpList().contains(ip)) {
             profile.getIpList().add(ip);
         }
-
-        plugin.getCoreProfileManager().updatePermissions(profile);
 
         if(player.hasPermission("core.staff")) {
             plugin.getCoreServerManager().sendStaffJoinMessage(player.getUniqueId(), profile.getHighestRank().getColor() + profile.getName());

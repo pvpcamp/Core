@@ -229,14 +229,11 @@ public class CoreProfile implements Comparable<CoreProfile>{
         map.put("message_sounds", isMessageSounds());
         map.put("staff_chat", isStaffChat());
         map.put("namemc", isNamemc());
+        map.put("auth_key", getAuthKey());
+        map.put("authenticated", isAuthenticated());
 
         UUID chatTag = getChatTag() == null ? null : getChatTag().getUuid();
         map.put("applied_chat_tag", chatTag);
-
-        if(getAuthKey() != null) {
-            map.put("auth_key", getAuthKey());
-            map.put("authenticated", isAuthenticated());
-        }
 
         List<UUID> tagIds = new ArrayList<>();
         for(ChatTag tag : getOwnedChatTags()) {

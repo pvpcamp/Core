@@ -10,7 +10,6 @@ import camp.pvp.mongo.MongoManager;
 import camp.pvp.mongo.MongoUpdate;
 import camp.pvp.redis.RedisPublisher;
 import camp.pvp.redis.RedisSubscriber;
-import camp.pvp.redis.RedisSubscriberListener;
 import com.google.gson.JsonObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -18,12 +17,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 
-import javax.naming.Name;
 import java.util.*;
 
 @Getter @Setter

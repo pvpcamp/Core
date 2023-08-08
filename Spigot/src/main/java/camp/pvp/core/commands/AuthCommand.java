@@ -43,6 +43,7 @@ public class AuthCommand {
 
                     GoogleAuthenticatorKey key = gAuth.createCredentials();
                     profile.setAuthKey(key.getKey());
+                    profile.setAuthenticated(false);
 
                     player.sendMessage(new String[]{
                             Colors.get("&6&lYour Google Authenticator key has been created."),
@@ -58,7 +59,7 @@ public class AuthCommand {
                     }
 
                     if(player.hasPermission("core.staff")) {
-                        player.sendMessage(ChatColor.RED + "You are required to have two factor authentication set up on your account.");
+                        player.sendMessage(ChatColor.RED + "You are required to have two factor authentication set up on your account, so you cannot remove it.");
                         return;
                     }
 
