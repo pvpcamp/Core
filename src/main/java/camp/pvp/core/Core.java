@@ -15,6 +15,7 @@ import camp.pvp.core.ranks.RankManager;
 import camp.pvp.core.chattags.ChatTagManager;
 import camp.pvp.core.server.CoreServerManager;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Core extends JavaPlugin {
@@ -59,7 +60,6 @@ public class Core extends JavaPlugin {
         new BanCommand(this);
         new BlacklistCommand(this);
         new ChatCommand(this);
-        new DemoCommand(this);
         new GrantCommand(this);
         new GrantHistoryCommand(this);
         new GrantsCommand(this);
@@ -94,6 +94,7 @@ public class Core extends JavaPlugin {
         commandHandler.registerCommand(new AlertCommand());
         commandHandler.registerCommand(new AltsCommand(this));
         commandHandler.registerCommand(new AuthCommand(this));
+        commandHandler.registerCommand(new DemoCommand(this));
         commandHandler.registerCommand(new FeedCommand());
         commandHandler.registerCommand(new FlyCommand());
         commandHandler.registerCommand(new GamemodeCommand());

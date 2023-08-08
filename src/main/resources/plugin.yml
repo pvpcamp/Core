@@ -19,9 +19,6 @@ commands:
   chat:
     description: Mute, unmute, or slow global chat.
     permission: core.commands.chat
-  demo:
-    description: Show a player the demo menu.
-    permission: core.commands.demo
   grant:
     description: Add, remove, or show the grants of a player.
     permission: core.commands.grant
