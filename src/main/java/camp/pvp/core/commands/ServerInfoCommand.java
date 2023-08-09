@@ -5,8 +5,11 @@ import camp.pvp.command.framework.CommandArgs;
 import camp.pvp.core.Core;
 import camp.pvp.core.server.CoreServer;
 import camp.pvp.core.utils.Colors;
+import camp.pvp.core.utils.DateUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+
+import java.util.Date;
 
 public class ServerInfoCommand {
 
@@ -28,9 +31,13 @@ public class ServerInfoCommand {
                 return;
             }
 
+            Date startTime = new Date();
+            startTime.setTime(server.getUpTime());
+
             StringBuilder sb = new StringBuilder();
             sb.append("&6Server: &f" + server.getName());
             sb.append("\n&6Type: &f" + server.getType());
+            sb.append("\n&6Uptime: &f" + DateUtils.getDifference(new Date(), startTime));
             sb.append("\n&6Players: &f" + server.getOnline() + "/" + server.getSlots());
             sb.append(server.isCurrentlyOnline() ? "\n&eThis server is online." : "\n&cThis server is currently offline.");
 

@@ -14,6 +14,7 @@ public class CoreServer {
     private long lastUpdate;
     private boolean currentlyOnline;
     private boolean mutedChat;
+    private Long upTime;
 
     public CoreServer(String name) {
         this.name = name;

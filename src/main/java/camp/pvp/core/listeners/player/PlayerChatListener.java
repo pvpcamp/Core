@@ -65,21 +65,11 @@ public class PlayerChatListener implements Listener {
                 return;
             }
 
-            StringBuilder chatFormat = new StringBuilder();
-
-            if(rank.getPrefix() != null) {
-                chatFormat.append(rank.getPrefix() + " ");
+            if (plugin.getDisguiseManager().isDisguised(player)) {
+                event.setFormat(Colors.get(format(player, plugin.getDisguiseManager().getRank(player), tag)));
+            } else {
+                event.setFormat(Colors.get(format(player, rank, tag)));
             }
-
-            chatFormat.append(rank.getColor() + player.getName());
-
-            if(tag != null) {
-                chatFormat.append(" &f" + tag.getTag());
-            }
-
-            chatFormat.append("&7:&f %2$s");
-
-            event.setFormat(Colors.get(chatFormat.toString()));
 
             if(!profile.isStaffChat()) {
 
@@ -139,5 +129,25 @@ public class PlayerChatListener implements Listener {
             event.setCancelled(true);
             player.sendMessage(ChatColor.RED + "Your profile has not been loaded yet.");
         }
+    }
+
+    public String format(Player player, Rank rank, ChatTag tag) {
+        StringBuilder chatFormat = new StringBuilder();
+
+        if (rank == null) {
+            rank = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId()).getHighestRank();
+        }
+        if(rank.getPrefix() != null) {
+            chatFormat.append(rank.getPrefix() + " ");
+        }
+
+        chatFormat.append(rank.getColor() + player.getName());
+
+        if(tag != null) {
+            chatFormat.append(" &f" + tag.getTag());
+        }
+
+        chatFormat.append("&7:&f %2$s");
+        return chatFormat.toString();
     }
 }
