@@ -86,7 +86,9 @@ public class CoreProfileManager {
             PermissionAttachment attachment = player.addAttachment(plugin);
 
             if (permissionAttachments.get(profile.getUuid()) != null) {
-                player.removeAttachment(permissionAttachments.get(profile.getUuid()));
+                if(permissionAttachments.get(profile.getUuid()) != null) {
+                    player.removeAttachment(permissionAttachments.get(profile.getUuid()));
+                }
             }
 
             player.setOp(false);
