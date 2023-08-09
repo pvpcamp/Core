@@ -34,11 +34,15 @@ public class PlayerCommandPreprocessListener implements Listener {
                 player.sendMessage(ChatColor.RED + "You are not authenticated.");
                 return;
             }
+            String name = player.getName();
+            if (plugin.getDisguiseManager().isDisguised(player)) {
+                name = plugin.getDisguiseManager().getRealUsername(player);
+            }
 
             ChatHistory chatHistory = new ChatHistory(
                     UUID.randomUUID(),
                     player.getUniqueId(),
-                    player.getName(),
+                    name,
                     message,
                     plugin.getCoreServerManager().getCoreServer().getName(),
                     ChatHistory.Type.COMMAND,

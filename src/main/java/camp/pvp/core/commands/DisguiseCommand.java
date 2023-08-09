@@ -31,13 +31,20 @@ public class DisguiseCommand {
             return;
         }
 
+        if (!plugin.getDisguiseManager().checkState(player)) {
+            player.sendMessage(ChatColor.RED + "You cannot do this in your current state.");
+            return;
+        }
+
         if (coreProfile.canDisguise() || player.hasPermission("core.disguise.bypass")) {
             try {
                 Rank rank = plugin.getRankManager().getDefaultRank();
                 String disguise = randomName();
-                plugin.getDisguiseManager().disguise(player, disguise, rank, false);
-                coreProfile.addDisguiseCooldown(300);
-                player.sendMessage(Colors.get("&aYou have disguised as " + rank.getColor() + disguise + "&a."));
+                plugin.getDisguiseManager().disguise(player, disguise, rank, false, false);
+                if (plugin.getDisguiseManager().isDisguised(player)) {
+                    coreProfile.addDisguiseCooldown(60);
+                    player.sendMessage(Colors.get("&aYou have disguised as " + rank.getColor() + disguise + "&a."));
+                }
             } catch (Exception ex) {
                 player.sendMessage(ChatColor.RED + "There was an error while trying to disguise. Please try again.");
             }

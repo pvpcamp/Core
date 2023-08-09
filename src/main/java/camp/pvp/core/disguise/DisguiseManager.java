@@ -3,6 +3,7 @@ package camp.pvp.core.disguise;
 import camp.pvp.core.Core;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.ranks.Rank;
+import camp.pvp.practice.Practice;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import lombok.Getter;
@@ -32,7 +33,7 @@ public class DisguiseManager {
 
     private Core plugin;
     private @Getter List<String> adjectives, nouns, skins;
-    private Map<UUID, String> disguiseMap = new HashMap<>();
+    private @Getter Map<UUID, String> disguiseMap = new HashMap<>();
     private Map<UUID, Rank> rankMap = new HashMap<>();
 
     public DisguiseManager(Core plugin) {
@@ -57,7 +58,7 @@ public class DisguiseManager {
         return rankMap.get(player.getUniqueId());
     }
 
-    public void disguise(Player player, String disguise, Rank rank, boolean skin) {
+    public void disguise(Player player, String disguise, Rank rank, boolean skin, boolean remove) {
         EntityPlayer originalPlayer = ((CraftPlayer) player).getHandle();
         GameProfile gameProfile = originalPlayer.getProfile();
 
@@ -92,20 +93,31 @@ public class DisguiseManager {
             }
         }
 
-        Bukkit.getOnlinePlayers().forEach(p -> {
-            EntityPlayer entityPlayer = ((CraftPlayer) p).getHandle();
-            entityPlayer.playerConnection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, originalPlayer));
-            entityPlayer.playerConnection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, originalPlayer));
-            if (p != player) {
-                entityPlayer.playerConnection.sendPacket(new PacketPlayOutEntityDestroy(player.getEntityId()));
-                entityPlayer.playerConnection.sendPacket(new PacketPlayOutNamedEntitySpawn(originalPlayer));
-            }
-        });
+        if (!remove) {
+            Bukkit.getOnlinePlayers().forEach(p -> {
+                EntityPlayer entityPlayer = ((CraftPlayer) p).getHandle();
+                entityPlayer.playerConnection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, originalPlayer));
+                entityPlayer.playerConnection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, originalPlayer));
+                if (p != player) {
+                    entityPlayer.playerConnection.sendPacket(new PacketPlayOutEntityDestroy(player.getEntityId()));
+                    entityPlayer.playerConnection.sendPacket(new PacketPlayOutNamedEntitySpawn(originalPlayer));
+                }
+            });
+        } else {
+            Bukkit.getOnlinePlayers().forEach(p -> {
+                EntityPlayer entityPlayer = ((CraftPlayer) p).getHandle();
+                entityPlayer.playerConnection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, originalPlayer));
+                entityPlayer.playerConnection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, originalPlayer));
+                if (p != player) {
+                    entityPlayer.playerConnection.sendPacket(new PacketPlayOutEntityDestroy(player.getEntityId()));
+                }
+            });
+        }
         disguiseMap.put(player.getUniqueId(), disguise);
     }
 
-    public void undisguise(Player player) {
-        disguise(player, getRealUsername(player), null, true);
+    public void undisguise(Player player, boolean remove) {
+        disguise(player, getRealUsername(player), null, true, remove);
         disguiseMap.remove(player.getUniqueId());
         Bukkit.getOnlinePlayers().forEach(p -> {
             p.hidePlayer(player);
@@ -135,6 +147,14 @@ public class DisguiseManager {
             return new String[]{skinName, value, signature};
         }
         return null;
+    }
+
+    public boolean checkState(Player player) {
+        if (plugin.getServer().getPluginManager().getPlugin("Practice") != null) {
+            return Practice.getInstance().getGameProfileManager().getLoadedProfiles().get(player.getUniqueId()).getState() == camp.pvp.practice.profiles.GameProfile.State.LOBBY;
+        } else {
+            return true;
+        }
     }
 
     public static List<String> getLines(String link) {

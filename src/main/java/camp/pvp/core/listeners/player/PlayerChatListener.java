@@ -66,7 +66,8 @@ public class PlayerChatListener implements Listener {
             }
 
             if (plugin.getDisguiseManager().isDisguised(player)) {
-                event.setFormat(Colors.get(format(player, plugin.getDisguiseManager().getRank(player), tag)));
+                Rank dRank = (plugin.getDisguiseManager().getRank(player) != null ? plugin.getDisguiseManager().getRank(player) : rank);
+                event.setFormat(Colors.get(format(player, dRank, tag)));
             } else {
                 event.setFormat(Colors.get(format(player, rank, tag)));
             }
@@ -99,11 +100,15 @@ public class PlayerChatListener implements Listener {
                             plugin.getCoreServerManager().sendStaffMessage("&c[Filtered] &7(" + plugin.getCoreServerManager().getCoreServer().getName() + "&7) &f" + player.getName() + "&7: &f" + event.getMessage());
                         }
                     }
+                    String name = player.getName();
+                    if (plugin.getDisguiseManager().isDisguised(player)) {
+                        name = plugin.getDisguiseManager().getRealUsername(player);
+                    }
 
                     ChatHistory chatHistory = new ChatHistory(
                             UUID.randomUUID(),
                             player.getUniqueId(),
-                            player.getName(),
+                            name,
                             event.getMessage(),
                             plugin.getCoreServerManager().getCoreServer().getName(),
                             ChatHistory.Type.PUBLIC_CHAT,
