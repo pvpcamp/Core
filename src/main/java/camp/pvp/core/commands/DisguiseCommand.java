@@ -8,6 +8,7 @@ import camp.pvp.core.ranks.Rank;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.core.utils.DateUtils;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -36,18 +37,22 @@ public class DisguiseCommand {
             return;
         }
 
-        if (coreProfile.canDisguise() || player.hasPermission("core.disguise.bypass")) {
-            try {
-                Rank rank = plugin.getRankManager().getDefaultRank();
-                String disguise = randomName();
+        Rank rank = plugin.getRankManager().getDefaultRank();
+        String disguise = randomName();
+        if (player.hasPermission("core.commands.admindisguise")) {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 plugin.getDisguiseManager().disguise(player, disguise, rank, false, false);
-                if (plugin.getDisguiseManager().isDisguised(player)) {
-                    coreProfile.addDisguiseCooldown(60);
-                    player.sendMessage(Colors.get("&aYou have disguised as " + rank.getColor() + disguise + "&a."));
-                }
-            } catch (Exception ex) {
-                player.sendMessage(ChatColor.RED + "There was an error while trying to disguise. Please try again.");
-            }
+            });
+            player.sendMessage(Colors.get("&aYou have disguised as " + rank.getColor() + disguise + "&a."));
+            return;
+        }
+
+        if (coreProfile.canDisguise()) {
+            coreProfile.addDisguiseCooldown(60);
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                plugin.getDisguiseManager().disguise(player, disguise, rank, false, false);
+            });
+            player.sendMessage(Colors.get("&aYou have disguised as " + rank.getColor() + disguise + "&a."));
         } else {
             player.sendMessage(ChatColor.RED + "You must wait " + ChatColor.BOLD + DateUtils.getTimeUntil(coreProfile.getDisguiseCooldown()) + ChatColor.RED + " before disguising again.");
         }

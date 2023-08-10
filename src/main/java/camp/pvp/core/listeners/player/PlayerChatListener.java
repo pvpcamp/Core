@@ -66,7 +66,7 @@ public class PlayerChatListener implements Listener {
             }
 
             if (plugin.getDisguiseManager().isDisguised(player)) {
-                Rank dRank = (plugin.getDisguiseManager().getRank(player) != null ? plugin.getDisguiseManager().getRank(player) : rank);
+                Rank dRank = plugin.getDisguiseManager().getRank(player);
                 event.setFormat(Colors.get(format(player, dRank, tag)));
             } else {
                 event.setFormat(Colors.get(format(player, rank, tag)));

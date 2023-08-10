@@ -27,11 +27,14 @@ public class UndisguiseCommand {
                 return;
             }
             if (plugin.getDisguiseManager().isDisguised(player)) {
-                plugin.getDisguiseManager().undisguise(player, false);
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                    plugin.getDisguiseManager().undisguise(player, false);
+                });
                 player.sendMessage(ChatColor.GREEN + "You have undisguised.");
             } else {
                 player.sendMessage(ChatColor.RED + "You are not disguised.");
             }
+            return;
         }
 
         if (args.length() == 1) {
@@ -48,12 +51,14 @@ public class UndisguiseCommand {
 
                 Rank targetRank = plugin.getCoreProfileManager().getLoadedProfiles().get(target.getUniqueId()).getHighestRank();
                 if (plugin.getDisguiseManager().isDisguised(target)) {
-                    plugin.getDisguiseManager().undisguise(target, false);
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                        plugin.getDisguiseManager().undisguise(target, false);
+                    });
                     Rank senderRank = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId()).getHighestRank();
                     player.sendMessage(Colors.get(ChatColor.GREEN + "You have undisguised " + targetRank.getColor() + target.getName() + ChatColor.GREEN + "."));
                     target.sendMessage(Colors.get(ChatColor.GREEN + "You have been undisguised by " + senderRank.getColor() + player.getName() + ChatColor.GREEN + "."));
                 } else {
-                    player.sendMessage(Colors.get(targetRank.getColor() + target.getName() + " is not disguised."));
+                    player.sendMessage(Colors.get(targetRank.getColor() + target.getName() + " &cis not disguised."));
                 }
             } else {
                 player.performCommand("ud");

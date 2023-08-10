@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class ListCommand implements CommandExecutor {
 
@@ -38,7 +39,6 @@ public class ListCommand implements CommandExecutor {
         }
 
         Collections.sort(profiles);
-
         StringBuilder sb = new StringBuilder();
 
         for(int x = 0; x < ranks.size(); x++) {
@@ -56,7 +56,13 @@ public class ListCommand implements CommandExecutor {
 
         for(int x = 0; x < profiles.size(); x++) {
             CoreProfile p = profiles.get(x);
-            sb.append(p.getHighestRank().getColor() + p.getName());
+            Player player = Bukkit.getPlayer(p.getName());
+
+            if (!plugin.getDisguiseManager().isDisguised(player)) {
+                sb.append(p.getHighestRank().getColor() + p.getName());
+            } else {
+                sb.append(p.getHighestRank().getColor() + plugin.getDisguiseManager().getDisguisedName(player));
+            }
 
             if(x + 1 == profiles.size()) {
                 sb.append("&7.");

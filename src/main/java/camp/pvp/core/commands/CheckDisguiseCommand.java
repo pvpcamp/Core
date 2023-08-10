@@ -34,10 +34,9 @@ public class CheckDisguiseCommand {
 
         Rank playerRank = plugin.getCoreProfileManager().getLoadedProfiles().get(target.getUniqueId()).getHighestRank();
         if (plugin.getDisguiseManager().isDisguised(target)) {
-            Rank disguisedRank = (plugin.getDisguiseManager().getRank(target) == null ? playerRank : plugin.getDisguiseManager().getRank(target));
-            args.getSender().sendMessage(Colors.get(disguisedRank.getColor() + target.getName() + " &6is currently " + playerRank.getColor() + plugin.getCoreProfileManager().getLoadedProfiles().get(target.getUniqueId()).getName() + "&6."));
+            Rank disguisedRank = plugin.getDisguiseManager().getRank(target);
+            args.getSender().sendMessage(Colors.get(playerRank.getColor() + plugin.getCoreProfileManager().getLoadedProfiles().get(target.getUniqueId()).getName() + " &6is currently " + disguisedRank.getColor() + target.getName() + "&6."));
         } else {
-
             args.getSender().sendMessage(Colors.get(playerRank.getColor() + target.getName() + " &cis not disguised."));
         }
     }

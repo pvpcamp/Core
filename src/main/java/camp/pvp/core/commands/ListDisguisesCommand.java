@@ -41,7 +41,7 @@ public class ListDisguisesCommand {
         disguisedPlayers.forEach(p -> {
             Rank playerRank = plugin.getCoreProfileManager().getLoadedProfiles().get(p.getUniqueId()).getHighestRank();
             Rank disguisedRank = (plugin.getDisguiseManager().getRank(p) == null ? playerRank : plugin.getDisguiseManager().getRank(p));
-            list.append(Colors.get("\n " + disguisedRank.getColor() + p.getName() + " &6is currently " + playerRank.getColor() + plugin.getDisguiseManager().getRealUsername(p)));
+            list.append(Colors.get("\n " + playerRank.getColor() + plugin.getDisguiseManager().getRealUsername(p) + " &6is currently " + disguisedRank.getColor() + p.getName()));
         });
         args.getPlayer().sendMessage(list.toString());
     }
