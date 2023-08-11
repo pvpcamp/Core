@@ -34,10 +34,10 @@ public class CoreProfile implements Comparable<CoreProfile>{
     private List<UUID> ignored;
 
     private Map<String, Date> commandCooldowns;
-    private Date chatCooldown;
+    private Date chatCooldown, disguiseCooldown;
 
     private Date firstLogin, lastLogin, lastLogout;
-    private long playtime;
+    private long playtime, afk;
 
     private boolean authenticated, namemc, seeGlobalChat, allowPrivateMessages, messageSounds, staffChat;
 
@@ -63,6 +63,13 @@ public class CoreProfile implements Comparable<CoreProfile>{
         return true;
     }
 
+    public boolean canDisguise() {
+        if (disguiseCooldown != null) {
+            return disguiseCooldown.before(new Date());
+        }
+        return true;
+    }
+
     public boolean canUseCommand(String command) {
         Date date = commandCooldowns.get(command);
         if(date != null) {
@@ -77,6 +84,13 @@ public class CoreProfile implements Comparable<CoreProfile>{
         calendar.setTime(new Date());
         calendar.add(Calendar.SECOND, seconds);
         this.chatCooldown = calendar.getTime();
+    }
+
+    public void addDisguiseCooldown(int seconds) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.SECOND, seconds);
+        this.disguiseCooldown = calendar.getTime();
     }
 
     public void addCommandCooldown(String command, int seconds) {

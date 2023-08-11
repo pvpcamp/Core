@@ -29,6 +29,7 @@ public class PlayerChatListener implements Listener {
 
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
+
         Player player = event.getPlayer();
         CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
 
@@ -65,21 +66,12 @@ public class PlayerChatListener implements Listener {
                 return;
             }
 
-            StringBuilder chatFormat = new StringBuilder();
-
-            if(rank.getPrefix() != null) {
-                chatFormat.append(rank.getPrefix() + " ");
+            if (plugin.getDisguiseManager().isDisguised(player)) {
+                Rank dRank = plugin.getDisguiseManager().getRank(player);
+                event.setFormat(Colors.get(format(player, dRank, tag)));
+            } else {
+                event.setFormat(Colors.get(format(player, rank, tag)));
             }
-
-            chatFormat.append(rank.getColor() + player.getName());
-
-            if(tag != null) {
-                chatFormat.append(" &f" + tag.getTag());
-            }
-
-            chatFormat.append("&7:&f %2$s");
-
-            event.setFormat(Colors.get(chatFormat.toString()));
 
             if(!profile.isStaffChat()) {
 
@@ -109,11 +101,15 @@ public class PlayerChatListener implements Listener {
                             plugin.getCoreServerManager().sendStaffMessage("&c[Filtered] &7(" + plugin.getCoreServerManager().getCoreServer().getName() + "&7) &f" + player.getName() + "&7: &f" + event.getMessage());
                         }
                     }
+                    String name = player.getName();
+                    if (plugin.getDisguiseManager().isDisguised(player)) {
+                        name = plugin.getDisguiseManager().getRealUsername(player);
+                    }
 
                     ChatHistory chatHistory = new ChatHistory(
                             UUID.randomUUID(),
                             player.getUniqueId(),
-                            player.getName(),
+                            name,
                             event.getMessage(),
                             plugin.getCoreServerManager().getCoreServer().getName(),
                             ChatHistory.Type.PUBLIC_CHAT,
@@ -139,5 +135,25 @@ public class PlayerChatListener implements Listener {
             event.setCancelled(true);
             player.sendMessage(ChatColor.RED + "Your profile has not been loaded yet.");
         }
+    }
+
+    public String format(Player player, Rank rank, ChatTag tag) {
+        StringBuilder chatFormat = new StringBuilder();
+
+        if (rank == null) {
+            rank = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId()).getHighestRank();
+        }
+        if(rank.getPrefix() != null) {
+            chatFormat.append(rank.getPrefix() + " ");
+        }
+
+        chatFormat.append(rank.getColor() + player.getName());
+
+        if(tag != null) {
+            chatFormat.append(" &f" + tag.getTag());
+        }
+
+        chatFormat.append("&7:&f %2$s");
+        return chatFormat.toString();
     }
 }

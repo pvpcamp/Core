@@ -32,7 +32,7 @@ public class TabHandler {
         this.handler = handler;
         this.ticks = ticks;
 
-        Bukkit.getScheduler().runTaskTimer(plugin, new TabRunnable(this), 1L, ticks);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new TabRunnable(this), 1L, ticks);
     }
 
     /**
@@ -45,7 +45,7 @@ public class TabHandler {
 
         this.adapter
                 .setupProfiles(player)
-                .showRealPlayers(player).addFakePlayers(player)
+                .addFakePlayers(player)
                 .hideRealPlayers(player).handleElement(player, tabElement)
                 .sendHeaderFooter(player, tabElement.getHeader(), tabElement.getFooter());
     }

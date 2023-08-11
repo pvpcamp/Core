@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class NameMcVerifier implements Runnable{
+public class NameMcVerifier implements Runnable {
 
     private CoreProfileManager coreProfileManager;
     public NameMcVerifier(CoreProfileManager cpm) {

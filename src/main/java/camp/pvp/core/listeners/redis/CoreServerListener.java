@@ -2,8 +2,11 @@ package camp.pvp.core.listeners.redis;
 
 import camp.pvp.core.server.CoreServer;
 import camp.pvp.core.server.CoreServerManager;
+import camp.pvp.core.utils.DateUtils;
 import camp.pvp.redis.RedisSubscriberListener;
 import com.google.gson.JsonObject;
+
+import java.util.*;
 
 public class CoreServerListener implements RedisSubscriberListener {
 
@@ -28,8 +31,10 @@ public class CoreServerListener implements RedisSubscriberListener {
         server.setType(json.get("type").getAsString());
         server.setOnline(json.get("online").getAsInt());
         server.setSlots(json.get("slots").getAsInt());
+        server.setUpTime(json.get("uptime").getAsLong());
         server.setMutedChat(json.get("muted_chat").getAsBoolean());
         server.setLastUpdate(json.get("last_update").getAsLong());
+
 
         if(!server.isCurrentlyOnline()) {
             server.setCurrentlyOnline(true);

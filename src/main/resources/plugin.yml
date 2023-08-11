@@ -6,6 +6,8 @@ author: PvP Camp Development Team
 depend:
   - NetworkHelper
   - Gooey2
+softdepend:
+  - Practice
 
 commands:
   ban:

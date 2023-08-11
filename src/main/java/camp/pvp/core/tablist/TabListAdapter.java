@@ -17,6 +17,12 @@ import java.util.List;
 
 public class TabListAdapter implements TabElementHandler {
 
+    private Core plugin;
+
+    public TabListAdapter(Core plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public TabElement getElement(Player player) {
 
@@ -30,7 +36,11 @@ public class TabListAdapter implements TabElementHandler {
 
         Bukkit.getOnlinePlayers().forEach(p -> {
             CoreProfile coreProfile = coreProfileManager.getLoadedProfiles().get(p.getUniqueId());
-            tabPlayerList.add(new TabPlayer(p.getName(), coreProfile.getHighestRank()));
+            if (plugin.getDisguiseManager().isDisguised(p)) {
+                tabPlayerList.add(new TabPlayer(p.getName(), plugin.getDisguiseManager().getRank(p)));
+            } else {
+                tabPlayerList.add(new TabPlayer(p.getName(), coreProfile.getHighestRank()));
+            }
         });
 
         int version = ClientVersionUtil.getProtocolVersion(player);

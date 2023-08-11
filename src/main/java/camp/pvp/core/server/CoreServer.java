@@ -3,7 +3,10 @@ package camp.pvp.core.server;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 @Getter @Setter
 public class CoreServer {
@@ -12,8 +15,8 @@ public class CoreServer {
     private String type;
     private int online, slots;
     private long lastUpdate;
-    private boolean currentlyOnline;
-    private boolean mutedChat;
+    private boolean currentlyOnline, mutedChat;
+    private Long upTime;
 
     public CoreServer(String name) {
         this.name = name;
