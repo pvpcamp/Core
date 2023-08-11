@@ -12,7 +12,7 @@ import java.util.UUID;
 public class CoreServer {
 
     private final String name;
-    private String type;
+    private String type, staffList;
     private int online, slots;
     private long lastUpdate;
     private boolean currentlyOnline, mutedChat;

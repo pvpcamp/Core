@@ -110,6 +110,7 @@ public class Core extends JavaPlugin {
         commandHandler.registerCommand(new GamemodeCommand());
         commandHandler.registerCommand(new HealCommand());
         commandHandler.registerCommand(new ListDisguisesCommand(this));
+        commandHandler.registerCommand(new OnlineStaffCommand(this));
         commandHandler.registerCommand(new PlayCommand(this));
         commandHandler.registerCommand(new PlayerLookupCommand(this));
         commandHandler.registerCommand(new PlaytimeCommand(this));
