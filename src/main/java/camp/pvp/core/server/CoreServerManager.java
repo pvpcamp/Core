@@ -9,7 +9,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
+import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -75,7 +77,6 @@ public class CoreServerManager {
                 json.addProperty("muted_chat", coreServer.isMutedChat());
                 json.addProperty("last_update", coreServer.getLastUpdate());
                 json.addProperty("uptime", coreServer.getUpTime());
-
                 getRedisPublisher().publishMessage("core_server_updates", json);
             }
         }, 0, 40);

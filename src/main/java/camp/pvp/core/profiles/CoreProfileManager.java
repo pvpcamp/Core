@@ -3,6 +3,7 @@ package camp.pvp.core.profiles;
 import camp.pvp.core.Core;
 import camp.pvp.core.listeners.redis.RedisProfileUpdateListener;
 import camp.pvp.core.listeners.redis.StaffMessageListener;
+import camp.pvp.core.profiles.tasks.AntiAFKPlaytime;
 import camp.pvp.core.profiles.tasks.NameMcVerifier;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.mongo.MongoCollectionResult;
@@ -67,6 +68,8 @@ public class CoreProfileManager {
                 new StaffMessageListener(plugin));
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new NameMcVerifier(this), 0, 1200);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new AntiAFKPlaytime(plugin, this), 0, 100);
+        Bukkit.getPluginManager().registerEvents(new AntiAFKPlaytime(plugin, this), plugin);
 
         plugin.getLogger().info("Started CoreProfileManager.");
     }

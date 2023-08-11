@@ -37,7 +37,7 @@ public class CoreProfile implements Comparable<CoreProfile>{
     private Date chatCooldown, disguiseCooldown;
 
     private Date firstLogin, lastLogin, lastLogout;
-    private long playtime;
+    private long playtime, afk;
 
     private boolean authenticated, namemc, seeGlobalChat, allowPrivateMessages, messageSounds, staffChat;
 
