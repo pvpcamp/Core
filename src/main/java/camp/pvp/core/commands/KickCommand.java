@@ -3,6 +3,8 @@ package camp.pvp.core.commands;
 import camp.pvp.core.Core;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.utils.Colors;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -53,9 +55,12 @@ public class KickCommand implements CommandExecutor {
                     issueFromName = profile.getHighestRank().getColor() + profile.getName();
                 }
 
-                target.kickPlayer(Colors.get(
-                        "&cYou have been kicked from PvP Camp." +
-                                "\n&cReason: &f" + reasonBuilder.toString()));
+                ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                out.writeUTF("KickPlayer");
+                out.writeUTF(args[0]);
+                out.writeUTF(Colors.get("&cYou have been kicked from PvP Camp." + "\n&cReason: &f" + reasonBuilder));
+
+                plugin.getServer().sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
 
                 String targetName = targetProfile.getHighestRank().getColor() + targetProfile.getName();
                 String banMessage = "&f" + targetName + "&a has been kicked by " + issueFromName + "&a.";

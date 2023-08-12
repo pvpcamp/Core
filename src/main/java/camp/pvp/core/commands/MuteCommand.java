@@ -98,9 +98,8 @@ public class MuteCommand implements CommandExecutor {
                     }
                 } else if(sender instanceof Player){
                     Player player = (Player) sender;
-                    TextComponent text = new TextComponent(ChatColor.RED + targetProfile.getName() + " is already muted, click this message to view details.");
-                    text.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/punishmentdetails " + mute.getUuid().toString()));
-                    text.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.RED + "/pd " + mute.getUuid().toString()).create()));
+                    TextComponent text = new TextComponent(ChatColor.RED + targetProfile.getName() + " is already muted, click this message to view player history.");
+                    text.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/history " + targetProfile.getName()));
                     player.spigot().sendMessage(text);
                 } else {
                     sender.sendMessage(ChatColor.RED + targetProfile.getName() + " is already muted.");

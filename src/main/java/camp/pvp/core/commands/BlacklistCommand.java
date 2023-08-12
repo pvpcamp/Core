@@ -4,6 +4,8 @@ import camp.pvp.core.Core;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.utils.Colors;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -88,9 +90,12 @@ public class BlacklistCommand implements CommandExecutor {
                     plugin.getPunishmentManager().exportToDatabase(blacklist, true);
                     plugin.getCoreProfileManager().exportToDatabase(targetProfile, true, false);
 
-                    if(targetProfile.getPlayer() != null) {
-                        targetProfile.getPlayer().kickPlayer(Colors.get("&4You have been blacklisted from PvP Camp."));
-                    }
+                    ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                    out.writeUTF("KickPlayer");
+                    out.writeUTF(args[0]);
+                    out.writeUTF(Colors.get("&4You have been blacklisted from PvP Camp."));
+
+                    plugin.getServer().sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
 
                     String targetName = targetProfile.getHighestRank().getColor() + targetProfile.getName();
                     String banMessage = "&f" + targetName + "&a has been permanently blacklisted by " + issueFromColor + issueFromName + "&a.";
@@ -101,9 +106,8 @@ public class BlacklistCommand implements CommandExecutor {
                     }
                 } else if(sender instanceof Player){
                     Player player = (Player) sender;
-                    TextComponent text = new TextComponent(ChatColor.RED + targetProfile.getName() + " is already blacklisted, click this message to view details.");
-                    text.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/punishmentdetails " + blacklist.getUuid().toString()));
-                    text.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.RED + "/pd " + blacklist.getUuid().toString()).create()));
+                    TextComponent text = new TextComponent(ChatColor.RED + targetProfile.getName() + " is already blacklisted, click this message to view player history.");
+                    text.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/history " + targetProfile.getName()));
                     player.spigot().sendMessage(text);
                 } else {
                     sender.sendMessage(ChatColor.RED + targetProfile.getName() + " is already blacklisted.");

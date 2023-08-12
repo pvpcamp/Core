@@ -4,6 +4,8 @@ import camp.pvp.core.Core;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.utils.Colors;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -90,9 +92,12 @@ public class BanCommand implements CommandExecutor {
                     plugin.getPunishmentManager().exportToDatabase(ban, true);
                     plugin.getCoreProfileManager().exportToDatabase(targetProfile, true, false);
 
-                    if(targetProfile.getPlayer() != null) {
-                        targetProfile.getPlayer().kickPlayer(Colors.get("&cYou have been banned from PvP Camp."));
-                    }
+                    ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                    out.writeUTF("KickPlayer");
+                    out.writeUTF(args[0]);
+                    out.writeUTF(Colors.get("&cYou have been banned from PvP Camp."));
+
+                    plugin.getServer().sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
 
                     String targetName = targetProfile.getHighestRank().getColor() + targetProfile.getName();
                     String banMessage = "&f" + targetName + "&a has been permanently banned by " + issueFromColor + issueFromName + "&a.";
@@ -103,9 +108,8 @@ public class BanCommand implements CommandExecutor {
                     }
                 } else if(sender instanceof Player){
                     Player player = (Player) sender;
-                    TextComponent text = new TextComponent(ChatColor.RED + targetProfile.getName() + " is already banned, click this message to view details.");
-                    text.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/punishmentdetails " + ban.getUuid().toString()));
-                    text.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.RED + "/pd " + ban.getUuid().toString()).create()));
+                    TextComponent text = new TextComponent(ChatColor.RED + targetProfile.getName() + " is already banned, click this message to view player history.");
+                    text.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/history " + targetProfile.getName()));
                     player.spigot().sendMessage(text);
                 } else {
                     sender.sendMessage(ChatColor.RED + targetProfile.getName() + " is already banned.");
