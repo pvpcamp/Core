@@ -68,6 +68,7 @@ public class CoreServerManager {
                 coreServer.setSlots(plugin.getServer().getMaxPlayers());
                 coreServer.setLastUpdate(new Date().getTime());
                 coreServer.setUpTime(plugin.getUpTime());
+                coreServer.setStaffList(getStaff());
 
                 JsonObject json = new JsonObject();
                 json.addProperty("name", coreServer.getName());
@@ -77,6 +78,7 @@ public class CoreServerManager {
                 json.addProperty("muted_chat", coreServer.isMutedChat());
                 json.addProperty("last_update", coreServer.getLastUpdate());
                 json.addProperty("uptime", coreServer.getUpTime());
+                json.addProperty("staff_list", coreServer.getStaffList());
                 getRedisPublisher().publishMessage("core_server_updates", json);
             }
         }, 0, 40);
@@ -90,6 +92,20 @@ public class CoreServerManager {
         }
 
         return null;
+    }
+
+    public String getStaff() {
+        StringBuilder staff = new StringBuilder();
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (p.hasPermission("core.staff")) {
+                staff.append(p.getName()).append(",");
+            }
+        }
+        if (staff.length() == 0) {
+            return "N/A";
+        } else {
+            return staff.substring(0, staff.length() - 1);
+        }
     }
 
     public void sendStaffMessage(String s) {
