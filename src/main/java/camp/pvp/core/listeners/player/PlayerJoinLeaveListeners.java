@@ -64,61 +64,12 @@ public class PlayerJoinLeaveListeners implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        CoreProfile profile = plugin.getCoreProfileManager().find(player.getUniqueId(), true);
+
+        plugin.getCoreProfileManager().getCoreProfileLoader().addToQueue(player);
 
         List<String> welcomeMessages = plugin.getConfig().getStringList("messages.welcome");
         for(String s : welcomeMessages) {
             player.sendMessage(Colors.get(s));
-        }
-
-        if(profile == null) {
-            profile = plugin.getCoreProfileManager().create(player);
-        }
-
-        if(profile.getRanks().size() == 0) {
-            profile.getRanks().add(plugin.getRankManager().getDefaultRank());
-        }
-
-        String ip = player.getAddress().getAddress().getHostAddress();
-
-        if(profile.getIp() != null && !profile.getIp().equals(ip)) {
-            if(profile.getAuthKey() != null) {
-                profile.setAuthenticated(false);
-                player.sendMessage(Colors.get("&c&lYour IP address has changed, please authenticate yourself."));
-                plugin.getCoreProfileManager().exportToDatabase(profile, true, true);
-            }
-        }
-
-        plugin.getCoreProfileManager().updatePermissions(profile);
-
-        if(player.hasPermission("core.staff") && profile.getAuthKey() == null) {
-            player.sendMessage(ChatColor.RED + "REMINDER: " + ChatColor.WHITE + "You need to set up two factor authentication on your account, please type /2fa setup.");
-        }
-
-        profile.setIp(ip);
-        profile.setLastLogin(new Date());
-
-        if(!profile.getIpList().contains(ip)) {
-            profile.getIpList().add(ip);
-        }
-
-        if(player.hasPermission("core.staff")) {
-            plugin.getCoreServerManager().sendStaffJoinMessage(player.getUniqueId(), profile.getHighestRank().getColor() + profile.getName());
-            if(profile.isStaffChat()) {
-                player.sendMessage(ChatColor.GREEN + "REMINDER: You are currently in staff chat.");
-            }
-        } else {
-            profile.setStaffChat(false);
-        }
-
-        if (plugin.getDisguiseManager().getDisguiseMap().containsValue(player.getName())) {
-            for (Map.Entry<UUID, String> entrySet : plugin.getDisguiseManager().getDisguiseMap().entrySet()) {
-                if (entrySet.getValue().equalsIgnoreCase(player.getName())) {
-                    Player target = Bukkit.getPlayer(entrySet.getKey());
-                    plugin.getDisguiseManager().undisguise(player, true);
-                    target.kickPlayer(ChatColor.RED + "Someone with your disguise name has logged on!");
-                }
-            }
         }
 
         event.setJoinMessage(null);
@@ -127,7 +78,7 @@ public class PlayerJoinLeaveListeners implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        CoreProfile profile = plugin.getCoreProfileManager().find(player.getUniqueId(), true);
+        CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
 
         if(player.hasPermission("core.staff")) {
             plugin.getCoreServerManager().sendStaffLeaveMessage(player.getUniqueId(), profile.getHighestRank().getColor() + profile.getName());

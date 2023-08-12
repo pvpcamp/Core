@@ -38,6 +38,9 @@ public class CoreProfileManager {
 
     private RedisPublisher redisPublisher;
     private RedisSubscriber profileUpdateSubscriber, staffMessageSubscriber;
+
+    private CoreProfileLoader coreProfileLoader;
+    private PermissionUpdater permissionUpdater;
     public CoreProfileManager(Core plugin) {
         this.plugin = plugin;
         this.loadedProfiles = new HashMap<>();
@@ -71,6 +74,12 @@ public class CoreProfileManager {
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new AntiAFKPlaytime(plugin, this), 0, 100);
         Bukkit.getPluginManager().registerEvents(new AntiAFKPlaytime(plugin, this), plugin);
 
+        this.coreProfileLoader = new CoreProfileLoader(plugin, this);
+        this.permissionUpdater = new PermissionUpdater(plugin, this);
+
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, coreProfileLoader, 0, 2);
+        Bukkit.getScheduler().runTaskTimer(plugin, permissionUpdater, 0, 2);
+
         plugin.getLogger().info("Started CoreProfileManager.");
     }
 
@@ -85,7 +94,7 @@ public class CoreProfileManager {
 
     public void updatePermissions(CoreProfile profile) {
         Player player = profile.getPlayer();
-        if(player != null) {
+        if(player != null && player.isOnline()) {
             PermissionAttachment attachment = player.addAttachment(plugin);
 
             if (permissionAttachments.get(profile.getUuid()) != null) {

@@ -39,7 +39,7 @@ public class CoreProfile implements Comparable<CoreProfile>{
     private Date firstLogin, lastLogin, lastLogout;
     private long playtime, afk;
 
-    private boolean authenticated, namemc, seeGlobalChat, allowPrivateMessages, messageSounds, staffChat;
+    private boolean authenticated, loaded, namemc, seeGlobalChat, allowPrivateMessages, messageSounds, staffChat;
 
     public CoreProfile(UUID uuid) {
         this.uuid = uuid;
@@ -227,6 +227,8 @@ public class CoreProfile implements Comparable<CoreProfile>{
                 this.getPunishments().add(punishment);
             }
         }
+
+        this.loaded = true;
     }
 
     public Map<String, Object> exportToMap() {
