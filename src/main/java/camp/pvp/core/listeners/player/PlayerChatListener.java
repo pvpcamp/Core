@@ -33,7 +33,7 @@ public class PlayerChatListener implements Listener {
         Player player = event.getPlayer();
         CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
 
-        if(profile != null && !event.isCancelled()) {
+        if(profile != null && profile.isLoaded() && !event.isCancelled()) {
 
             if(profile.getAuthKey() != null && !profile.isAuthenticated()) {
                 event.setCancelled(true);
@@ -132,8 +132,8 @@ public class PlayerChatListener implements Listener {
                 event.setCancelled(true);
             }
         } else {
+            player.sendMessage(ChatColor.RED + "Your profile has not been loaded yet. If this persists, please reconnect.");
             event.setCancelled(true);
-            player.sendMessage(ChatColor.RED + "Your profile has not been loaded yet.");
         }
     }
 

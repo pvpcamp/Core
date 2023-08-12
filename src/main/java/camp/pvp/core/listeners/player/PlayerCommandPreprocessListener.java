@@ -26,7 +26,7 @@ public class PlayerCommandPreprocessListener implements Listener {
         Player player = event.getPlayer();
         CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
 
-        if(profile != null) {
+        if(profile != null && profile.isLoaded()) {
 
             String message = event.getMessage();
             if(profile.getAuthKey() != null && !profile.isAuthenticated() && message.toLowerCase().startsWith("2fa") || message.toLowerCase().startsWith("auth")) {
@@ -51,7 +51,7 @@ public class PlayerCommandPreprocessListener implements Listener {
 
             plugin.getCoreProfileManager().exportHistory(chatHistory, true);
         } else {
-            player.sendMessage(ChatColor.RED + "Your profile has not been loaded yet.");
+            player.sendMessage(ChatColor.RED + "Your profile has not been loaded yet. If this persists, please reconnect.");
             event.setCancelled(true);
         }
     }
