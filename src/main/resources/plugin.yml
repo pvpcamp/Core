@@ -3,6 +3,7 @@ version: ${plugin.desc}
 description: All around core for the PvP Camp Network.
 main: camp.pvp.core.Core
 author: PvP Camp Development Team
+api-version: 1.20
 depend:
   - NetworkHelper
   - Gooey2

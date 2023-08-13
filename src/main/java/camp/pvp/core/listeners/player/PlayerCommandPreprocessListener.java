@@ -35,9 +35,6 @@ public class PlayerCommandPreprocessListener implements Listener {
                 return;
             }
             String name = player.getName();
-            if (plugin.getDisguiseManager().isDisguised(player)) {
-                name = plugin.getDisguiseManager().getRealUsername(player);
-            }
 
             ChatHistory chatHistory = new ChatHistory(
                     UUID.randomUUID(),

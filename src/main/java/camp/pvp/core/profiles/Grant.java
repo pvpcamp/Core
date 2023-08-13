@@ -35,7 +35,7 @@ public class Grant implements Comparable<Grant>{
                 case ADDED:
                     return new ItemStack(Material.EMERALD);
                 default:
-                    return new ItemStack(Material.WEB);
+                    return new ItemStack(Material.REDSTONE);
             }
         }
     }

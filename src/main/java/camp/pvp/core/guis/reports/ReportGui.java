@@ -38,7 +38,7 @@ public class ReportGui extends StandardGui {
         combatHacks.setSlot(10);
         this.addButton(combatHacks, false);
 
-        GuiButton campingHiding = new GuiButton(Material.SAPLING, "&6Camping or Hiding");
+        GuiButton campingHiding = new GuiButton(Material.OAK_SAPLING, "&6Camping or Hiding");
         campingHiding.setLore(
                 "&aCamping or hiding from you during game.",
                 "&7Click to report &c" + target + "&7."
@@ -59,7 +59,7 @@ public class ReportGui extends StandardGui {
         campingHiding.setSlot(11);
         this.addButton(campingHiding, false);
 
-        GuiButton delayingFightEvent = new GuiButton(Material.WEB, "&6Delaying Fight or Event");
+        GuiButton delayingFightEvent = new GuiButton(Material.COBWEB, "&6Delaying Fight or Event");
         delayingFightEvent.setLore(
                 "&aPurposely delaying a fight",
                 "&aor event as long as possible.",

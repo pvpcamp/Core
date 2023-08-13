@@ -132,7 +132,7 @@ public class MessageCommand implements CommandExecutor {
                         target.sendMessage(Colors.get("&7(From " + profile.getHighestRank().getColor() + player.getName() + "&7) &f" + message.toString()));
 
                         if(targetProfile.isMessageSounds()) {
-                            target.playSound(target.getLocation(), Sound.NOTE_PLING, 1F, 1F);
+                            target.playSound(target.getLocation(), Sound.BLOCK_NOTE_BLOCK_GUITAR, 1F, 1F);
                         }
                     }
                 } else {

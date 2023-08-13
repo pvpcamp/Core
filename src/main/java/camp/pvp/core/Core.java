@@ -15,9 +15,6 @@ import camp.pvp.core.punishments.PunishmentManager;
 import camp.pvp.core.ranks.RankManager;
 import camp.pvp.core.chattags.ChatTagManager;
 import camp.pvp.core.server.CoreServerManager;
-import camp.pvp.core.tablist.TabListAdapter;
-import io.github.nosequel.tab.shared.TabHandler;
-import io.github.nosequel.tab.v1_8_R3.v1_8_R3TabAdapter;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -47,7 +44,7 @@ public class Core extends JavaPlugin {
         this.rankManager = new RankManager(this);
         this.punishmentManager = new PunishmentManager(this);
         this.coreProfileManager = new CoreProfileManager(this);
-        this.disguiseManager = new DisguiseManager(this);
+//        this.disguiseManager = new DisguiseManager(this);
 
         registerCommands();
         registerListeners();

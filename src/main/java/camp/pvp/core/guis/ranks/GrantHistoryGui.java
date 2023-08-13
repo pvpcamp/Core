@@ -17,11 +17,9 @@ public class GrantHistoryGui extends PaginatedGui {
         Collections.sort(gList);
 
         for(Grant grant : gList) {
-            GuiButton button = new GuiButton(Material.WOOL, grant.getType().toString());
+            GuiButton button = new GuiButton(Material.RED_WOOL, grant.getType().toString());
             if(grant.getType().equals(Grant.Type.ADDED)) {
-                button.setDurability((short) 4);
-            } else {
-                button.setDurability((short) 14);
+                button.setType(Material.LIME_WOOL);
             }
 
             button.setLore(

@@ -59,20 +59,14 @@ public class Punishment implements Comparable<Punishment>{
         }
 
         public ItemStack getIcon() {
-            ItemStack item = new ItemStack(Material.WOOL);
             switch(this) {
                 case BAN:
-                    item.setDurability((short) 14);
-                    break;
+                    return new ItemStack(Material.RED_WOOL);
                 case BLACKLIST:
-                    item.setDurability((short) 15);
-                    break;
+                    return new ItemStack(Material.BLACK_WOOL);
                 default:
-                    item.setDurability((short) 1);
-                    break;
+                    return new ItemStack(Material.ORANGE_WOOL);
             }
-
-            return item;
         }
     }
 

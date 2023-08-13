@@ -33,7 +33,7 @@ public class CoreProfileLoader implements Runnable{
                 profile = cpm.create(player);
             }
 
-            if(profile.getRanks().size() == 0) {
+            if(profile.getRanks().isEmpty()) {
                 profile.getRanks().add(plugin.getRankManager().getDefaultRank());
             }
 
@@ -54,7 +54,25 @@ public class CoreProfileLoader implements Runnable{
                 profile.getIpList().add(ip);
             }
 
-            cpm.getPermissionUpdater().addToQueue(profile);
+            if(player.isOnline()) {
+
+                cpm.updatePermissions(profile);
+
+                if(player.hasPermission("core.staff") && profile.getAuthKey() == null) {
+                    player.sendMessage(ChatColor.RED + "REMINDER: " + ChatColor.WHITE + "You need to set up two factor authentication on your account, please type /2fa setup.");
+                }
+
+                if(player.hasPermission("core.staff")) {
+                    plugin.getCoreServerManager().sendStaffJoinMessage(player.getUniqueId(), profile.getHighestRank().getColor() + profile.getName());
+                    if(profile.isStaffChat()) {
+                        player.sendMessage(ChatColor.GREEN + "REMINDER: You are currently in staff chat.");
+                    }
+                } else {
+                    profile.setStaffChat(false);
+                }
+
+                profile.setLoaded(true);
+            }
         }
     }
 }

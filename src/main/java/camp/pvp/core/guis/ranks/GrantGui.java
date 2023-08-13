@@ -48,7 +48,7 @@ public class GrantGui extends StandardGui {
 
         int slot = 0;
         for(Rank rank : ranks) {
-            GuiButton button = new GuiButton(Material.INK_SACK, rank.getColor() + rank.getDisplayName());
+            GuiButton button = new GuiButton(Material.GRAY_DYE, rank.getColor() + rank.getDisplayName());
             int finalWeight = weight;
             button.setButtonUpdater(new AbstractButtonUpdater() {
                 @Override
@@ -61,14 +61,11 @@ public class GrantGui extends StandardGui {
                         );
 
                         if (target.getRanks().contains(rank)) {
-                            button.setDurability((short) 10);
+                            button.setType(Material.LIME_DYE);
                             button.updateName(rank.getColor() + rank.getDisplayName() + " &7(Applied)");
-                        } else {
-                            button.updateName(rank.getColor() + rank.getDisplayName());
-                            button.setDurability((short) 8);
                         }
                     } else {
-                        button.setDurability((short) 1);
+                        button.setType(Material.REDSTONE);
                         guiButton.setLore(
                                 "&cNo permission."
                         );

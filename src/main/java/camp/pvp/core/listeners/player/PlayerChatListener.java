@@ -66,12 +66,7 @@ public class PlayerChatListener implements Listener {
                 return;
             }
 
-            if (plugin.getDisguiseManager().isDisguised(player)) {
-                Rank dRank = plugin.getDisguiseManager().getRank(player);
-                event.setFormat(Colors.get(format(player, dRank, tag)));
-            } else {
-                event.setFormat(Colors.get(format(player, rank, tag)));
-            }
+            event.setFormat(Colors.get(format(player, rank, tag)));
 
             if(!profile.isStaffChat()) {
 
@@ -102,9 +97,6 @@ public class PlayerChatListener implements Listener {
                         }
                     }
                     String name = player.getName();
-                    if (plugin.getDisguiseManager().isDisguised(player)) {
-                        name = plugin.getDisguiseManager().getRealUsername(player);
-                    }
 
                     ChatHistory chatHistory = new ChatHistory(
                             UUID.randomUUID(),
