@@ -58,19 +58,67 @@ public class PlayerJoinLeaveListeners implements Listener {
                     "\n&cExpires: " + (punishment.getExpires() == null ? "Never" : DateUtils.getDifference(punishment.getExpires(), new Date())) +
                     "\n" + punishment.getType().getAppealMessage()
             ));
+
+            plugin.getCoreProfileManager().getLoadedProfiles().remove(punishment.getIssuedTo());
         }
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
 
-        plugin.getCoreProfileManager().getCoreProfileLoader().addToQueue(player);
+        if(profile == null) {
+            plugin.getCoreProfileManager().getCoreProfileLoader().addToQueue(player);
+        } else {
+            if(profile.getRanks().isEmpty()) {
+                profile.getRanks().add(plugin.getRankManager().getDefaultRank());
+            }
+
+            String ip = player.getAddress().getAddress().getHostAddress();
+
+            if(profile.getIp() != null && !profile.getIp().equals(ip)) {
+                if(profile.getAuthKey() != null) {
+                    profile.setAuthenticated(false);
+                    player.sendMessage(Colors.get("&c&lYour IP address has changed, please authenticate yourself."));
+                    plugin.getCoreProfileManager().exportToDatabase(profile, true, true);
+                }
+            }
+
+            profile.setIp(ip);
+            profile.setLastLogin(new Date());
+
+            if(!profile.getIpList().contains(ip)) {
+                profile.getIpList().add(ip);
+            }
+
+            if(player.isOnline()) {
+
+                plugin.getCoreProfileManager().updatePermissions(profile);
+
+                if(player.hasPermission("core.staff") && profile.getAuthKey() == null) {
+                    player.sendMessage(ChatColor.RED + "REMINDER: " + ChatColor.WHITE + "You need to set up two factor authentication on your account, please type /2fa setup.");
+                }
+
+                if(player.hasPermission("core.staff")) {
+                    plugin.getCoreServerManager().sendStaffJoinMessage(player.getUniqueId(), profile.getHighestRank().getColor() + profile.getName());
+                    if(profile.isStaffChat()) {
+                        player.sendMessage(ChatColor.GREEN + "REMINDER: You are currently in staff chat.");
+                    }
+                } else {
+                    profile.setStaffChat(false);
+                }
+
+                profile.setLoaded(true);
+            }
+        }
 
         List<String> welcomeMessages = plugin.getConfig().getStringList("messages.welcome");
         for(String s : welcomeMessages) {
             player.sendMessage(Colors.get(s));
         }
+
+        player.setPlayerListHeaderFooter(Colors.get(plugin.getConfig().getString("tablist.header")), Colors.get(plugin.getConfig().getString("tablist.footer")));
 
         event.setJoinMessage(null);
     }
@@ -94,10 +142,6 @@ public class PlayerJoinLeaveListeners implements Listener {
 
         plugin.getCoreProfileManager().getPermissionAttachments().remove(player.getUniqueId());
 
-        if (plugin.getDisguiseManager().isDisguised(player)) {
-            plugin.getDisguiseManager().undisguise(player, true);
-        }
-
         event.setQuitMessage(null);
     }
 
@@ -112,10 +156,6 @@ public class PlayerJoinLeaveListeners implements Listener {
             profile.setPlaytime(profile.getPlaytime() + (profile.getLastLogout().getTime() - profile.getLastLogin().getTime()));
 
             plugin.getCoreProfileManager().exportToDatabase(profile, true, false);
-        }
-
-        if (plugin.getDisguiseManager().isDisguised(player)) {
-            plugin.getDisguiseManager().undisguise(player, true);
         }
     }
 }

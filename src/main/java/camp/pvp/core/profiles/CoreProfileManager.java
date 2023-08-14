@@ -21,6 +21,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 
@@ -40,6 +41,7 @@ public class CoreProfileManager {
     private RedisSubscriber profileUpdateSubscriber, staffMessageSubscriber;
 
     private CoreProfileLoader coreProfileLoader;
+    private BukkitTask profileLoaderTask, nameMcTask, afkTask;
     public CoreProfileManager(Core plugin) {
         this.plugin = plugin;
         this.loadedProfiles = new HashMap<>();
@@ -69,13 +71,15 @@ public class CoreProfileManager {
                 "core_staff",
                 new StaffMessageListener(plugin));
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new NameMcVerifier(this), 0, 1200);
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new AntiAFKPlaytime(plugin, this), 0, 100);
-        Bukkit.getPluginManager().registerEvents(new AntiAFKPlaytime(plugin, this), plugin);
+        nameMcTask = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new NameMcVerifier(this), 0, 20 * 300);
+
+        AntiAFKPlaytime aap = new AntiAFKPlaytime(plugin, this);
+        afkTask = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, aap, 0, 100);
+        Bukkit.getPluginManager().registerEvents(aap, plugin);
 
         this.coreProfileLoader = new CoreProfileLoader(plugin, this);
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, coreProfileLoader, 0, 1);
+        profileLoaderTask = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, coreProfileLoader, 0, 1);
 
         plugin.getLogger().info("Started CoreProfileManager.");
     }
@@ -258,5 +262,9 @@ public class CoreProfileManager {
             CoreProfile profile = getLoadedProfiles().get(player.getUniqueId());
             exportToDatabase(profile, false, false);
         }
+
+        profileLoaderTask.cancel();
+        afkTask.cancel();
+        nameMcTask.cancel();
     }
 }

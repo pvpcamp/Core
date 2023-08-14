@@ -3,7 +3,6 @@ package camp.pvp.core;
 import camp.pvp.NetworkHelper;
 import camp.pvp.command.CommandHandler;
 import camp.pvp.core.commands.*;
-import camp.pvp.core.disguise.DisguiseManager;
 import camp.pvp.core.listeners.mongo.MongoGuiListener;
 import camp.pvp.core.listeners.pearls.PlayerTeleportListener;
 import camp.pvp.core.listeners.player.PlayerChatListener;
@@ -18,17 +17,17 @@ import camp.pvp.core.server.CoreServerManager;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
+@Getter
 public class Core extends JavaPlugin {
 
-    private @Getter static Core instance;
+    @Getter private static Core instance;
 
-    private @Getter CoreServerManager coreServerManager;
-    private @Getter ChatTagManager chatTagManager;
-    private @Getter CoreProfileManager coreProfileManager;
-    private @Getter PunishmentManager punishmentManager;
-    private @Getter RankManager rankManager;
-    private @Getter DisguiseManager disguiseManager;
-    @Getter long upTime;
+    private CoreServerManager coreServerManager;
+    private ChatTagManager chatTagManager;
+    private CoreProfileManager coreProfileManager;
+    private PunishmentManager punishmentManager;
+    private RankManager rankManager;
+    private long upTime;
 
     @Override
     public void onEnable() {
@@ -44,12 +43,9 @@ public class Core extends JavaPlugin {
         this.rankManager = new RankManager(this);
         this.punishmentManager = new PunishmentManager(this);
         this.coreProfileManager = new CoreProfileManager(this);
-//        this.disguiseManager = new DisguiseManager(this);
 
         registerCommands();
         registerListeners();
-
-        //new TabHandler(new v1_8_R3TabAdapter(), new TabListAdapter(this), this, 20L);
     }
 
     @Override
@@ -95,18 +91,14 @@ public class Core extends JavaPlugin {
         new WipePunishmentsCommand(this);
 
         CommandHandler commandHandler = NetworkHelper.getInstance().getCommandHandler();
-        commandHandler.registerCommand(new AdminDisguiseCommand(this));
         commandHandler.registerCommand(new AlertCommand());
         commandHandler.registerCommand(new AltsCommand(this));
         commandHandler.registerCommand(new AuthCommand(this));
         commandHandler.registerCommand(new DemoCommand(this));
-        commandHandler.registerCommand(new CheckDisguiseCommand(this));
-        commandHandler.registerCommand(new DisguiseCommand(this));
         commandHandler.registerCommand(new FeedCommand());
         commandHandler.registerCommand(new FlyCommand());
         commandHandler.registerCommand(new GamemodeCommand());
         commandHandler.registerCommand(new HealCommand());
-        commandHandler.registerCommand(new ListDisguisesCommand(this));
         commandHandler.registerCommand(new OnlineStaffCommand(this));
         commandHandler.registerCommand(new PlayCommand(this));
         commandHandler.registerCommand(new PlayerLookupCommand(this));
@@ -116,7 +108,6 @@ public class Core extends JavaPlugin {
         commandHandler.registerCommand(new SudoCommand(this));
         commandHandler.registerCommand(new TagCommand(this));
         commandHandler.registerCommand(new TeleportCommand());
-        commandHandler.registerCommand(new UndisguiseCommand(this));
     }
 
     public void registerListeners() {

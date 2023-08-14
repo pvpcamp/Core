@@ -27,6 +27,9 @@ networking:
   redis:
     host: "127.0.0.1"
     port: 6379
+tablist:
+  header: "&6&lPvP Camp"
+  footer: "&6You are currently playing on &fLobby&6."
 chat:
   enabled: true
   cooldown: 3
