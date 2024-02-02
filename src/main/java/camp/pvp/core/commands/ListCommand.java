@@ -58,11 +58,7 @@ public class ListCommand implements CommandExecutor {
             CoreProfile p = profiles.get(x);
             Player player = Bukkit.getPlayer(p.getName());
 
-            if (!plugin.getDisguiseManager().isDisguised(player)) {
-                sb.append(p.getHighestRank().getColor() + p.getName());
-            } else {
-                sb.append(p.getHighestRank().getColor() + plugin.getDisguiseManager().getDisguisedName(player));
-            }
+            sb.append(p.getHighestRank().getColor() + p.getName());
 
             if(x + 1 == profiles.size()) {
                 sb.append("&7.");

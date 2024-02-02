@@ -33,15 +33,6 @@ public class PermissionUpdater implements Runnable{
             cpm.updatePermissions(profile);
 
             if(!profile.isLoaded() && player != null && player.isOnline()) {
-                if (plugin.getDisguiseManager().getDisguiseMap().containsValue(player.getName())) {
-                    for (Map.Entry<UUID, String> entrySet : plugin.getDisguiseManager().getDisguiseMap().entrySet()) {
-                        if (entrySet.getValue().equalsIgnoreCase(player.getName())) {
-                            Player target = Bukkit.getPlayer(entrySet.getKey());
-                            plugin.getDisguiseManager().undisguise(player, true);
-                            target.kickPlayer(ChatColor.RED + "Someone with your disguise name has logged on!");
-                        }
-                    }
-                }
 
                 if(player.hasPermission("core.staff") && profile.getAuthKey() == null) {
                     player.sendMessage(ChatColor.RED + "REMINDER: " + ChatColor.WHITE + "You need to set up two factor authentication on your account, please type /2fa setup.");

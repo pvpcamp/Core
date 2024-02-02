@@ -2,7 +2,7 @@ name: Core
 version: ${plugin.desc}
 description: All around core for the PvP Camp Network.
 main: camp.pvp.core.Core
-author: PvP Camp Development Team
+author: leuo
 depend:
   - NetworkHelper
   - Gooey2

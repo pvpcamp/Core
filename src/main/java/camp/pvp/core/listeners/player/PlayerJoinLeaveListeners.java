@@ -5,8 +5,6 @@ import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.core.utils.DateUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -94,10 +92,6 @@ public class PlayerJoinLeaveListeners implements Listener {
 
         plugin.getCoreProfileManager().getPermissionAttachments().remove(player.getUniqueId());
 
-        if (plugin.getDisguiseManager().isDisguised(player)) {
-            plugin.getDisguiseManager().undisguise(player, true);
-        }
-
         event.setQuitMessage(null);
     }
 
@@ -112,10 +106,6 @@ public class PlayerJoinLeaveListeners implements Listener {
             profile.setPlaytime(profile.getPlaytime() + (profile.getLastLogout().getTime() - profile.getLastLogin().getTime()));
 
             plugin.getCoreProfileManager().exportToDatabase(profile, true, false);
-        }
-
-        if (plugin.getDisguiseManager().isDisguised(player)) {
-            plugin.getDisguiseManager().undisguise(player, true);
         }
     }
 }
