@@ -1,93 +1,82 @@
 package camp.pvp.core.commands;
 
-import camp.pvp.command.framework.Command;
-import camp.pvp.command.framework.CommandArgs;
-import camp.pvp.core.utils.Colors;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import camp.pvp.core.Core;
 import org.bukkit.GameMode;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 
-public class GamemodeCommand {
+public class GamemodeCommand implements CommandExecutor {
 
-    @Command(name = "gamemode", aliases = {"gm"}, description = "Change a players gamemode.", permission = "core.commands.gamemode")
-    public void gm(CommandArgs args) {
-        args.getSender().sendMessage(ChatColor.RED + "Usage: /" + args.getLabel() + " <gamemode> <player>");
+    private Core plugin;
+    public GamemodeCommand(Core plugin) {
+        this.plugin = plugin;
+        plugin.getCommand("gamemode").setExecutor(this);
     }
 
-    @Command(name = "gamemode.creative", aliases = {"gamemode.c", "gm.creative", "gm.c", "gm.1", "gmc", "gm1"}, permission = "core.commands.gamemode")
-    public void gmc(CommandArgs args) {
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (args.length() == 0) {
-            if (args.getSender() instanceof Player) {
-                args.getPlayer().setGameMode(GameMode.CREATIVE);
-                args.getPlayer().sendMessage(Colors.get("&6Your gamemode has been updated to &fCREATIVE&6."));
-            } else {
-                args.getSender().sendMessage(ChatColor.RED + "Cannot execute this command as console.");
+        if(!(sender instanceof Player)) return true;
+
+        GameMode gameMode = null;
+        Player target = (Player) sender;
+        int targetArg = 0;
+        switch(label.toLowerCase()) {
+            case "gmc":
+            case "creative":
+                gameMode = GameMode.CREATIVE;
+                break;
+            case "gms":
+            case "survival":
+                gameMode = GameMode.SURVIVAL;
+                break;
+            default:
+                targetArg = 1;
+        }
+
+        if(gameMode == null && args.length == 0) {
+            sender.sendMessage("Usage: /" + label + " <gamemode> [player]");
+            return true;
+        }
+
+        if(gameMode == null) {
+            try {
+                int i = Integer.parseInt(args[0]);
+                if(i < 0 || i > 3) {
+                    sender.sendMessage("Invalid gamemode.");
+                    return true;
+                }
+
+                gameMode = GameMode.values()[i];
+            } catch (NumberFormatException ignored) {
             }
-            return;
-        }
 
-        String name = args.getArgs(0);
-
-        if (Bukkit.getPlayer(name) != null) {
-            Player target = Bukkit.getPlayer(name);
-            target.setGameMode(GameMode.CREATIVE);
-            target.sendMessage(Colors.get("&6Your gamemode has been updated to &fCREATIVE&6."));
-            args.getSender().sendMessage(Colors.get("&6You have set &f" + target.getName() + "&6's gamemode to &fCREATIVE&6."));
-        } else {
-            args.getSender().sendMessage(ChatColor.RED + name + " is not online.");
-        }
-    }
-
-    @Command(name = "gamemode.survival", aliases = {"gamemode.s", "gm.survival", "gm.s", "gm.0", "gms", "gm0"}, permission = "core.commands.gamemode")
-    public void gms(CommandArgs args) {
-
-        if (args.length() == 0) {
-            if (args.getSender() instanceof Player) {
-                args.getPlayer().setGameMode(GameMode.SURVIVAL);
-                args.getPlayer().sendMessage(Colors.get("&6Your gamemode has been updated to &fSURVIVAL&6."));
-            } else {
-                args.getSender().sendMessage(ChatColor.RED + "Cannot execute this command as console.");
+            if(gameMode == null) {
+                try {
+                    gameMode = GameMode.valueOf(args[0].toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    sender.sendMessage("Invalid gamemode.");
+                    return true;
+                }
             }
-            return;
         }
 
-        String name = args.getArgs(0);
-
-        if (Bukkit.getPlayer(name) != null) {
-            Player target = Bukkit.getPlayer(name);
-            target.setGameMode(GameMode.SURVIVAL);
-            target.sendMessage(Colors.get("&6Your gamemode has been updated to &fSURVIVAL&6."));
-            args.getSender().sendMessage(Colors.get("&6You have set &f" + target.getName() + "&6's gamemode to &fSURVIVAL&6."));
-        } else {
-            args.getSender().sendMessage(ChatColor.RED + name + " is not online.");
-        }
-    }
-
-    @Command(name = "gamemode.adventure", aliases = {"gamemode.a", "gm.adventure", "gm.a", "gm.2", "gma", "gm2"}, permission = "core.commands.gamemode")
-    public void gma(CommandArgs args) {
-
-        if (args.length() == 0) {
-            if (args.getSender() instanceof Player) {
-                args.getPlayer().setGameMode(GameMode.ADVENTURE);
-                args.getPlayer().sendMessage(Colors.get("&6Your gamemode has been updated to &fADVENTURE&6."));
-            } else {
-                args.getSender().sendMessage(ChatColor.RED + "Cannot execute this command as console.");
-            }
-            return;
+        if(args.length > targetArg + 1) {
+            target = plugin.getServer().getPlayer(args[targetArg]);
         }
 
-        String name = args.getArgs(0);
-
-        if (Bukkit.getPlayer(name) != null) {
-            Player target = Bukkit.getPlayer(name);
-            target.setGameMode(GameMode.CREATIVE);
-            target.sendMessage(Colors.get("&6Your gamemode has been updated to &fADVENTURE&6."));
-            args.getSender().sendMessage(Colors.get("&6You have set &f" + target.getName() + "&6's gamemode to &fADVENTURE&6."));
-        } else {
-            args.getSender().sendMessage(ChatColor.RED + name + " is not online.");
+        if(target == null) {
+            sender.sendMessage("The target you specified is not on this server.");
+            return true;
         }
+
+        target.setGameMode(gameMode);
+        target.sendMessage("Your gamemode has been updated.");
+        sender.sendMessage("You have updated " + target.getName() + "'s gamemode.");
+
+        return true;
     }
 }

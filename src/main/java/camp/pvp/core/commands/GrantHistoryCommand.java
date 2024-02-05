@@ -1,7 +1,6 @@
 package camp.pvp.core.commands;
 
 import camp.pvp.core.Core;
-import camp.pvp.core.events.MongoGuiEvent;
 import camp.pvp.core.guis.ranks.GrantHistoryGui;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.profiles.Grant;
@@ -10,7 +9,6 @@ import camp.pvp.mongo.MongoCollectionResult;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import org.bson.Document;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -42,7 +40,6 @@ public class GrantHistoryCommand implements CommandExecutor {
                     plugin.getCoreProfileManager().getMongoManager().getCollection(true, plugin.getConfig().getString("networking.mongo.grants_collection"), new MongoCollectionResult() {
                         @Override
                         public void call(MongoCollection<Document> mongoCollection) {
-                            Date requestStarted = new Date();
                             List<Grant> grants = new ArrayList<>();
                             MongoCursor<Document> cursor = mongoCollection.find(new Document("issued_to", target.getUuid())).cursor();
                             while(cursor.hasNext()) {
@@ -52,7 +49,7 @@ public class GrantHistoryCommand implements CommandExecutor {
                                 grants.add(grant);
                             }
 
-                            Bukkit.getServer().getPluginManager().callEvent(new MongoGuiEvent(new GrantHistoryGui(target, grants), player.getUniqueId(), requestStarted));
+                            new GrantHistoryGui(target, grants).open(player);
                         }
                     });
                 } else {

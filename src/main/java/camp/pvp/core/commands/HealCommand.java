@@ -1,37 +1,43 @@
 package camp.pvp.core.commands;
 
-import camp.pvp.command.framework.Command;
-import camp.pvp.command.framework.CommandArgs;
+import camp.pvp.core.Core;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class HealCommand {
+public class HealCommand implements CommandExecutor {
 
-    @Command(name = "heal", description = "Heal a player.", permission = "core.commands.heal", inGameOnly = true)
-    public void heal(CommandArgs args) {
+    private Core plugin;
+    public HealCommand(Core plugin) {
+        this.plugin = plugin;
+        plugin.getCommand("heal").setExecutor(this);
+    }
 
-        Player player = args.getPlayer();
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (args.length() == 0) {
-            player.setHealth(20);
-            player.setFoodLevel(20);
-            player.setSaturation(20);
-            player.sendMessage(ChatColor.GOLD + "You have been healed.");
-            return;
+        if(!(sender instanceof Player)) return true;
+
+        Player target = (Player) sender;
+
+        if(args.length > 0) {
+            target = Bukkit.getPlayer(args[0]);
         }
 
-        String name = args.getArgs(0);
-
-        if (Bukkit.getPlayer(name) != null) {
-            Player target = Bukkit.getPlayer(name);
-            target.setHealth(20);
-            target.setFoodLevel(20);
-            target.setSaturation(20);
-            target.sendMessage(ChatColor.GOLD + "You have been healed.");
-            player.sendMessage(ChatColor.GOLD + "You have healed " + ChatColor.WHITE + target.getName() + ChatColor.GOLD + ".");
-        } else {
-            player.sendMessage(ChatColor.RED + name + " is not online.");
+        if(target == null) {
+            sender.sendMessage("The target you specified is not on this server.");
+            return true;
         }
+
+        target.setHealth(target.getMaxHealth());
+        target.setFoodLevel(20);
+        target.setSaturation(13);
+        target.sendMessage(ChatColor.GREEN + "You have been healed.");
+        sender.sendMessage(ChatColor.GREEN + "You have healed " + target.getName() + ".");
+
+        return true;
     }
 }

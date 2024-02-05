@@ -1,15 +1,22 @@
 name: Core
-version: ${plugin.desc}
-description: All around core for the PvP Camp Network.
+version: ${git.branch}-${git.commit.id.abbrev}
 main: camp.pvp.core.Core
 author: leuo
 depend:
-  - NetworkHelper
   - Gooey2
 softdepend:
   - Practice
 
 commands:
+  alert:
+    description: Send an alert to all players.
+    permission: core.commands.alert
+  alts:
+    description: View the alts of a player.
+    permission: core.commands.alts
+  auth:
+    aliases: [2fa]
+    description: Authenticate your account.
   ban:
     aliases: [b]
     description: Ban a player permanently.
@@ -21,6 +28,12 @@ commands:
   chat:
     description: Mute, unmute, or slow global chat.
     permission: core.commands.chat
+  demo:
+    description: Puts a player into demo mode and crashes their client.
+    permission: core.commands.demo
+  feed:
+    description: Feed a player.
+    permission: core.commands.feed
   grant:
     description: Add, remove, or show the grants of a player.
     permission: core.commands.grant
@@ -59,6 +72,10 @@ commands:
   mute:
     description: Mute a player permanently.
     permission: core.commands.mute
+  playtime:
+    aliases: [pt]
+    description: View the playtime of a player.
+    permission: core.commands.playtime
   rank:
     description: Rank manager.
     permission: core.commands.rank
@@ -80,6 +97,10 @@ commands:
     permission: core.commands.tagmanager
   tags:
     description: View and apply a chat tag.
+  teleport:
+    aliases: [tp, tphere, teleporthere, tppos, tpp, teleportpos]
+    description: Teleport to a player or position, or teleport a player to a player or position.
+    permission: core.commands.teleport
   tempban:
     aliases: [tban]
     description: Temporarily ban a player.
@@ -105,6 +126,22 @@ commands:
   unignore:
     aliases: [unblock]
     description: Unignore a player.
+  sudo:
+    description: Send a chat or run a command as another player.
+    permission: core.commands.sudo
+  seen:
+    description: View the last login of a player.
+    permission: core.commands.seen
+  playerlookup:
+    aliases: [lookup, playerinfo, pinfo]
+    description: View the information of a player.
+    permission: core.commands.playerlookup
+  tag:
+    description: Add, remove, or list the tags of a player.
+    permission: core.commands.tag
+  serverinfo:
+    description: View the server information.
+    permission: core.commands.serverinfo
   unmute:
     description: Unmute a player.
     permission: core.commands.unmute
@@ -115,3 +152,12 @@ commands:
   wipepunishments:
     description: Wipe all punishments from players.
     permission: core.commands.wipepunishments
+  heal:
+    description: Heal a player.
+    permission: core.commands.heal
+  gamemode:
+    description: Change the gamemode of a player.
+    permission: core.commands.gamemode
+  fly:
+    description: Enable or disable flight for a player.
+    permission: core.commands.fly

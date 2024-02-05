@@ -1,34 +1,43 @@
 package camp.pvp.core.commands;
 
-import camp.pvp.command.framework.Command;
-import camp.pvp.command.framework.CommandArgs;
-import camp.pvp.core.utils.Colors;
-import org.bukkit.Bukkit;
+import camp.pvp.core.Core;
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class FlyCommand {
+public class FlyCommand implements CommandExecutor {
 
-    @Command(name = "fly", description = "Toggle a players flight.", permission = "core.commands.fly", inGameOnly = true)
-    public void fly(CommandArgs args) {
+    private Core plugin;
+    public FlyCommand(Core plugin) {
+        this.plugin = plugin;
+        plugin.getCommand("fly").setExecutor(this);
+    }
 
-        Player player = args.getPlayer();
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (args.length() == 0) {
-            player.setAllowFlight(!player.getAllowFlight());
-            player.sendMessage(Colors.get("&6Your flight has been " + (player.getAllowFlight() ? "&aenabled" : "&cdisabled") + "&6."));
-            return;
+        if(!(sender instanceof Player)) return true;
+
+        Player target = (Player) sender;
+
+        if(args.length > 0) {
+            target = plugin.getServer().getPlayer(args[0]);
         }
 
-        String name = args.getArgs(0);
-
-        if (Bukkit.getPlayer(name) != null) {
-            Player target = Bukkit.getPlayer(name);
-            target.setAllowFlight(!target.getAllowFlight());
-            target.sendMessage(Colors.get("&6Your flight has been " + (target.getAllowFlight() ? "&aenabled" : "&cdisabled" + "&6.")));
-            player.sendMessage(Colors.get("&6You have set &f" + target.getName() + "&6's flight to " + (target.getAllowFlight() ? "&aenabled" : "&cdisabled") + "&6."));
-        } else {
-            player.sendMessage(ChatColor.RED + name + " is not online.");
+        if(target == null) {
+            sender.sendMessage("The target you specified is not on this server.");
+            return true;
         }
+
+        target.setAllowFlight(!target.getAllowFlight());
+        target.setFlying(target.getAllowFlight());
+        target.sendMessage(ChatColor.GREEN + "Your flight has been " + ChatColor.YELLOW + (target.getAllowFlight() ? "enabled" : "disabled") + ChatColor.GREEN + ".");
+        sender.sendMessage(ChatColor.GREEN + "You have " + ChatColor.YELLOW + (target.getAllowFlight() ? "enabled" : "disabled")
+                + ChatColor.GREEN + " flight for " + ChatColor.WHITE + target.getName() + ChatColor.GREEN + ".");
+
+
+        return true;
     }
 }

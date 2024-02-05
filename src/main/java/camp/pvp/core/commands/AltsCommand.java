@@ -1,7 +1,5 @@
 package camp.pvp.core.commands;
 
-import camp.pvp.command.framework.Command;
-import camp.pvp.command.framework.CommandArgs;
 import camp.pvp.core.Core;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.punishments.Punishment;
@@ -17,34 +15,38 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class AltsCommand {
+public class AltsCommand implements CommandExecutor {
     
     private Core plugin;
     
     public AltsCommand(Core plugin) {
         this.plugin = plugin;
+        plugin.getCommand("alts").setExecutor(this);
     }
 
-    @Command(name = "alts", description = "Check the alts of a player.", permission = "core.commands.alts")
-    public void alts(CommandArgs args) {
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (args.length() == 0) {
-            args.getSender().sendMessage(ChatColor.RED + "Usage: /" + args.getLabel() + " <player>");
-            return;
+        if (args.length == 0) {
+            sender.sendMessage(ChatColor.RED + "Usage: /" + label + " <player>");
+            return true;
         }
 
-        String target = args.getArgs(0);
+        String target = args[0];
         CoreProfile coreProfile = plugin.getCoreProfileManager().find(target, false);
 
         if (coreProfile == null) {
-            args.getSender().sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
-            return;
+            sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
+            return true;
         }
 
         List<String> ips = coreProfile.getIpList();
@@ -98,17 +100,17 @@ public class AltsCommand {
         targetHover.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/c " + coreProfile.getName()));
         altList.addExtra(targetHover);
 
-        args.getSender().sendMessage(Colors.get("&7[&aOnline&7, &7Offline, &f&oMuted&7, &cBan&7, &4Blacklist&7]"));
-        args.getSender().sendMessage(Colors.get(targetName + "&6's alts &f(" + altSize + ")&6:"));
+        sender.sendMessage(Colors.get("&7[&aOnline&7, &7Offline, &f&oMuted&7, &cBan&7, &4Blacklist&7]"));
+        sender.sendMessage(Colors.get(targetName + "&6's alts &f(" + altSize + ")&6:"));
 
         if (altSize == 1) {
 
-            if (args.getSender() instanceof Player) {
-                Player player = args.getPlayer();
+            if (sender instanceof Player) {
+                Player player = (Player) sender;
                 player.spigot().sendMessage(altList);
                 //sender.sendMessage(Colors.get(name + "&7."));
             } else {
-                args.getSender().sendMessage(Colors.get(targetName + "&7."));
+                sender.sendMessage(Colors.get(targetName + "&7."));
             }
 
         } else {
@@ -168,13 +170,15 @@ public class AltsCommand {
                 }
             });
 
-            if (args.getSender() instanceof Player) {
-                Player player = args.getPlayer();
+            if (sender instanceof Player) {
+                Player player = (Player) sender;
                 player.spigot().sendMessage(altList);
                 //sender.sendMessage(Colors.get(g.toString()));
             } else {
-                args.getSender().sendMessage(Colors.get(g.toString()));
+                sender.sendMessage(Colors.get(g.toString()));
             }
         }
+
+        return true;
     }
 }

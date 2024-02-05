@@ -1,7 +1,6 @@
 package camp.pvp.core.commands;
 
 import camp.pvp.core.Core;
-import camp.pvp.core.events.MongoGuiEvent;
 import camp.pvp.core.guis.punishments.HistoryGui;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.punishments.Punishment;
@@ -9,7 +8,6 @@ import camp.pvp.core.utils.Colors;
 import camp.pvp.mongo.MongoCollectionResult;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -53,7 +51,8 @@ public class StaffHistoryCommand implements CommandExecutor {
                                                 plugin.getPunishmentManager().getLoadedPunishments().put(punishmentId, punishment);
                                                 punishments.add(punishment);
                                             });
-                                    Bukkit.getServer().getPluginManager().callEvent(new MongoGuiEvent(new HistoryGui(profile.getName() + " Staff History", punishments, true), player.getUniqueId(), started));;
+
+                                    new HistoryGui(profile.getName() + " Staff History", punishments, true).open(player);
 
                                 }
                             }

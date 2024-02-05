@@ -1,44 +1,51 @@
 package camp.pvp.core.commands;
 
-import camp.pvp.command.framework.Command;
-import camp.pvp.command.framework.CommandArgs;
 import camp.pvp.core.Core;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.core.utils.DateUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.Date;
 
 
-public class SeenCommand {
+public class SeenCommand implements CommandExecutor {
 
     private Core plugin;
 
     public SeenCommand(Core plugin) {
         this.plugin = plugin;
+        plugin.getCommand("seen").setExecutor(this);
     }
 
-    @Command(name = "seen", aliases = {"lastseen"}, description = "Check a players status.", permission = "core.commands.seen")
-    public void playtime(CommandArgs args) {
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (args.length() == 0) {
-            args.getSender().sendMessage(ChatColor.RED + "Usage: /" + args.getLabel() + " <player>");
-            return;
+        if (args.length == 0) {
+            sender.sendMessage(ChatColor.RED + "Usage: /" + label + " <player>");
+            return true;
         }
 
-        String target = args.getArgs(0);
-        CoreProfile coreProfile = plugin.getCoreProfileManager().find(target, false);
+        CoreProfile coreProfile = plugin.getCoreProfileManager().find(args[0], false);
 
         if (coreProfile == null) {
-            args.getSender().sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
-            return;
+            sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
+            return true;
         }
 
-        String seen = (Bukkit.getPlayer(target) != null && Bukkit.getPlayer(target).isOnline() ? "online for &f" + DateUtils.getDifference(new Date(), coreProfile.getLastLogin()) : "offline for &f" + DateUtils.getDifference(new Date(), coreProfile.getLastLogout()));
+        Player player = coreProfile.getPlayer();
+
+        String seen = (player != null && player.isOnline() ? "online for &f" +
+                DateUtils.getDifference(new Date(), coreProfile.getLastLogin()) : "offline for &f" + DateUtils.getDifference(new Date(), coreProfile.getLastLogout()));
         String name = coreProfile.getHighestRank().getColor() + coreProfile.getName();
 
-        args.getSender().sendMessage(Colors.get(name + " &6has been " + seen + "&6."));
+        sender.sendMessage(Colors.get(name + " &6has been " + seen + "&6."));
+
+        return true;
     }
 }

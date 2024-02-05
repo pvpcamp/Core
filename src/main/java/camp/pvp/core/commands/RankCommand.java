@@ -5,7 +5,6 @@ import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.ranks.Rank;
 import camp.pvp.core.ranks.RankManager;
 import camp.pvp.core.utils.Colors;
-import camp.pvp.events.MongoMessageEvent;
 import camp.pvp.mongo.MongoCollectionResult;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -394,7 +393,6 @@ public class RankCommand implements CommandExecutor {
                                 plugin.getCoreProfileManager().getMongoManager().getCollection(true, plugin.getConfig().getString("networking.mongo.profiles_collection"), new MongoCollectionResult() {
                                     @Override
                                     public void call(MongoCollection<Document> mongoCollection) {
-                                        Date requestStarted = new Date();
                                         List<String> names = new ArrayList<>();
                                         MongoCursor<Document> cursor = mongoCollection.find(new Document("ranks", finalRank.getUuid())).cursor();
                                         while(cursor.hasNext()) {
@@ -417,7 +415,7 @@ public class RankCommand implements CommandExecutor {
                                             }
                                         }
 
-                                        Bukkit.getServer().getPluginManager().callEvent(new MongoMessageEvent(sb.toString(), player, requestStarted));
+                                        player.sendMessage(Colors.get(sb.toString()));
                                     }
                                 });
                             } else {

@@ -4,7 +4,6 @@ import camp.pvp.core.Core;
 import camp.pvp.core.profiles.ChatHistory;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.core.utils.PaginatedMessage;
-import camp.pvp.events.MongoMessageEvent;
 import camp.pvp.mongo.MongoCollectionResult;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -62,7 +61,6 @@ public class UserHistoryCommand implements CommandExecutor {
             plugin.getCoreProfileManager().getMongoManager().getCollection(true, plugin.getConfig().getString("networking.mongo.chat_history_collection"), new MongoCollectionResult() {
                 @Override
                 public void call(MongoCollection<Document> mongoCollection) {
-                    Date date = new Date();
                     List<ChatHistory> history = new ArrayList<>();
                     mongoCollection.find(Filters.regex("player_name", "(?i)" + name)).forEach(
                             document -> {
@@ -75,7 +73,7 @@ public class UserHistoryCommand implements CommandExecutor {
                     );
 
                     if(history.isEmpty()) {
-                        Bukkit.getServer().getPluginManager().callEvent(new MongoMessageEvent(Colors.get("&cNo message history found for " + name + "."), sender, date));
+                        sender.sendMessage(Colors.get("&cNo message history found for " + name + "."));
                     } else {
                         Collections.sort(history, new Comparator<ChatHistory>() {
                             @Override
@@ -94,7 +92,7 @@ public class UserHistoryCommand implements CommandExecutor {
                             }
                         }
 
-                        Bukkit.getServer().getPluginManager().callEvent(new MongoMessageEvent(message.getPage(fPage), sender, date));
+                        sender.sendMessage(message.getPage(fPage));
 
                     }
                 }

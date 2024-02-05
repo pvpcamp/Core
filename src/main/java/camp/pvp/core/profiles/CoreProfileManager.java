@@ -38,8 +38,6 @@ public class CoreProfileManager {
     private RedisPublisher redisPublisher;
     private RedisSubscriber profileUpdateSubscriber, staffMessageSubscriber;
 
-    private CoreProfileLoader coreProfileLoader;
-    private PermissionUpdater permissionUpdater;
     public CoreProfileManager(Core plugin) {
         this.plugin = plugin;
         this.loadedProfiles = new HashMap<>();
@@ -70,12 +68,6 @@ public class CoreProfileManager {
                 new StaffMessageListener(plugin));
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new NameMcVerifier(this), 0, 1200);
-
-        this.coreProfileLoader = new CoreProfileLoader(plugin, this);
-        this.permissionUpdater = new PermissionUpdater(plugin, this);
-
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, coreProfileLoader, 0, 2);
-        Bukkit.getScheduler().runTaskTimer(plugin, permissionUpdater, 0, 2);
 
         plugin.getLogger().info("Started CoreProfileManager.");
     }
@@ -171,6 +163,7 @@ public class CoreProfileManager {
             if(document != null) {
                 profile[0] = new CoreProfile(uuid);
                 profile[0].importFromDocument(plugin, document);
+                profile[0].setLastLoadFromDatabase(System.currentTimeMillis());
                 if(store) {
                     loadedProfiles.put(uuid, profile[0]);
                 }
@@ -180,9 +173,9 @@ public class CoreProfileManager {
         return profile[0];
     }
 
-    public CoreProfile create(Player player) {
-        CoreProfile profile = new CoreProfile(player.getUniqueId());
-        profile.setName(player.getName());
+    public CoreProfile create(UUID uuid, String name) {
+        CoreProfile profile = new CoreProfile(uuid);
+        profile.setName(name);
         profile.getRanks().add(plugin.getRankManager().getDefaultRank());
         profile.setFirstLogin(new Date());
 
@@ -190,8 +183,12 @@ public class CoreProfileManager {
         mu.setUpdate(profile.exportToMap());
 
         getMongoManager().massUpdate(false, mu);
-        this.loadedProfiles.put(player.getUniqueId(), profile);
+        this.loadedProfiles.put(uuid, profile);
         return profile;
+    }
+
+    public CoreProfile create(Player player) {
+        return create(player.getUniqueId(), player.getName());
     }
 
     public void exportToDatabase(CoreProfile profile, boolean async, boolean store) {

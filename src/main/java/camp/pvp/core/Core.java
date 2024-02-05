@@ -1,10 +1,6 @@
 package camp.pvp.core;
 
-import camp.pvp.NetworkHelper;
-import camp.pvp.command.CommandHandler;
 import camp.pvp.core.commands.*;
-import camp.pvp.core.listeners.mongo.MongoGuiListener;
-import camp.pvp.core.listeners.pearls.PlayerTeleportListener;
 import camp.pvp.core.listeners.player.PlayerChatListener;
 import camp.pvp.core.listeners.player.PlayerChatTabCompleteListener;
 import camp.pvp.core.listeners.player.PlayerCommandPreprocessListener;
@@ -56,12 +52,20 @@ public class Core extends JavaPlugin {
     }
 
     public void registerCommands() {
+        new AlertCommand(this);
+        new AltsCommand(this);
+        new AuthCommand(this);
         new BanCommand(this);
         new BlacklistCommand(this);
         new ChatCommand(this);
+        new DemoCommand(this);
+        new FeedCommand(this);
+        new FlyCommand(this);
+        new GamemodeCommand(this);
         new GrantCommand(this);
         new GrantHistoryCommand(this);
         new GrantsCommand(this);
+        new HealCommand(this);
         new HelpOpCommand(this);
         new HistoryCommand(this);
         new IgnoreCommand(this);
@@ -71,13 +75,20 @@ public class Core extends JavaPlugin {
         new MessageCommand(this);
         new MoreCommand(this);
         new MuteCommand(this);
+        new PlayerLookupCommand(this);
+        new PlaytimeCommand(this);
         new RankCommand(this);
         new ReportCommand(this);
+        new SeenCommand(this);
+        new ServerInfoCommand(this);
         new SoundsCommand(this);
         new StaffChatCommand(this);
         new StaffHistoryCommand(this);
+        new SudoCommand(this);
+        new TagCommand(this);
         new TagManagerCommand(this);
         new TagsCommand(this);
+        new TeleportCommand(this);
         new TempBanCommand(this);
         new TempMuteCommand(this);
         new ToggleGlobalChatCommand(this);
@@ -88,25 +99,6 @@ public class Core extends JavaPlugin {
         new UnmuteCommand(this);
         new UserHistoryCommand(this);
         new WipePunishmentsCommand(this);
-
-        CommandHandler commandHandler = NetworkHelper.getInstance().getCommandHandler();
-        commandHandler.registerCommand(new AlertCommand());
-        commandHandler.registerCommand(new AltsCommand(this));
-        commandHandler.registerCommand(new AuthCommand(this));
-        commandHandler.registerCommand(new DemoCommand(this));
-        commandHandler.registerCommand(new FeedCommand());
-        commandHandler.registerCommand(new FlyCommand());
-        commandHandler.registerCommand(new GamemodeCommand());
-        commandHandler.registerCommand(new HealCommand());
-        commandHandler.registerCommand(new OnlineStaffCommand(this));
-        commandHandler.registerCommand(new PlayCommand(this));
-        commandHandler.registerCommand(new PlayerLookupCommand(this));
-        commandHandler.registerCommand(new PlaytimeCommand(this));
-        commandHandler.registerCommand(new SeenCommand(this));
-        commandHandler.registerCommand(new ServerInfoCommand(this));
-        commandHandler.registerCommand(new SudoCommand(this));
-        commandHandler.registerCommand(new TagCommand(this));
-        commandHandler.registerCommand(new TeleportCommand());
     }
 
     public void registerListeners() {
@@ -114,8 +106,5 @@ public class Core extends JavaPlugin {
         new PlayerChatTabCompleteListener(this);
         new PlayerCommandPreprocessListener(this);
         new PlayerJoinLeaveListeners(this);
-        new PlayerTeleportListener(this);
-
-        new MongoGuiListener(this);
     }
 }

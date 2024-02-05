@@ -33,7 +33,7 @@ public class PlayerChatListener implements Listener {
         Player player = event.getPlayer();
         CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
 
-        if(profile != null && profile.isLoaded() && !event.isCancelled()) {
+        if(profile != null && !event.isCancelled()) {
 
             if(profile.getAuthKey() != null && !profile.isAuthenticated()) {
                 event.setCancelled(true);

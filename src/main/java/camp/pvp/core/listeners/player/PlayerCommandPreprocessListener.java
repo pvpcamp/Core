@@ -26,30 +26,35 @@ public class PlayerCommandPreprocessListener implements Listener {
         Player player = event.getPlayer();
         CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
 
-        if(profile != null && profile.isLoaded()) {
-
-            String message = event.getMessage();
-            if(profile.getAuthKey() != null && !profile.isAuthenticated() && message.toLowerCase().startsWith("2fa") || message.toLowerCase().startsWith("auth")) {
-                event.setCancelled(true);
-                player.sendMessage(ChatColor.RED + "You are not authenticated.");
-                return;
-            }
-            String name = player.getName();
-
-            ChatHistory chatHistory = new ChatHistory(
-                    UUID.randomUUID(),
-                    player.getUniqueId(),
-                    name,
-                    message,
-                    plugin.getCoreServerManager().getCoreServer().getName(),
-                    ChatHistory.Type.COMMAND,
-                    new Date(),
-                    false);
-
-            plugin.getCoreProfileManager().exportHistory(chatHistory, true);
-        } else {
-            player.sendMessage(ChatColor.RED + "Your profile has not been loaded yet. If this persists, please reconnect.");
-            event.setCancelled(true);
+        if(profile == null) {
+            player.kickPlayer("There was an issue with your profile, please relog.");
+            return;
         }
+
+        String message = event.getMessage();
+
+        if(message.toLowerCase().startsWith("/2fa") || message.toLowerCase().startsWith("/auth")) {
+            return;
+        }
+
+        if(profile.getAuthKey() != null && !profile.isAuthenticated()) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You are not authenticated.");
+            return;
+        }
+
+        String name = player.getName();
+
+        ChatHistory chatHistory = new ChatHistory(
+                UUID.randomUUID(),
+                player.getUniqueId(),
+                name,
+                message,
+                plugin.getCoreServerManager().getCoreServer().getName(),
+                ChatHistory.Type.COMMAND,
+                new Date(),
+                false);
+
+        plugin.getCoreProfileManager().exportHistory(chatHistory, true);
     }
 }

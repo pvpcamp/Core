@@ -1,38 +1,41 @@
 package camp.pvp.core.commands;
 
-import camp.pvp.command.framework.Command;
-import camp.pvp.command.framework.CommandArgs;
 import camp.pvp.core.Core;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.core.utils.DateUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 
 
-public class PlaytimeCommand {
+public class PlaytimeCommand implements CommandExecutor {
 
     private Core plugin;
 
     public PlaytimeCommand(Core plugin) {
         this.plugin = plugin;
+        plugin.getCommand("playtime").setExecutor(this);
     }
 
-    @Command(name = "playtime", aliases = {"pt"}, description = "Check the playtime of a player.", permission = "core.commands.playtime")
-    public void playtime(CommandArgs args) {
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (args.length() == 0) {
-            args.getSender().sendMessage(ChatColor.RED + "Usage: /" + args.getLabel() + " <player>");
-            return;
+        if (args.length == 0) {
+            sender.sendMessage(ChatColor.RED + "Usage: /" + label + " <player>");
+            return true;
         }
 
-        String target = args.getArgs(0);
-        CoreProfile coreProfile = plugin.getCoreProfileManager().find(target, false);
+        CoreProfile coreProfile = plugin.getCoreProfileManager().find(args[0], false);
 
         if (coreProfile == null) {
-            args.getSender().sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
-            return;
+            sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
+            return true;
         }
 
-        args.getSender().sendMessage(Colors.get(coreProfile.getHighestRank().getColor() + coreProfile.getName() + "&6's playtime is &f" + DateUtils.getTimeFormat(coreProfile.getCurrentPlaytime()) + "&6."));
+        sender.sendMessage(Colors.get(coreProfile.getHighestRank().getColor() + coreProfile.getName() + "&6's playtime is &f" + DateUtils.getTimeFormat(coreProfile.getCurrentPlaytime()) + "&6."));
+
+        return true;
     }
 }
