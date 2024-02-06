@@ -4,6 +4,7 @@ main: camp.pvp.core.Core
 author: leuo
 depend:
   - Gooey2
+  - ProtocolLib
 softdepend:
   - Practice
 
@@ -156,6 +157,7 @@ commands:
     description: Heal a player.
     permission: core.commands.heal
   gamemode:
+    aliases: [gmc, gms, gm, survival, creative]
     description: Change the gamemode of a player.
     permission: core.commands.gamemode
   fly:

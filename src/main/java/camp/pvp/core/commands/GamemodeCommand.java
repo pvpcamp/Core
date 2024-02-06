@@ -1,6 +1,8 @@
 package camp.pvp.core.commands;
 
 import camp.pvp.core.Core;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -46,11 +48,11 @@ public class GamemodeCommand implements CommandExecutor {
             try {
                 int i = Integer.parseInt(args[0]);
                 if(i < 0 || i > 3) {
-                    sender.sendMessage("Invalid gamemode.");
+                    sender.sendMessage(ChatColor.RED + "Invalid gamemode.");
                     return true;
                 }
 
-                gameMode = GameMode.values()[i];
+                gameMode = GameMode.getByValue(i);
             } catch (NumberFormatException ignored) {
             }
 
@@ -58,14 +60,14 @@ public class GamemodeCommand implements CommandExecutor {
                 try {
                     gameMode = GameMode.valueOf(args[0].toUpperCase());
                 } catch (IllegalArgumentException e) {
-                    sender.sendMessage("Invalid gamemode.");
+                    sender.sendMessage(ChatColor.RED + "Invalid gamemode.");
                     return true;
                 }
             }
         }
 
-        if(args.length > targetArg + 1) {
-            target = plugin.getServer().getPlayer(args[targetArg]);
+        if(args.length > targetArg) {
+            target = Bukkit.getPlayer(args[targetArg]);
         }
 
         if(target == null) {
@@ -74,8 +76,8 @@ public class GamemodeCommand implements CommandExecutor {
         }
 
         target.setGameMode(gameMode);
-        target.sendMessage("Your gamemode has been updated.");
-        sender.sendMessage("You have updated " + target.getName() + "'s gamemode.");
+        target.sendMessage(ChatColor.GREEN + "Your gamemode has been updated to " + gameMode.toString() + ".");
+        sender.sendMessage(ChatColor.GREEN + "You have updated " + target.getName() + "'s gamemode to " + gameMode.toString() + ".");
 
         return true;
     }

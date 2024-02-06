@@ -5,10 +5,15 @@ import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.core.utils.DateUtils;
-import camp.pvp.practice.profiles.GameProfile;
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.wrappers.EnumWrappers;
+import com.comphenix.protocol.wrappers.PlayerInfoData;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -26,17 +31,29 @@ public class PlayerJoinLeaveListeners implements Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
 
         String name = event.getName();
         UUID uuid = event.getUniqueId();
 
-        if(name == null) event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "Invalid username.");
+        if(name == null) {
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "Invalid username.");
+            return;
+        };
+
+        Player player = Bukkit.getPlayer(event.getUniqueId());
+        if(player != null && player.isOnline()) {
+            Bukkit.getScheduler().runTask(plugin, () -> player.kickPlayer(ChatColor.RED + "You have connected from another location."));
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "Please relog.");
+            return;
+        }
 
         CoreProfile profile = plugin.getCoreProfileManager().importFromDatabase(uuid, true);
 
         if(profile == null) profile = plugin.getCoreProfileManager().create(uuid, event.getName());
+
+        profile.setLastLogin(new Date());
 
         Punishment punishment;
 
@@ -102,7 +119,6 @@ public class PlayerJoinLeaveListeners implements Listener {
 
         profile.setIp(ip);
         profile.setName(player.getName());
-        profile.setLastLogin(new Date());
 
         if(!profile.getIpList().contains(ip)) {
             profile.getIpList().add(ip);
@@ -144,6 +160,12 @@ public class PlayerJoinLeaveListeners implements Listener {
         plugin.getCoreProfileManager().getPermissionAttachments().remove(player.getUniqueId());
 
         event.setQuitMessage(null);
+
+        for(Player p : Bukkit.getOnlinePlayers()) {
+            if(!p.canSee(player)) {
+                p.showPlayer(player);
+            }
+        }
     }
 
     @EventHandler

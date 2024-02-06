@@ -178,6 +178,7 @@ public class CoreProfileManager {
         profile.setName(name);
         profile.getRanks().add(plugin.getRankManager().getDefaultRank());
         profile.setFirstLogin(new Date());
+        profile.setLastLoadFromDatabase(System.currentTimeMillis());
 
         MongoUpdate mu = new MongoUpdate(profilesCollection, profile.getUuid());
         mu.setUpdate(profile.exportToMap());

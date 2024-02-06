@@ -1,6 +1,7 @@
 package camp.pvp.core;
 
 import camp.pvp.core.commands.*;
+import camp.pvp.core.listeners.packets.PlayerInfoListener;
 import camp.pvp.core.listeners.player.PlayerChatListener;
 import camp.pvp.core.listeners.player.PlayerChatTabCompleteListener;
 import camp.pvp.core.listeners.player.PlayerCommandPreprocessListener;
@@ -10,34 +11,42 @@ import camp.pvp.core.punishments.PunishmentManager;
 import camp.pvp.core.ranks.RankManager;
 import camp.pvp.core.chattags.ChatTagManager;
 import camp.pvp.core.server.CoreServerManager;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
+
 public class Core extends JavaPlugin {
 
-    private @Getter static Core instance;
+    @Getter private static Core instance;
 
-    private @Getter CoreServerManager coreServerManager;
-    private @Getter ChatTagManager chatTagManager;
-    private @Getter CoreProfileManager coreProfileManager;
-    private @Getter PunishmentManager punishmentManager;
-    private @Getter RankManager rankManager;
-    @Getter long upTime;
+    @Getter private CoreServerManager coreServerManager;
+    @Getter private ChatTagManager chatTagManager;
+    @Getter private CoreProfileManager coreProfileManager;
+    @Getter private PunishmentManager punishmentManager;
+    @Getter private RankManager rankManager;
+
+    @Getter private ProtocolManager protocolManager;
+
+    @Getter private long upTime;
 
     @Override
     public void onEnable() {
         instance = this;
         upTime = System.currentTimeMillis();
 
-        this.saveDefaultConfig();
+        saveDefaultConfig();
 
-        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
-        this.coreServerManager = new CoreServerManager(this);
-        this.chatTagManager = new ChatTagManager(this);
-        this.rankManager = new RankManager(this);
-        this.punishmentManager = new PunishmentManager(this);
-        this.coreProfileManager = new CoreProfileManager(this);
+        coreServerManager = new CoreServerManager(this);
+        chatTagManager = new ChatTagManager(this);
+        rankManager = new RankManager(this);
+        punishmentManager = new PunishmentManager(this);
+        coreProfileManager = new CoreProfileManager(this);
+
+        protocolManager = ProtocolLibrary.getProtocolManager();
 
         registerCommands();
         registerListeners();
@@ -106,5 +115,7 @@ public class Core extends JavaPlugin {
         new PlayerChatTabCompleteListener(this);
         new PlayerCommandPreprocessListener(this);
         new PlayerJoinLeaveListeners(this);
+
+        protocolManager.addPacketListener(new PlayerInfoListener(this));
     }
 }
