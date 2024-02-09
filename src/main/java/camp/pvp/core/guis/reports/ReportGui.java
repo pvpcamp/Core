@@ -10,6 +10,7 @@ import camp.pvp.utils.guis.StandardGui;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 
 public class ReportGui extends StandardGui {
     public ReportGui(CoreProfile profile, String target) {
@@ -25,7 +26,7 @@ public class ReportGui extends StandardGui {
 
         combatHacks.setAction(new GuiAction() {
             @Override
-            public void run(Player player, Gui gui) {
+            public void run(Player player, GuiButton guiButton, Gui gui, ClickType clickType) {
                 CoreServerManager csm = Core.getInstance().getCoreServerManager();
                 csm.sendStaffMessage("&c[Report] &f" + profile.getName() + " &chas reported &f" + target + "&c on server &f" + csm.getCoreServer().getName() + "&c for: &fCombat Hacks");
                 player.sendMessage(ChatColor.GREEN + "Your report of " + ChatColor.WHITE + target + ChatColor.GREEN + " has been submitted and sent to online staff.");
@@ -46,7 +47,7 @@ public class ReportGui extends StandardGui {
 
         campingHiding.setAction(new GuiAction() {
             @Override
-            public void run(Player player, Gui gui) {
+            public void run(Player player, GuiButton guiButton, Gui gui, ClickType clickType) {
                 CoreServerManager csm = Core.getInstance().getCoreServerManager();
                 csm.sendStaffMessage("&c[Report] &f" + profile.getName() + " &chas reported &f" + target + "&c on server &f" + csm.getCoreServer().getName() + "&c for: &fCamping or Hiding");
                 player.sendMessage(ChatColor.GREEN + "Your report of " + ChatColor.WHITE + target + ChatColor.GREEN + " has been submitted and sent to online staff.");
@@ -68,7 +69,7 @@ public class ReportGui extends StandardGui {
 
         delayingFightEvent.setAction(new GuiAction() {
             @Override
-            public void run(Player player, Gui gui) {
+            public void run(Player player, GuiButton guiButton, Gui gui, ClickType clickType) {
                 CoreServerManager csm = Core.getInstance().getCoreServerManager();
                 csm.sendStaffMessage("&c[Report] &f" + profile.getName() + " &chas reported &f" + target + "&c on server &f" + csm.getCoreServer().getName() + "&c for: &fDelaying Fight or Event");
                 player.sendMessage(ChatColor.GREEN + "Your report of " + ChatColor.WHITE + target + ChatColor.GREEN + " has been submitted and sent to online staff.");
@@ -90,7 +91,7 @@ public class ReportGui extends StandardGui {
 
         chat.setAction(new GuiAction() {
             @Override
-            public void run(Player player, Gui gui) {
+            public void run(Player player, GuiButton guiButton, Gui gui, ClickType clickType) {
                 CoreServerManager csm = Core.getInstance().getCoreServerManager();
                 csm.sendStaffMessage("&c[Report] &f" + profile.getName() + " &chas reported &f" + target + "&c on server &f" + csm.getCoreServer().getName() + "&c for: &fDelaying Fight or Event");
                 player.sendMessage(ChatColor.GREEN + "Your report of " + ChatColor.WHITE + target + ChatColor.GREEN + " has been submitted and sent to online staff.");

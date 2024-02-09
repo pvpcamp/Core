@@ -12,6 +12,7 @@ import camp.pvp.utils.guis.paginated.PaginatedGui;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,7 +47,7 @@ public class ChooseTagGui extends PaginatedGui {
                 button.updateName(tag.getDisplayName() + " &7(Selected)");
                 button.setAction(new GuiAction() {
                     @Override
-                    public void run(Player player, Gui gui) {
+                    public void run(Player player, GuiButton guiButton, Gui gui, ClickType clickType) {
                         profile.setChatTag(null);
                         player.sendMessage(ChatColor.GREEN + "You no longer have a chat tag applied.");
                     }
@@ -59,7 +60,7 @@ public class ChooseTagGui extends PaginatedGui {
                 if(profile.getOwnedChatTags().contains(tag) || profile.getPlayer().hasPermission("core.tags.all")) {
                     button.setAction(new GuiAction() {
                         @Override
-                        public void run(Player player, Gui gui) {
+                        public void run(Player player, GuiButton guiButton, Gui gui, ClickType clickType) {
                             profile.setChatTag(tag);
                             player.sendMessage(Colors.get("&aYou applied have the chat tag &f" + tag.getDisplayName() + "&a."));
                         }

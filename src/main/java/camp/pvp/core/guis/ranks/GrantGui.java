@@ -13,6 +13,7 @@ import camp.pvp.utils.guis.GuiAction;
 import camp.pvp.utils.guis.StandardGui;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.util.*;
@@ -79,7 +80,7 @@ public class GrantGui extends StandardGui {
             if(rank.getWeight() <= finalWeight || profile.getPlayer().hasPermission("*")) {
                 button.setAction(new GuiAction() {
                     @Override
-                    public void run(Player player, Gui gui) {
+                    public void run(Player player, GuiButton guiButton, Gui gui, ClickType clickType) {
                         String message;
 
                         Grant grant = new Grant(UUID.randomUUID());
