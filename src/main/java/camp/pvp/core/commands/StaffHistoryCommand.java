@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class StaffHistoryCommand implements CommandExecutor {
 
@@ -30,40 +31,31 @@ public class StaffHistoryCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(sender instanceof Player) {
-            Player player = (Player) sender;
-            if(args.length > 0) {
-                String target = args[0];
 
-                CoreProfile profile = plugin.getCoreProfileManager().find(target, false);
-                if(profile != null) {
-                    player.sendMessage(Colors.get("&aLoading staff history of " + profile.getHighestRank().getColor() + profile.getName() + "&a."));
-                    List<Punishment> punishments = new ArrayList<>();
-                    plugin.getPunishmentManager().getMongoManager().getCollection(true, plugin.getConfig().getString("networking.mongo.punishments_collection"), new MongoCollectionResult() {
-                                @Override
-                                public void call(MongoCollection<Document> mongoCollection) {
-                                    Date started = new Date();
-                                    mongoCollection.find(new Document("issued_from", profile.getUuid())).forEach(
-                                            document -> {
-                                                UUID punishmentId = document.get("_id", UUID.class);
-                                                Punishment punishment = new Punishment(punishmentId);
-                                                punishment.importFromDocument(document);
-                                                plugin.getPunishmentManager().getLoadedPunishments().put(punishmentId, punishment);
-                                                punishments.add(punishment);
-                                            });
+        if(!(sender instanceof Player)) return true;
 
-                                    new HistoryGui(profile.getName() + " Staff History", punishments, true).open(player);
-
-                                }
-                            }
-                    );
-                } else {
-                    player.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
-                }
-            } else {
-                player.sendMessage(ChatColor.RED + "Usage: /" + label + " <player>");
-            }
+        if(args.length == 0) {
+            sender.sendMessage(ChatColor.RED + "Usage: /" + label + " <player>");
+            return true;
         }
+
+        CompletableFuture<CoreProfile> profileFuture = plugin.getCoreProfileManager().findAsync(args[0]);
+        profileFuture.thenAccept(profile -> {
+            if (profile == null) {
+                sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
+                return;
+            }
+
+            Player player = profile.getPlayer();
+            List<Punishment> punishments = new ArrayList<>();
+            plugin.getPunishmentManager().getLoadedPunishments().forEach((uuid, punishment) -> {
+                if(punishment.getIssuedFrom().equals(profile.getUuid())) {
+                    punishments.add(punishment);
+                }
+            });
+
+            new HistoryGui(profile.getName() + " Staff History", punishments, true).open(player);
+        });
 
         return true;
     }

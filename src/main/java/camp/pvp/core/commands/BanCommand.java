@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class BanCommand implements CommandExecutor {
 
@@ -31,95 +32,81 @@ public class BanCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if(args.length > 0) {
-            String target = args[0];
-
-            CoreProfile targetProfile = plugin.getCoreProfileManager().find(target, false);
-
-            if(targetProfile != null) {
-                Punishment ban = targetProfile.getActivePunishment(Punishment.Type.BAN);
-                if(ban == null) {
-                    ban = new Punishment(UUID.randomUUID());
-                    ban.setType(Punishment.Type.BAN);
-                    ban.setIp(targetProfile.getIp());
-                    ban.setIssued(new Date());
-                    ban.setIssuedTo(targetProfile.getUuid());
-                    ban.setIssuedToName(targetProfile.getName());
-
-                    String issueFromName = sender.getName();
-                    String issueFromColor = "&4";
-                    UUID issuedFrom = null;
-                    if(sender instanceof Player) {
-                        Player player = (Player) sender;
-                        CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
-                        issueFromColor = profile.getHighestRank().getColor();
-                        issueFromName = profile.getName();
-                        issuedFrom = player.getUniqueId();
-                    }
-
-                    ban.setIssuedFrom(issuedFrom);
-                    ban.setIssuedFromName(issueFromName);
-
-                    StringBuilder reasonBuilder = new StringBuilder();
-                    boolean silent = false;
-                    if(args.length > 1) {
-                        for(int i = 1; i < args.length; i++) {
-                            switch(args[i]) {
-                                case "-s":
-                                    silent = true;
-                                    break;
-                                case "-ip":
-                                    ban.setIpPunished(true);
-                                    break;
-                                default:
-                                    reasonBuilder.append(args[i]);
-
-                                    if(i + 1 != args.length) {
-                                        reasonBuilder.append(" ");
-                                    }
-                            }
-                        }
-                    }
-
-                    if(reasonBuilder.length() == 0 || args.length < 2) {
-                        reasonBuilder.append("No reason specified.");
-                    }
-
-                    ban.setSilent(silent);
-                    ban.setReason(reasonBuilder.toString());
-
-                    targetProfile.getPunishments().add(ban);
-                    plugin.getPunishmentManager().exportToDatabase(ban, true);
-                    plugin.getCoreProfileManager().exportToDatabase(targetProfile, true, false);
-
-                    ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                    out.writeUTF("KickPlayer");
-                    out.writeUTF(args[0]);
-                    out.writeUTF(Colors.get("&cYou have been banned from PvP Camp."));
-
-                    plugin.getServer().sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
-
-                    String targetName = targetProfile.getHighestRank().getColor() + targetProfile.getName();
-                    String banMessage = "&f" + targetName + "&a has been permanently banned by " + issueFromColor + issueFromName + "&a.";
-                    if(silent) {
-                        plugin.getCoreProfileManager().staffBroadcast(banMessage);
-                    } else {
-                        Bukkit.broadcastMessage(Colors.get(banMessage));
-                    }
-                } else if(sender instanceof Player){
-                    Player player = (Player) sender;
-                    TextComponent text = new TextComponent(ChatColor.RED + targetProfile.getName() + " is already banned, click this message to view player history.");
-                    text.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/history " + targetProfile.getName()));
-                    player.spigot().sendMessage(text);
-                } else {
-                    sender.sendMessage(ChatColor.RED + targetProfile.getName() + " is already banned.");
-                }
-            } else {
-                sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
-            }
-        } else {
-            sender.sendMessage(ChatColor.RED + "Usage: /ban <player> [reason] [-s] [-ip]");
+        if(args.length == 0) {
+            sender.sendMessage(ChatColor.RED + "Usage: /" + label + " <player> [reason] [-s] [-ip]");
+            return true;
         }
+
+        CompletableFuture<CoreProfile> profileFuture = plugin.getCoreProfileManager().findAsync(args[0]);
+        profileFuture.thenAccept(profile -> {
+            if (profile == null) {
+                sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
+                return;
+            }
+
+            if(profile.getActivePunishment(Punishment.Type.BAN) != null) {
+                sender.sendMessage(ChatColor.RED + profile.getName() + " is already banned.");
+                return;
+            }
+
+            Punishment punishment = new Punishment(UUID.randomUUID());
+            punishment.setType(Punishment.Type.BAN);
+            punishment.setIps(profile.getIpList());
+            punishment.setIssuedTo(profile.getUuid());
+            punishment.setIssuedToName(profile.getName());
+            punishment.setIssued(new Date());
+
+            String issueFromName = sender.getName();
+            String issueFromColor = "&4";
+            UUID issuedFrom = null;
+            if(sender instanceof Player) {
+                Player player = (Player) sender;
+                CoreProfile senderProfile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
+                issueFromColor = senderProfile.getHighestRank().getColor();
+                issueFromName = senderProfile.getName();
+                issuedFrom = senderProfile.getUuid();
+            }
+
+            punishment.setIssuedFromName(issueFromName);
+            punishment.setIssuedFrom(issuedFrom);
+
+            StringBuilder reasonBuilder = new StringBuilder();
+            boolean silent = false;
+            if(args.length > 1) {
+                for(int i = 1; i < args.length; i++) {
+                    switch(args[i]) {
+                        case "-s":
+                            silent = true;
+                            break;
+                        case "-ip":
+                            punishment.setIpPunished(true);
+                            break;
+                        default:
+                            reasonBuilder.append(args[i]);
+
+                            if(i + 1 != args.length) {
+                                reasonBuilder.append(" ");
+                            }
+                    }
+                }
+            }
+
+            if(reasonBuilder.length() == 0 || args.length < 2) {
+                reasonBuilder.append("No reason specified.");
+            }
+
+            punishment.setSilent(silent);
+            punishment.setReason(reasonBuilder.toString());
+            plugin.getPunishmentManager().exportToDatabase(punishment);
+
+            String targetName = profile.getHighestRank().getColor() + profile.getName();
+            String punishMessage = "&f" + targetName + "&a has been permanently banned by " + issueFromColor + issueFromName + "&a.";
+            if(silent) {
+                plugin.getCoreProfileManager().staffBroadcast(punishMessage);
+            } else {
+                Bukkit.broadcastMessage(Colors.get(punishMessage));
+            }
+        });
 
         return true;
     }

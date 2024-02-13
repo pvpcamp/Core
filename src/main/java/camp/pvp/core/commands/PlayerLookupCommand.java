@@ -12,6 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Date;
+import java.util.concurrent.CompletableFuture;
 
 
 public class PlayerLookupCommand implements CommandExecutor {
@@ -31,25 +32,25 @@ public class PlayerLookupCommand implements CommandExecutor {
             return true;
         }
 
-        CoreProfile coreProfile = plugin.getCoreProfileManager().find(args[0], false);
+        CompletableFuture<CoreProfile> profileFuture = plugin.getCoreProfileManager().findAsync(args[0]);
+        profileFuture.thenAccept(profile -> {
+           if(profile == null) {
+                sender.sendMessage(ChatColor.RED + "The target you specified does not have a profile on the network.");
+              } else {
+                Player player = profile.getPlayer();
 
-        if (coreProfile == null) {
-            sender.sendMessage(ChatColor.RED + "The target you specified does not have a profile on the network.");
-            return true;
-        }
-
-        Player player = coreProfile.getPlayer();
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("&6&lPlayer Lookup");
-        sb.append("\n&6Name: &f").append(coreProfile.getName());
-        sb.append("\n&6Rank: &f").append(coreProfile.getHighestRank().getColor()).append(coreProfile.getHighestRank().getDisplayName());
-        sb.append("\n&6Status: &f").append(player != null && player.isOnline() ? "Online for " + DateUtils.getDifference(new Date(), coreProfile.getLastLogin()) : "Last seen " + DateUtils.getDifference(new Date(), coreProfile.getLastLogout()) + " ago");
-        sb.append("\n&6Playtime: &f").append(DateUtils.getTimeFormat(coreProfile.getCurrentPlaytime()));
-        sb.append("\n&6First Login: &f").append(coreProfile.getFirstLogin());
-        sb.append("\n&6Last Login: &f").append(coreProfile.getLastLogin());
-        sb.append("\n&6Last Logout: &f").append(coreProfile.getLastLogout());
-        sender.sendMessage(Colors.get(sb.toString()));
+                StringBuilder sb = new StringBuilder();
+                sb.append("&6&lPlayer Lookup");
+                sb.append("\n&6Name: &f").append(profile.getName());
+                sb.append("\n&6Rank: &f").append(profile.getHighestRank().getColor()).append(profile.getHighestRank().getDisplayName());
+                sb.append("\n&6Status: &f").append(player != null && player.isOnline() ? "Online for " + DateUtils.getDifference(new Date(), profile.getLastLogin()) : "Last seen " + DateUtils.getDifference(new Date(), profile.getLastLogout()) + " ago");
+                sb.append("\n&6Playtime: &f").append(DateUtils.getTimeFormat(profile.getCurrentPlaytime()));
+                sb.append("\n&6First Login: &f").append(profile.getFirstLogin());
+                sb.append("\n&6Last Login: &f").append(profile.getLastLogin());
+                sb.append("\n&6Last Logout: &f").append(profile.getLastLogout());
+                sender.sendMessage(Colors.get(sb.toString()));
+           }
+        });
 
         return true;
     }

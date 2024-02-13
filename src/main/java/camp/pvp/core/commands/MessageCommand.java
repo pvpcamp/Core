@@ -125,7 +125,7 @@ public class MessageCommand implements CommandExecutor {
                             ChatHistory.Type.PRIVATE_MESSAGE,
                             new Date(),
                             filtered);
-                    plugin.getCoreProfileManager().exportHistory(chatHistory, true);
+                    plugin.getCoreProfileManager().exportHistory(chatHistory);
 
                     if(!filtered) {
                         targetProfile.setReplyTo(player.getUniqueId());

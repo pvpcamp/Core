@@ -16,10 +16,7 @@ public class DateUtils {
 
         if(days > 0) {
             sb.append(days);
-            sb.append(" day");
-            if(days != 1) {
-                sb.append("s");
-            }
+            sb.append("d");
         }
 
         if(hours > 0) {
@@ -28,10 +25,7 @@ public class DateUtils {
             }
 
             sb.append(hours);
-            sb.append(" hour");
-            if(hours != 1) {
-                sb.append("s");
-            }
+            sb.append("h");
         }
 
         if(minutes > 0) {
@@ -40,10 +34,7 @@ public class DateUtils {
             }
 
             sb.append(minutes);
-            sb.append(" minute");
-            if(minutes != 1) {
-                sb.append("s");
-            }
+            sb.append("m");
         }
 
         if(seconds > 0) {
@@ -52,10 +43,7 @@ public class DateUtils {
             }
 
             sb.append(seconds);
-            sb.append(" second");
-            if(seconds != 1) {
-                sb.append("s");
-            }
+            sb.append("s");
         }
 
         return sb.toString();

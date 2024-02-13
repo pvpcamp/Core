@@ -32,7 +32,7 @@ public class ListCommand implements CommandExecutor {
 
         List<CoreProfile> profiles = new ArrayList<>();
         for(Player player : Bukkit.getOnlinePlayers()) {
-            CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
+            CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfile(player.getUniqueId());
             if(profile != null) {
                 profiles.add(profile);
             }
@@ -56,8 +56,6 @@ public class ListCommand implements CommandExecutor {
 
         for(int x = 0; x < profiles.size(); x++) {
             CoreProfile p = profiles.get(x);
-            Player player = Bukkit.getPlayer(p.getName());
-
             sb.append(p.getHighestRank().getColor() + p.getName());
 
             if(x + 1 == profiles.size()) {

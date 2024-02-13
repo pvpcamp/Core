@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class TempMuteCommand implements CommandExecutor {
 
@@ -29,139 +30,136 @@ public class TempMuteCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(args.length > 2) {
-            String target = args[0];
 
-            CoreProfile targetProfile = plugin.getCoreProfileManager().find(target, false);
+        if(args.length < 3) {
+            sender.sendMessage(ChatColor.RED + "Usage: /" + label + " <player> <time> <format> [reason] [-s] [-ip]");
+            return true;
+        }
 
-            if(targetProfile != null) {
-                Punishment mute = targetProfile.getActivePunishment(Punishment.Type.MUTE);
-                if(mute == null) {
-                    int duration;
-                    try {
-                        duration = Integer.parseInt(args[1]);
-                    } catch (NumberFormatException ignored) {
-                        sender.sendMessage(ChatColor.RED + "Invalid format.");
-                        return true;
-                    }
+        CompletableFuture<CoreProfile> profileFuture = plugin.getCoreProfileManager().findAsync(args[0]);
+        profileFuture.thenAccept(profile -> {
+            if(profile == null) {
+                sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
+                return;
+            }
 
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTime(new Date());
+            Punishment punishment = profile.getActivePunishment(Punishment.Type.MUTE);
+            if(punishment != null) {
+                sender.sendMessage(ChatColor.RED + profile.getName() + " is already muted.");
+                return;
+            }
 
-                    switch(args[2].toLowerCase()) {
-                        case "s":
-                        case "sec":
-                        case "seconds":
-                            calendar.add(Calendar.SECOND, duration);
+            int duration;
+            try {
+                duration = Integer.parseInt(args[1]);
+            } catch (NumberFormatException ignored) {
+                sender.sendMessage(ChatColor.RED + "Invalid format.");
+                return;
+            }
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(new Date());
+
+            switch(args[2].toLowerCase()) {
+                case "s":
+                case "sec":
+                case "seconds":
+                    calendar.add(Calendar.SECOND, duration);
+                    break;
+                case "m":
+                case "min":
+                case "mins":
+                case "minute":
+                case "minutes":
+                    calendar.add(Calendar.MINUTE, duration);
+                    break;
+                case "h":
+                case "hr":
+                case "hour":
+                case "hours":
+                    calendar.add(Calendar.HOUR, duration);
+                    break;
+                case "d":
+                case "day":
+                case "days":
+                    calendar.add(Calendar.DAY_OF_YEAR, duration);
+                    break;
+                case "w":
+                case "week":
+                case "weeks":
+                    calendar.add(Calendar.WEEK_OF_YEAR, duration);
+                    break;
+                case "month":
+                case "months":
+                    calendar.add(Calendar.MONTH, duration);
+                    break;
+                default:
+                    sender.sendMessage(ChatColor.RED + "Invalid duration format.");
+                    sender.sendMessage(ChatColor.RED + "Valid options: seconds, minutes, hours, days, weeks, months.");
+                    return;
+            }
+
+            punishment = new Punishment(UUID.randomUUID());
+            punishment.setType(Punishment.Type.MUTE);
+            punishment.setIps(profile.getIpList());
+            punishment.setIssuedTo(profile.getUuid());
+            punishment.setIssuedToName(profile.getName());
+            punishment.setIssued(new Date());
+            punishment.setExpires(calendar.getTime());
+
+            String issueFromName = sender.getName();
+            String issueFromColor = "&4";
+            UUID issuedFrom = null;
+
+            if(sender instanceof Player) {
+                Player player = (Player) sender;
+                CoreProfile senderProfile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
+                issueFromColor = senderProfile.getHighestRank().getColor();
+                issueFromName = senderProfile.getName();
+                issuedFrom = senderProfile.getUuid();
+            }
+
+            punishment.setIssuedFrom(issuedFrom);
+            punishment.setIssuedFromName(issueFromName);
+
+            StringBuilder reasonBuilder = new StringBuilder();
+            boolean silent = false;
+
+            if(args.length > 3) {
+                for(int i = 3; i < args.length; i++) {
+                    switch(args[i]) {
+                        case "-s":
+                            silent = true;
                             break;
-                        case "m":
-                        case "min":
-                        case "mins":
-                        case "minute":
-                        case "minutes":
-                            calendar.add(Calendar.MINUTE, duration);
-                            break;
-                        case "h":
-                        case "hr":
-                        case "hour":
-                        case "hours":
-                            calendar.add(Calendar.HOUR, duration);
-                            break;
-                        case "d":
-                        case "day":
-                        case "days":
-                            calendar.add(Calendar.DAY_OF_YEAR, duration);
-                            break;
-                        case "w":
-                        case "week":
-                        case "weeks":
-                            calendar.add(Calendar.WEEK_OF_YEAR, duration);
-                            break;
-                        case "month":
-                        case "months":
-                            calendar.add(Calendar.MONTH, duration);
+                        case "-ip":
+                            punishment.setIpPunished(true);
                             break;
                         default:
-                            sender.sendMessage(ChatColor.RED + "Invalid duration format.");
-                            sender.sendMessage(ChatColor.RED + "Valid options: seconds, minutes, hours, days, weeks, months.");
-                            return true;
-                    }
+                            reasonBuilder.append(args[i]);
 
-                    mute = new Punishment(UUID.randomUUID());
-                    mute.setType(Punishment.Type.MUTE);
-                    mute.setIp(targetProfile.getIp());
-                    mute.setIssuedTo(targetProfile.getUuid());
-                    mute.setIssuedToName(targetProfile.getName());
-                    mute.setExpires(calendar.getTime());
-                    mute.setIssued(new Date());
-
-                    String issueFromName = sender.getName();
-                    String issueFromColor = "&4";
-                    UUID issuedFrom = null;
-                    if(sender instanceof Player) {
-                        Player player = (Player) sender;
-                        CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
-                        issueFromColor = profile.getHighestRank().getColor();
-                        issueFromName = profile.getName();
-                        issuedFrom = player.getUniqueId();
-                    }
-
-                    mute.setIssuedFrom(issuedFrom);
-                    mute.setIssuedFromName(issueFromName);
-
-                    StringBuilder reasonBuilder = new StringBuilder();
-                    boolean silent = false;
-                    if(args.length > 3) {
-                        for(int i = 3; i < args.length; i++) {
-                            switch(args[i]) {
-                                case "-s":
-                                    silent = true;
-                                    break;
-                                case "-ip":
-                                    mute.setIpPunished(true);
-                                    break;
-                                default:
-                                    reasonBuilder.append(args[i]);
-
-                                    if(i + 1 != args.length) {
-                                        reasonBuilder.append(" ");
-                                    }
+                            if(i + 1 != args.length) {
+                                reasonBuilder.append(" ");
                             }
-                        }
                     }
-
-                    if(reasonBuilder.length() == 0 || args.length < 4) {
-                        reasonBuilder.append("No reason specified.");
-                    }
-
-                    mute.setSilent(silent);
-                    mute.setReason(reasonBuilder.toString());
-
-                    targetProfile.getPunishments().add(mute);
-                    plugin.getPunishmentManager().exportToDatabase(mute, true);
-                    plugin.getCoreProfileManager().exportToDatabase(targetProfile, true, false);
-
-                    String targetName = targetProfile.getHighestRank().getColor() + targetProfile.getName();
-                    String banMessage = "&f" + targetName + "&a has been temporarily muted by " + issueFromColor + issueFromName + "&a.";
-                    if(silent) {
-                        plugin.getCoreProfileManager().staffBroadcast(banMessage);
-                    } else {
-                        Bukkit.broadcastMessage(Colors.get(banMessage));
-                    }
-                } else if(sender instanceof Player){
-                    Player player = (Player) sender;
-                    TextComponent text = new TextComponent(ChatColor.RED + targetProfile.getName() + " is already muted, click this message to view player history.");
-                    text.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/history " + targetProfile.getName()));
-                    player.spigot().sendMessage(text);
-                } else {
-                    sender.sendMessage(ChatColor.RED + targetProfile.getName() + " is already banned.");
                 }
-            } else {
-                sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
             }
-        } else {
-            sender.sendMessage(ChatColor.RED + "Usage: /tempmute <player> <time> <format> [reason] [-s] [-ip]");
-        }
+
+            if(reasonBuilder.length() == 0 || args.length < 4) {
+                reasonBuilder.append("No reason specified.");
+            }
+
+            punishment.setSilent(silent);
+            punishment.setReason(reasonBuilder.toString());
+            plugin.getPunishmentManager().exportToDatabase(punishment);
+
+            String targetName = profile.getHighestRank().getColor() + profile.getName();
+            String punishmentMessage = "&f" + targetName + "&a has been temporarily muted by " + issueFromColor + issueFromName + "&a.";
+            if(silent) {
+                plugin.getCoreProfileManager().staffBroadcast(punishmentMessage);
+            } else {
+                Bukkit.broadcastMessage(Colors.get(punishmentMessage));
+            }
+        });
 
         return true;
     }

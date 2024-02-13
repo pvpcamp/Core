@@ -13,7 +13,7 @@ import java.util.*;
 public class Punishment implements Comparable<Punishment>{
 
     public enum Type {
-        BAN, BLACKLIST, MUTE;
+        BLACKLIST, BAN, MUTE;
 
         @Override
         public String toString() {
@@ -80,11 +80,13 @@ public class Punishment implements Comparable<Punishment>{
     private Punishment.Type type;
     private UUID issuedTo, issuedFrom, pardoner;
     private Date issued, expires, pardoned;
-    private String issuedToName, issuedFromName, pardonerName, reason, pardonReason, ip;
+    private String issuedToName, issuedFromName, pardonerName, reason, pardonReason;
+    private List<String> ips;
     private boolean ipPunished, silent;
 
     public Punishment(UUID uuid) {
         this.uuid = uuid;
+        this.ips = new ArrayList<>();
     }
 
     public boolean isActive() {
@@ -110,7 +112,7 @@ public class Punishment implements Comparable<Punishment>{
         this.issued = doc.getDate("issued");
         this.expires = doc.getDate("expires");
         this.pardoned = doc.getDate("pardoned");
-        this.ip = doc.getString("ip");
+        this.ips = doc.getList("ips", String.class);
         this.reason = doc.getString("reason");
         this.pardonReason = doc.getString("pardon_reason");
         this.ipPunished = doc.getBoolean("ip_punished");
@@ -129,7 +131,7 @@ public class Punishment implements Comparable<Punishment>{
         map.put("issued", getIssued());
         map.put("expires", getExpires());
         map.put("pardoned", getPardoned());
-        map.put("ip", getIp());
+        map.put("ips", getIps());
         map.put("reason", getReason());
         map.put("pardon_reason", getPardonReason());
         map.put("ip_punished", isIpPunished());

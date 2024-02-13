@@ -55,6 +55,6 @@ public class PlayerCommandPreprocessListener implements Listener {
                 new Date(),
                 false);
 
-        plugin.getCoreProfileManager().exportHistory(chatHistory, true);
+        plugin.getCoreProfileManager().exportHistory(chatHistory);
     }
 }

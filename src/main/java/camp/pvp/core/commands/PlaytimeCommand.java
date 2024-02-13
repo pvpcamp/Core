@@ -9,6 +9,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
+import java.util.concurrent.CompletableFuture;
+
 
 public class PlaytimeCommand implements CommandExecutor {
 
@@ -27,14 +29,16 @@ public class PlaytimeCommand implements CommandExecutor {
             return true;
         }
 
-        CoreProfile coreProfile = plugin.getCoreProfileManager().find(args[0], false);
+        CompletableFuture<CoreProfile> profileFuture = plugin.getCoreProfileManager().findAsync(args[0]);
 
-        if (coreProfile == null) {
-            sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
-            return true;
-        }
+        profileFuture.thenAccept(profile -> {
+            if (profile == null) {
+                sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
+                return;
+            }
 
-        sender.sendMessage(Colors.get(coreProfile.getHighestRank().getColor() + coreProfile.getName() + "&6's playtime is &f" + DateUtils.getTimeFormat(coreProfile.getCurrentPlaytime()) + "&6."));
+            sender.sendMessage(Colors.get(profile.getHighestRank().getColor() + profile.getName() + "&6's playtime is &f" + DateUtils.getTimeFormat(profile.getCurrentPlaytime()) + "&6."));
+        });
 
         return true;
     }

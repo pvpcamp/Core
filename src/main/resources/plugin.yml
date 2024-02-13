@@ -150,9 +150,6 @@ commands:
     aliases: [userhist, uhistory, uhist]
     description: View the chat, command, and PM history of a player.
     permission: core.commands.userhistory
-  wipepunishments:
-    description: Wipe all punishments from players.
-    permission: core.commands.wipepunishments
   heal:
     description: Heal a player.
     permission: core.commands.heal

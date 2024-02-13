@@ -23,6 +23,8 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class AltsCommand implements CommandExecutor {
     
@@ -41,143 +43,60 @@ public class AltsCommand implements CommandExecutor {
             return true;
         }
 
-        String target = args[0];
-        CoreProfile coreProfile = plugin.getCoreProfileManager().find(target, false);
-
-        if (coreProfile == null) {
-            sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
-            return true;
-        }
-
-        List<String> ips = coreProfile.getIpList();
-        List<String> alts = new ArrayList<>();
-
-        plugin.getCoreProfileManager().getMongoManager().getCollection(false, plugin.getConfig().getString("networking.mongo.profiles_collection"), new MongoCollectionResult() {
-            @Override
-            public void call(MongoCollection<Document> mongoCollection) {
-                for (String ip : ips) {
-                    mongoCollection.find(Filters.eq("ip", ip)).forEach(document -> {
-                        String name = document.getString("name");
-                        if (name.equalsIgnoreCase(target)) {
-                            return;
-                        }
-                        alts.add(name);
-                    });
-                }
-            }
-        });
-
-        int altSize = alts.size() + 1;
-        boolean targetOnline = (Bukkit.getPlayer(target) != null && Bukkit.getPlayer(target).isOnline());
-        String targetName = coreProfile.getHighestRank().getColor() + coreProfile.getName();
-        TextComponent altList = new TextComponent("");
-        TextComponent targetHover = new TextComponent("");
-
-        Date targetFirstLogin = coreProfile.getFirstLogin();
-        Date targetLastLogin = coreProfile.getLastLogin();
-        Date targetLastLogout = coreProfile.getLastLogout();
-
-        if (coreProfile.getActivePunishment(Punishment.Type.BLACKLIST) != null) {
-            targetHover.setText(ChatColor.DARK_RED + coreProfile.getName());
-        } else if (coreProfile.getActivePunishment(Punishment.Type.BAN) != null) {
-            targetHover.setText(ChatColor.RED + coreProfile.getName());
-        } else if (coreProfile.getActivePunishment(Punishment.Type.MUTE) != null) {
-            targetHover.setText(ChatColor.WHITE.toString() + ChatColor.ITALIC + coreProfile.getName());
-        } else if (targetOnline) {
-            targetHover.setText(ChatColor.GREEN + coreProfile.getName());
-        } else {
-            targetHover.setText(ChatColor.GRAY + coreProfile.getName());
-        }
-        targetHover.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.translateAlternateColorCodes('&', "" +
-                "&6Name: " + targetName + "\n" +
-                (targetOnline ? "&6Online: &f" + DateUtils.getDifference(new Date(), targetLastLogin) : "&6Last Seen: &f" + DateUtils.getDifference(new Date(), targetLastLogout) + " ago") + "\n" +
-                "&7&m--------------------------------------" + "\n" +
-                "&aCurrently matching " + targetName + "\n" +
-                "&7&m--------------------------------------" + "\n" +
-                "&6Player Info:" + "\n" +
-                "&6First Login: &f" + targetFirstLogin.toString() + "\n" +
-                "&6Last Login: &f" + targetLastLogin.toString())).create()));
-        targetHover.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/c " + coreProfile.getName()));
-        altList.addExtra(targetHover);
-
-        sender.sendMessage(Colors.get("&7[&aOnline&7, &7Offline, &f&oMuted&7, &cBan&7, &4Blacklist&7]"));
-        sender.sendMessage(Colors.get(targetName + "&6's alts &f(" + altSize + ")&6:"));
-
-        if (altSize == 1) {
-
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
-                player.spigot().sendMessage(altList);
-                //sender.sendMessage(Colors.get(name + "&7."));
-            } else {
-                sender.sendMessage(Colors.get(targetName + "&7."));
+        CompletableFuture<CoreProfile> profileFuture = plugin.getCoreProfileManager().findAsync(args[0]);
+        profileFuture.thenAcceptAsync(profile -> {
+            if(profile == null) {
+                sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
             }
 
-        } else {
+            List<String> ips = profile.getIpList();
+            List<CoreProfile> alts = new ArrayList<>();
 
-            StringBuilder g = new StringBuilder();
-            g.append(targetName).append("&7, ");
-            altList.addExtra(ChatColor.GRAY + ", ");
-
-            alts.forEach(alt -> {
-
-                TextComponent altHover = new TextComponent("");
-
-                CoreProfile altProfile = plugin.getCoreProfileManager().find(alt, false);
-                String altName = altProfile.getHighestRank().getColor() + altProfile.getName();
-                boolean isOnline = (Bukkit.getPlayer(alt) != null && Bukkit.getPlayer(alt).isOnline());
-                //boolean isMatching = (coreProfile.getIp().equals(altProfile.getIp()));
-                boolean isMatching = false;
-                if (coreProfile.getIp().equals(altProfile.getIp())) {
-                    isMatching = true;
-                }
-                Date altFirstLogin = altProfile.getFirstLogin();
-                Date altLastLogin = altProfile.getLastLogin();
-                Date altLastLogout = altProfile.getLastLogout();
-
-                if (altProfile.getActivePunishment(Punishment.Type.BLACKLIST) != null) {
-                    altHover.setText(ChatColor.DARK_RED + altProfile.getName());
-                } else if (altProfile.getActivePunishment(Punishment.Type.BAN) != null) {
-                    altHover.setText(ChatColor.RED + altProfile.getName());
-                } else if (altProfile.getActivePunishment(Punishment.Type.MUTE) != null) {
-                    altHover.setText(ChatColor.WHITE.toString() + ChatColor.ITALIC + coreProfile.getName());
-                } else if (isOnline) {
-                    altHover.setText(ChatColor.GREEN + altProfile.getName());
-                } else {
-                    altHover.setText(ChatColor.GRAY + altProfile.getName());
-                }
-                altHover.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.translateAlternateColorCodes('&', "" +
-                        "&6Name: " + altName + "\n" +
-                        (isOnline ? "&6Online: &f" + DateUtils.getDifference(new Date(), altLastLogin) : "&6Last Seen: &f" + DateUtils.getDifference(new Date(), altLastLogout) + " ago") + "\n" +
-                        "&7&m--------------------------------------" + "\n" +
-                        (isMatching ? "&aCurrently matching " : "&cCurrently not matching ") + targetName + "\n" +
-                        "&7&m--------------------------------------" + "\n" +
-                        "&6Player Info:" + "\n" +
-                        "&6First Login: &f" + altFirstLogin.toString() + "\n" +
-                        "&6Last Login: &f" + altLastLogin.toString())).create()));
-                altHover.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/c " + altProfile.getName()));
-                altList.addExtra(altHover);
-                if (!alts.get(alts.size() - 1).equals(alt)) {
-                    altList.addExtra(ChatColor.GRAY + ", ");
-                } else {
-                    altList.addExtra(ChatColor.GRAY + ".");
-                }
-                g.append(altProfile.getHighestRank().getColor()).append(alt);
-                if (!alts.get(alts.size() - 1).equals(alt)) {
-                    g.append("&7, ");
-                } else {
-                    g.append("&7.");
-                }
+            plugin.getCoreProfileManager().getProfilesCollection().find(Filters.in("ip", ips)).forEach(document -> {
+                CoreProfile alt = new CoreProfile(document.get("_id", UUID.class));
+                alt.importFromDocument(plugin, document);
+                alt.setLastLoadFromDatabase(System.currentTimeMillis());
+                plugin.getCoreProfileManager().getLoadedProfiles().put(alt.getUuid(), alt);
+                alts.add(alt);
             });
 
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
-                player.spigot().sendMessage(altList);
-                //sender.sendMessage(Colors.get(g.toString()));
-            } else {
-                sender.sendMessage(Colors.get(g.toString()));
+            StringBuilder sb = new StringBuilder();
+            sb.append("&6Alts of ").append(profile.getName()).append("&7: ");
+
+            int x = 0;
+            for(CoreProfile alt : alts) {
+
+                Punishment punishment = null;
+                for(Punishment.Type type : Punishment.Type.values()) {
+                    Punishment p = alt.getActivePunishment(type);
+                    if(p != null) {
+                        punishment = p;
+                    }
+                }
+
+                sb.append("&f").append(alt.getName());
+
+                if(punishment != null) {
+                    switch(punishment.getType()) {
+                        case BLACKLIST:
+                            sb.append(ChatColor.DARK_RED).append(" BLACKLISTED");
+                            break;
+                        case BAN:
+                            sb.append(ChatColor.RED).append(" BANNED");
+                            break;
+                    }
+                }
+
+                x++;
+                if(x == alts.size()) {
+                    sb.append("&7.");
+                } else {
+                    sb.append("&7, ");
+                }
             }
-        }
+
+            sender.sendMessage(Colors.get(sb.toString()));
+        });
 
         return true;
     }

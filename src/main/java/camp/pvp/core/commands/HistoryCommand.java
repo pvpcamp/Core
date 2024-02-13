@@ -9,6 +9,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.concurrent.CompletableFuture;
+
 public class HistoryCommand implements CommandExecutor {
 
     private Core plugin;
@@ -20,26 +22,28 @@ public class HistoryCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            if(args.length > 0) {
-                String target = args[0];
+        if(!(sender instanceof Player)) return true;
 
-                CoreProfile targetProfile = plugin.getCoreProfileManager().find(target, false);
-
-                if(targetProfile != null) {
-                    if(targetProfile.getPunishments().size() > 0) {
-                        new HistoryGui(targetProfile.getName() + " History", targetProfile.getPunishments(), false).open(player);
-                    } else {
-                        sender.sendMessage(ChatColor.GREEN + "Player " + ChatColor.WHITE +  targetProfile.getName() + ChatColor.GREEN + " does not have any punishments.");
-                    }
-                } else {
-                    sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
-                }
-            } else {
-                player.sendMessage(ChatColor.RED + "Usage: /history <player>");
-            }
+        if(args.length == 0) {
+            sender.sendMessage(ChatColor.RED + "Usage: /" + label + " <player>");
+            return true;
         }
+
+        Player player = (Player) sender;
+        CompletableFuture<CoreProfile> profileFuture = plugin.getCoreProfileManager().findAsync(args[0]);
+        profileFuture.thenAccept(profile -> {
+            if(profile == null) {
+                player.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
+                return;
+            }
+
+            if(profile.getPunishments().isEmpty()) {
+                player.sendMessage(ChatColor.GREEN + "Player " + ChatColor.WHITE +  profile.getName() + ChatColor.GREEN + " does not have any punishments.");
+                return;
+            }
+
+            new HistoryGui(profile.getName() + " History", profile.getPunishments(), false).open(player);
+        });
 
         return true;
     }

@@ -23,7 +23,7 @@ public class RedisProfileUpdateListener implements RedisSubscriberListener {
         Bukkit.getScheduler().runTaskLater(plugin, ()-> {
             Player player = Bukkit.getPlayer(uuid);
             if(player != null && player.isOnline()) {
-                plugin.getCoreProfileManager().importFromDatabase(player.getUniqueId(), true);
+                plugin.getCoreProfileManager().findAsync(player.getUniqueId());
             }
         }, 4);
     }

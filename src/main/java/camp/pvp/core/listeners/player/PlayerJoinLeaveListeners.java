@@ -45,15 +45,11 @@ public class PlayerJoinLeaveListeners implements Listener {
         Player player = Bukkit.getPlayer(event.getUniqueId());
         if(player != null && player.isOnline()) {
             Bukkit.getScheduler().runTask(plugin, () -> player.kickPlayer(ChatColor.RED + "You have connected from another location."));
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "Please relog.");
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "You have connected from another location, please re-login.");
             return;
         }
 
-        CoreProfile profile = plugin.getCoreProfileManager().importFromDatabase(uuid, true);
-
-        if(profile == null) profile = plugin.getCoreProfileManager().create(uuid, event.getName());
-
-        profile.setLastLogin(new Date());
+        CoreProfile profile = plugin.getCoreProfileManager().preLogin(uuid, name, event.getAddress().getHostAddress());
 
         Punishment punishment;
 
@@ -93,7 +89,7 @@ public class PlayerJoinLeaveListeners implements Listener {
 
         CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
 
-        if(profile == null || System.currentTimeMillis() - profile.getLastLoadFromDatabase() > 5000) {
+        if(profile == null || !profile.isCurrent()) {
             player.kickPlayer(ChatColor.RED + "There was an issue loading your profile, please reconnect.");
             return;
         }
@@ -113,15 +109,8 @@ public class PlayerJoinLeaveListeners implements Listener {
             if(profile.getAuthKey() != null) {
                 profile.setAuthenticated(false);
                 player.sendMessage(Colors.get("&c&lYour IP address has changed, please authenticate yourself."));
-                plugin.getCoreProfileManager().exportToDatabase(profile, true, true);
+                plugin.getCoreProfileManager().exportToDatabase(profile, true);
             }
-        }
-
-        profile.setIp(ip);
-        profile.setName(player.getName());
-
-        if(!profile.getIpList().contains(ip)) {
-            profile.getIpList().add(ip);
         }
 
         plugin.getCoreProfileManager().updatePermissions(profile);
@@ -154,7 +143,7 @@ public class PlayerJoinLeaveListeners implements Listener {
 
             profile.setPlaytime(profile.getPlaytime() + (profile.getLastLogout().getTime() - profile.getLastLogin().getTime()));
 
-            plugin.getCoreProfileManager().exportToDatabase(profile, true, false);
+            plugin.getCoreProfileManager().exportToDatabase(profile, true);
         }
 
         plugin.getCoreProfileManager().getPermissionAttachments().remove(player.getUniqueId());
@@ -178,7 +167,7 @@ public class PlayerJoinLeaveListeners implements Listener {
 
             profile.setPlaytime(profile.getPlaytime() + (profile.getLastLogout().getTime() - profile.getLastLogin().getTime()));
 
-            plugin.getCoreProfileManager().exportToDatabase(profile, true, false);
+            plugin.getCoreProfileManager().exportToDatabase(profile, true);
         }
     }
 }

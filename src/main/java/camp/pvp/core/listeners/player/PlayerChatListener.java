@@ -107,7 +107,7 @@ public class PlayerChatListener implements Listener {
                             ChatHistory.Type.PUBLIC_CHAT,
                             new Date(),
                             filtered);
-                    plugin.getCoreProfileManager().exportHistory(chatHistory, true);
+                    plugin.getCoreProfileManager().exportHistory(chatHistory);
 
                     if(!player.hasPermission("core.chat.bypass.cooldown")) {
                         profile.addChatCooldown(plugin.getConfig().getInt("chat.cooldown"));

@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class UnmuteCommand implements CommandExecutor {
 
@@ -25,71 +26,72 @@ public class UnmuteCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if(args.length > 0) {
-            String target = args[0];
+        if(args.length == 0) {
+            sender.sendMessage(ChatColor.RED + "Usage: /" + label + " <player> [reason] [-s]");
+            return true;
+        }
 
-            CoreProfile targetProfile = plugin.getCoreProfileManager().find(target, false);
+        CompletableFuture<CoreProfile> profileFuture = plugin.getCoreProfileManager().findAsync(args[0]);
+        profileFuture.thenAccept(profile -> {
+            if(profile == null) {
+                sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
+                return;
+            }
 
-            if(targetProfile != null) {
-                Punishment mute = targetProfile.getActivePunishment(Punishment.Type.MUTE);
-                if(mute != null) {
-                    String issueFromName = sender.getName();
-                    String issueFromColor = "&4";
-                    UUID issuedFrom = null;
-                    if(sender instanceof Player) {
-                        Player player = (Player) sender;
-                        CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
-                        issueFromColor = profile.getHighestRank().getColor();
-                        issueFromName = profile.getName();
-                        issuedFrom = player.getUniqueId();
-                    }
+            Punishment punishment = profile.getActivePunishment(Punishment.Type.MUTE);
+            if(punishment == null) {
+                sender.sendMessage(ChatColor.RED + profile.getName() + " is not currently muted.");
+                return;
+            }
 
-                    mute.setPardonerName(issueFromName);
-                    mute.setPardoner(issuedFrom);
+            String issueFromName = sender.getName();
+            String issueFromColor = "&4";
+            UUID issuedFrom = null;
+            if(sender instanceof Player) {
+                Player player = (Player) sender;
+                CoreProfile senderProfile = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId());
+                issueFromColor = senderProfile.getHighestRank().getColor();
+                issueFromName = senderProfile.getName();
+                issuedFrom = senderProfile.getUuid();
+            }
 
-                    StringBuilder reasonBuilder = new StringBuilder();
-                    boolean silent = false;
-                    if(args.length > 1) {
-                        for(int i = 1; i < args.length; i++) {
-                            if(args[i].equalsIgnoreCase("-s")) {
-                                silent = true;
-                            } else {
-                                reasonBuilder.append(args[i]);
+            punishment.setPardonerName(issueFromName);
+            punishment.setPardoner(issuedFrom);
+            punishment.setPardoned(new Date());
 
-                                if(i + 1 != args.length) {
-                                    reasonBuilder.append(" ");
-                                }
-                            }
+            StringBuilder reasonBuilder = new StringBuilder();
+            boolean silent = false;
+            if(args.length > 1) {
+                for(int i = 1; i < args.length; i++) {
+                    if(args[i].equalsIgnoreCase("-s")) {
+                        silent = true;
+                    } else {
+                        reasonBuilder.append(args[i]);
+
+                        if(i + 1 != args.length) {
+                            reasonBuilder.append(" ");
                         }
                     }
-
-                    if(reasonBuilder.length() == 0 || args.length < 2) {
-                        reasonBuilder.append("No reason specified.");
-                    }
-
-                    mute.setSilent(silent);
-                    mute.setPardonReason(reasonBuilder.toString());
-                    mute.setPardoned(new Date());
-
-                    plugin.getPunishmentManager().exportToDatabase(mute, true);
-                    plugin.getCoreProfileManager().exportToDatabase(targetProfile, true, false);
-
-                    String targetName = targetProfile.getHighestRank().getColor() + targetProfile.getName();
-                    String punishmentMessage = "&f" + targetName + "&a has been unmuted by " + issueFromColor + issueFromName + "&a.";
-                    if(silent) {
-                        plugin.getCoreProfileManager().staffBroadcast(punishmentMessage);
-                    } else {
-                        Bukkit.broadcastMessage(Colors.get(punishmentMessage));
-                    }
-                } else {
-                    sender.sendMessage(ChatColor.RED + targetProfile.getName() + " is not currently muted.");
                 }
-            } else {
-                sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
             }
-        } else {
-            sender.sendMessage(ChatColor.RED + "Usage /unmute <player> [reason] [-s]");
-        }
+
+            if(reasonBuilder.length() == 0 || args.length < 2) {
+                reasonBuilder.append("No reason specified.");
+            }
+
+            punishment.setSilent(silent);
+            punishment.setPardonReason(reasonBuilder.toString());
+
+            plugin.getPunishmentManager().exportToDatabase(punishment);
+
+            String targetName = profile.getHighestRank().getColor() + profile.getName();
+            String punishmentMessage = "&f" + targetName + "&a has been unmuted by " + issueFromColor + issueFromName + "&a.";
+            if(silent) {
+                plugin.getCoreProfileManager().staffBroadcast(punishmentMessage);
+            } else {
+                Bukkit.broadcastMessage(Colors.get(punishmentMessage));
+            }
+        });
 
         return true;
     }

@@ -1,5 +1,6 @@
 package camp.pvp.core;
 
+import camp.pvp.core.api.CoreAPI;
 import camp.pvp.core.commands.*;
 import camp.pvp.core.listeners.packets.PlayerInfoListener;
 import camp.pvp.core.listeners.player.PlayerChatListener;
@@ -20,6 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Core extends JavaPlugin {
 
     @Getter private static Core instance;
+    @Getter private static CoreAPI api;
 
     @Getter private CoreServerManager coreServerManager;
     @Getter private ChatTagManager chatTagManager;
@@ -34,6 +36,8 @@ public class Core extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        api = new CoreAPI(this);
+
         upTime = System.currentTimeMillis();
 
         saveDefaultConfig();
@@ -107,7 +111,6 @@ public class Core extends JavaPlugin {
         new UnignoreCommand(this);
         new UnmuteCommand(this);
         new UserHistoryCommand(this);
-        new WipePunishmentsCommand(this);
     }
 
     public void registerListeners() {

@@ -101,14 +101,14 @@ public class GrantGui extends StandardGui {
                             message = "&aYou have been granted the rank " + rank.getColor() + rank.getDisplayName() + "&a.";
                         }
 
-                        plugin.getCoreProfileManager().exportGrant(grant, true);
+                        plugin.getCoreProfileManager().exportGrant(grant);
 
                         if(target.getPlayer() != null) {
                             target.getPlayer().sendMessage(Colors.get(message));
                             plugin.getCoreProfileManager().updatePermissions(target);
                         }
 
-                        plugin.getCoreProfileManager().exportToDatabase(target, true, false);
+                        plugin.getCoreProfileManager().exportToDatabase(target, true);
                         gui.updateGui();
                     }
                 });

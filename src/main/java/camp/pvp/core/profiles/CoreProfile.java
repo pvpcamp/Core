@@ -7,6 +7,7 @@ import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.punishments.PunishmentManager;
 import camp.pvp.core.ranks.Rank;
 import camp.pvp.core.ranks.RankManager;
+import camp.pvp.practice.Practice;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
@@ -28,8 +29,6 @@ public class CoreProfile implements Comparable<CoreProfile>{
     private ChatTag chatTag;
     private List<ChatTag> ownedChatTags;
 
-    private List<Punishment> punishments;
-
     private UUID replyTo;
     private List<UUID> ignored;
 
@@ -46,7 +45,6 @@ public class CoreProfile implements Comparable<CoreProfile>{
         this.ipList = new ArrayList<>();
         this.ranks = new ArrayList<>();
         this.ownedChatTags = new ArrayList<>();
-        this.punishments = new ArrayList<>();
         this.ignored = new ArrayList<>();
         this.commandCooldowns = new HashMap<>();
 
@@ -144,6 +142,11 @@ public class CoreProfile implements Comparable<CoreProfile>{
         return rank;
     }
 
+    public boolean isCurrent() {
+        Player player = getPlayer();
+        return player != null || System.currentTimeMillis() - getLastLoadFromDatabase() < (1000 * 60);
+    }
+
     public int getWeight() {
         return getHighestRank().getWeight();
     }
@@ -158,11 +161,22 @@ public class CoreProfile implements Comparable<CoreProfile>{
         return null;
     }
 
+    public List<Punishment> getPunishments() {
+        return Core.getInstance().getPunishmentManager().getPunishmentsForPlayer(uuid);
+    }
+
     public long getCurrentPlaytime() {
         if (Bukkit.getPlayer(getName()) != null && Bukkit.getPlayer(getName()).isOnline()) {
             return playtime + (new Date().getTime() - getLastLogin().getTime());
         } else {
             return playtime;
+        }
+    }
+
+    public void addIp(String ip) {
+        this.ip = ip;
+        if(!ipList.contains(ip)) {
+            ipList.add(ip);
         }
     }
 
@@ -204,15 +218,6 @@ public class CoreProfile implements Comparable<CoreProfile>{
                 getRanks().add(rank);
             }
         }
-
-        PunishmentManager pm = plugin.getPunishmentManager();
-        List<UUID> punishmentIds = doc.getList("punishments", UUID.class);
-        for(UUID uuid : punishmentIds) {
-            Punishment punishment = pm.importFromDatabase(uuid);
-            if (punishment != null) {
-                this.getPunishments().add(punishment);
-            }
-        }
     }
 
     public Map<String, Object> exportToMap() {
@@ -248,13 +253,6 @@ public class CoreProfile implements Comparable<CoreProfile>{
         }
 
         map.put("ranks", rankIds);
-
-        List<UUID> punishmentIds = new ArrayList<>();
-        for(Punishment punishment : getPunishments()) {
-            punishmentIds.add(punishment.getUuid());
-        }
-
-        map.put("punishments", punishmentIds);
 
 
         return map;

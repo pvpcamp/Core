@@ -47,7 +47,7 @@ public class HistoryGui extends PaginatedGui {
                         @Override
                         public void run(Player player, GuiButton guiButton, Gui gui, ClickType clickType) {
                             Core core = Core.getInstance();
-                            core.getPunishmentManager().delete(punishment, true);
+                            core.getPunishmentManager().delete(punishment);
 
                             button.setAction(null);
                             button.setType(Material.BEDROCK);

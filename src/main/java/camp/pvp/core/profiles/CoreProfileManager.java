@@ -13,6 +13,7 @@ import camp.pvp.redis.RedisSubscriber;
 import com.google.gson.JsonObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
@@ -20,8 +21,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Getter @Setter
 public class CoreProfileManager {
@@ -33,10 +36,11 @@ public class CoreProfileManager {
     private Map<UUID, PermissionAttachment> permissionAttachments;
 
     private MongoManager mongoManager;
-    private String profilesCollection, chatHistoryCollection, grantsCollection;
+    private MongoCollection<Document> profilesCollection, chatHistoryCollection, grantsCollection;
 
     private RedisPublisher redisPublisher;
     private RedisSubscriber profileUpdateSubscriber, staffMessageSubscriber;
+    private BukkitTask nameMcVerifier;
 
     public CoreProfileManager(Core plugin) {
         this.plugin = plugin;
@@ -48,9 +52,9 @@ public class CoreProfileManager {
         FileConfiguration config = plugin.getConfig();
 
         this.mongoManager = new MongoManager(plugin, config.getString("networking.mongo.uri"), config.getString("networking.mongo.database"));
-        this.profilesCollection = config.getString("networking.mongo.profiles_collection");
-        this.chatHistoryCollection = config.getString("networking.mongo.chat_history_collection");
-        this.grantsCollection = config.getString("networking.mongo.grants_collection");
+        this.profilesCollection = mongoManager.getDatabase().getCollection(config.getString("networking.mongo.profiles_collection"));
+        this.chatHistoryCollection = mongoManager.getDatabase().getCollection(config.getString("networking.mongo.chat_history_collection"));
+        this.grantsCollection = mongoManager.getDatabase().getCollection(config.getString("networking.mongo.grants_collection"));
 
         this.redisPublisher = new RedisPublisher(plugin, config.getString("networking.redis.host"), config.getInt("networking.redis.port"));
         this.profileUpdateSubscriber = new RedisSubscriber(
@@ -67,7 +71,7 @@ public class CoreProfileManager {
                 "core_staff",
                 new StaffMessageListener(plugin));
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new NameMcVerifier(this), 0, 1200);
+        this.nameMcVerifier = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new NameMcVerifier(this), 0, 1200);
 
         plugin.getLogger().info("Started CoreProfileManager.");
     }
@@ -115,93 +119,117 @@ public class CoreProfileManager {
         }
     }
 
-    public CoreProfile find(UUID uuid, boolean store) {
-        CoreProfile profile = loadedProfiles.get(uuid);
-        if(profile == null) {
-            profile = importFromDatabase(uuid, store);
-            if(store) {
+    public CompletableFuture<CoreProfile> findAsync(UUID uuid) {
+        CoreProfile loadedProfile = getLoadedProfile(uuid);
+        if(loadedProfile != null) return CompletableFuture.supplyAsync(() -> loadedProfile);
+
+        CompletableFuture<CoreProfile> profileFuture = CompletableFuture.supplyAsync(() -> {
+            Document doc = profilesCollection.find().filter(Filters.eq("_id", uuid)).first();
+            if(doc != null) {
+                CoreProfile profile = new CoreProfile(uuid);
+                profile.importFromDocument(plugin, doc);
+                profile.setLastLoadFromDatabase(System.currentTimeMillis());
+
                 loadedProfiles.put(uuid, profile);
+                return profile;
             }
+
+            return null;
+        });
+
+        profileFuture.exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+
+        return profileFuture;
+    }
+
+    public CompletableFuture<CoreProfile> findAsync(String name) {
+        if(!name.matches("^[a-zA-Z0-9_]{1,16}$")) {
+            return CompletableFuture.supplyAsync(() -> null);
         }
+
+        CoreProfile loadedProfile = getLoadedProfile(name);
+        if(loadedProfile != null) return CompletableFuture.supplyAsync(() -> loadedProfile);
+
+        CompletableFuture<CoreProfile> profileFuture = CompletableFuture.supplyAsync(() -> {
+            Document doc = profilesCollection.find().filter(Filters.regex("name", "(?i)" + name)).first();
+            if(doc != null) {
+                CoreProfile profile = new CoreProfile(doc.get("_id", UUID.class));
+                profile.importFromDocument(plugin, doc);
+                profile.setLastLoadFromDatabase(System.currentTimeMillis());
+                loadedProfiles.put(profile.getUuid(), profile);
+                return profile;
+            }
+
+            return null;
+        });
+
+        profileFuture.exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+
+        return profileFuture;
+    }
+
+    public CoreProfile getLoadedProfile(UUID uuid) {
+        CoreProfile profile = loadedProfiles.get(uuid);
+        if(profile == null || !profile.isCurrent()) return null;
 
         return profile;
     }
 
-    public CoreProfile find(String name, boolean store) {
-        if(!name.matches("^[a-zA-Z0-9_]{1,16}$")) {
-            return null;
-        }
-
-        final CoreProfile[] profile = {null};
-
-        for(Player player : Bukkit.getOnlinePlayers()) {
-            if(player.getName().equalsIgnoreCase(name)) {
-                return getLoadedProfiles().get(player.getUniqueId());
+    public CoreProfile getLoadedProfile(String name) {
+        for(CoreProfile profile : loadedProfiles.values()) {
+            if(profile.getName().equalsIgnoreCase(name)) {
+                return profile.isCurrent() ? profile : null;
             }
         }
 
-        getMongoManager().getCollection(false, profilesCollection, new MongoCollectionResult() {
-            @Override
-            public void call(MongoCollection<Document> mongoCollection) {
-                mongoCollection.find(Filters.regex("name", "(?i)" + name)).forEach(
-                    document -> {
-                        String dbName = document.getString("name");
-                        if(dbName.equalsIgnoreCase(name)) {
-                            profile[0] = importFromDatabase(document.get("_id", UUID.class), store);
-                        }
-                    }
-                );
-            }
-        });
-
-        return profile[0];
+        return null;
     }
 
-    public CoreProfile importFromDatabase(UUID uuid, boolean store) {
-        final CoreProfile[] profile = {null};
-        getMongoManager().getDocument(false, profilesCollection, uuid, document -> {
-            if(document != null) {
-                profile[0] = new CoreProfile(uuid);
-                profile[0].importFromDocument(plugin, document);
-                profile[0].setLastLoadFromDatabase(System.currentTimeMillis());
-                if(store) {
-                    loadedProfiles.put(uuid, profile[0]);
-                }
+    public CoreProfile preLogin(UUID uuid, String name, String ip) {
+        CoreProfile profile = getLoadedProfile(uuid);
+        if(profile == null) {
+            Document doc = profilesCollection.find().filter(Filters.eq("_id", uuid)).first();
+            if(doc != null) {
+                profile = new CoreProfile(uuid);
+                profile.importFromDocument(plugin, doc);
             }
-        });
+        }
 
-        return profile[0];
-    }
+        if(profile == null) {
+            profile = new CoreProfile(uuid);
+            profile.setFirstLogin(new Date());
+            profile.setLastLogin(new Date());
+        }
 
-    public CoreProfile create(UUID uuid, String name) {
-        CoreProfile profile = new CoreProfile(uuid);
         profile.setName(name);
-        profile.getRanks().add(plugin.getRankManager().getDefaultRank());
-        profile.setFirstLogin(new Date());
+        profile.addIp(ip);
+        profile.setLastLogin(new Date());
         profile.setLastLoadFromDatabase(System.currentTimeMillis());
 
-        MongoUpdate mu = new MongoUpdate(profilesCollection, profile.getUuid());
-        mu.setUpdate(profile.exportToMap());
-
-        getMongoManager().massUpdate(false, mu);
-        this.loadedProfiles.put(uuid, profile);
+        loadedProfiles.put(uuid, profile);
         return profile;
     }
 
-    public CoreProfile create(Player player) {
-        return create(player.getUniqueId(), player.getName());
-    }
-
-    public void exportToDatabase(CoreProfile profile, boolean async, boolean store) {
-        MongoUpdate mu = new MongoUpdate(profilesCollection, profile.getUuid());
-        mu.setUpdate(profile.exportToMap());
-        getMongoManager().massUpdate(async, mu);
+    public void exportToDatabase(CoreProfile profile, boolean async) {
+        if(async) {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                profile.exportToMap().forEach((key, value) -> {
+                    profilesCollection.updateOne(Filters.eq("_id", profile.getUuid()), Updates.set(key, value));
+                });
+            });
+        } else {
+            profile.exportToMap().forEach((key, value) -> {
+                profilesCollection.updateOne(Filters.eq("_id", profile.getUuid()), Updates.set(key, value));
+            });
+        }
 
         sendRedisUpdate(profile.getUuid());
-
-        if(!store && profile.getPlayer() == null) {
-            getLoadedProfiles().remove(profile.getUuid());
-        }
     }
 
     public void sendRedisUpdate(UUID uuid) {
@@ -211,50 +239,24 @@ public class CoreProfileManager {
         getRedisPublisher().publishMessage("core_profile_updates", json);
     }
 
-    public Grant importGrant(UUID uuid, boolean async) {
-        if(getLoadedGrants().containsKey(uuid)) {
-            return getLoadedGrants().get(uuid);
-        }
-
-        final Grant[] grant = {null};
-        getMongoManager().getDocument(async, grantsCollection, uuid, document -> {
-            if(document != null) {
-                grant[0] = new Grant(uuid);
-                grant[0].importFromDocument(plugin, document);
-            }
-        });
-
-        return grant[0];
+    public void exportGrant(Grant grant) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin,
+                () -> grant.exportToMap().forEach((key, value)
+                        -> grantsCollection.updateOne(Filters.eq("_id", grant.getUuid()), Updates.set(key, value))));
     }
 
-    public void exportGrant(Grant grant, boolean async) {
-        MongoUpdate mu = new MongoUpdate(grantsCollection, grant.getUuid());
-        mu.setUpdate(grant.exportToMap());
-        getMongoManager().massUpdate(async, mu);
-    }
-
-    public ChatHistory importHistory(UUID uuid, boolean async) {
-        final ChatHistory[] chatHistory = {null};
-        getMongoManager().getDocument(async, chatHistoryCollection, uuid, document -> {
-            if(document != null) {
-                chatHistory[0] = new ChatHistory(document);
-                this.getLoadedHistory().put(uuid, chatHistory[0]);
-            }
-        });
-
-        return chatHistory[0];
-    }
-
-    public void exportHistory(ChatHistory history, boolean async) {
-        MongoUpdate mu = new MongoUpdate(chatHistoryCollection, history.getUuid());
-        mu.setUpdate(history.exportToMap());
-        getMongoManager().massUpdate(async, mu);
+    public void exportHistory(ChatHistory history) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin,
+                () -> history.exportToMap().forEach((key, value)
+                        -> chatHistoryCollection.updateOne(Filters.eq("_id", history.getUuid()), Updates.set(key, value))));
     }
 
     public void shutdown() {
         for(Player player : Bukkit.getOnlinePlayers()) {
             CoreProfile profile = getLoadedProfiles().get(player.getUniqueId());
-            exportToDatabase(profile, false, false);
+            exportToDatabase(profile, false);
         }
+
+        nameMcVerifier.cancel();
     }
 }

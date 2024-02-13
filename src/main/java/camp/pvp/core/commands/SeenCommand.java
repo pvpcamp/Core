@@ -12,6 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Date;
+import java.util.concurrent.CompletableFuture;
 
 
 public class SeenCommand implements CommandExecutor {
@@ -31,20 +32,20 @@ public class SeenCommand implements CommandExecutor {
             return true;
         }
 
-        CoreProfile coreProfile = plugin.getCoreProfileManager().find(args[0], false);
+        CompletableFuture<CoreProfile> profileFuture = plugin.getCoreProfileManager().findAsync(args[0]);
+        profileFuture.thenAccept(profile -> {
+            if (profile == null) {
+                sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
+                return;
+            }
 
-        if (coreProfile == null) {
-            sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
-            return true;
-        }
+            Player player = profile.getPlayer();
+            String seen = (player != null && player.isOnline() ? "online for &f" +
+                    DateUtils.getDifference(new Date(), profile.getLastLogin()) : "offline for &f" + DateUtils.getDifference(new Date(), profile.getLastLogout()));
+            String name = profile.getHighestRank().getColor() + profile.getName();
 
-        Player player = coreProfile.getPlayer();
-
-        String seen = (player != null && player.isOnline() ? "online for &f" +
-                DateUtils.getDifference(new Date(), coreProfile.getLastLogin()) : "offline for &f" + DateUtils.getDifference(new Date(), coreProfile.getLastLogout()));
-        String name = coreProfile.getHighestRank().getColor() + coreProfile.getName();
-
-        sender.sendMessage(Colors.get(name + " &6has been " + seen + "&6."));
+            sender.sendMessage(Colors.get(name + " &6has been " + seen + "&6."));
+        });
 
         return true;
     }

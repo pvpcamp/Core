@@ -20,7 +20,7 @@ public class ChatCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
-        String senderName = (sender instanceof Player ? plugin.getCoreProfileManager().find(sender.getName(), false).getHighestRank().getColor() + sender.getName() : "&4CONSOLE");
+        String senderName = (sender instanceof Player ? plugin.getCoreProfileManager().getLoadedProfile(sender.getName()).getHighestRank().getColor() + sender.getName() : "&4CONSOLE");
 
         if (args.length > 0) {
             switch (args[0].toLowerCase()) {

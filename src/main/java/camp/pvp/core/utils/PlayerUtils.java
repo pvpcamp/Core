@@ -46,14 +46,14 @@ public class PlayerUtils {
             Object packet = playOutConstructor.newInstance(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE,
                     Float.MAX_VALUE, Collections.EMPTY_LIST, vector);
             Object craftPlayerObject = craftPlayer.cast(player);
-            Method getHandleMethod = craftPlayer.getMethod("getHandle", (Class<?>[])new Class[0]);
-            Object handle = getHandleMethod.invoke(craftPlayerObject, new Object[0]);
+            Method getHandleMethod = craftPlayer.getMethod("getHandle");
+            Object handle = getHandleMethod.invoke(craftPlayerObject);
             Object pc = handle.getClass().getField("playerConnection").get(handle);
             Method sendPacketMethod = pc.getClass().getMethod("sendPacket", Packet);
             sendPacketMethod.invoke(pc, packet);
         }
-        catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchFieldException | NoSuchMethodException | SecurityException | InvocationTargetException | ClassNotFoundException ex) {
-            ex.printStackTrace();
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

@@ -134,6 +134,8 @@ public class CoreServerManager {
     }
 
     public void shutdown() {
-
+        coreServerUpdater.cancel();
+        currentServerUpdater.cancel();
+        announcer.cancel();
     }
 }

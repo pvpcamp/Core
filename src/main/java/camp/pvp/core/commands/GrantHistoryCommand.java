@@ -16,6 +16,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class GrantHistoryCommand implements CommandExecutor {
 
@@ -28,38 +29,29 @@ public class GrantHistoryCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if(args.length > 0) {
-            if(sender instanceof Player) {
-                String name = args[0];
-                Player player = (Player) sender;
+        if(!(sender instanceof Player player)) return true;
 
-                CoreProfile target = plugin.getCoreProfileManager().find(name, false);
-                if (target != null) {
-                    player.sendMessage(Colors.get("&aFetching grant history of " + target.getHighestRank().getColor() + target.getName() + "&a."));
-
-                    plugin.getCoreProfileManager().getMongoManager().getCollection(true, plugin.getConfig().getString("networking.mongo.grants_collection"), new MongoCollectionResult() {
-                        @Override
-                        public void call(MongoCollection<Document> mongoCollection) {
-                            List<Grant> grants = new ArrayList<>();
-                            MongoCursor<Document> cursor = mongoCollection.find(new Document("issued_to", target.getUuid())).cursor();
-                            while(cursor.hasNext()) {
-                                Document doc = cursor.next();
-                                Grant grant = new Grant(doc.get("_id", UUID.class));
-                                grant.importFromDocument(plugin, doc);
-                                grants.add(grant);
-                            }
-
-                            new GrantHistoryGui(target, grants).open(player);
-                        }
-                    });
-                } else {
-                    sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
-                }
-                return true;
-            }
-        } else {
+        if(args.length == 0) {
             sender.sendMessage(ChatColor.RED + "Usage: /" + label + " <player>");
+            return true;
         }
+
+        CompletableFuture<CoreProfile> profileFuture = plugin.getCoreProfileManager().findAsync(args[0]);
+        profileFuture.thenAcceptAsync(profile -> {
+            if(profile == null) {
+                sender.sendMessage(ChatColor.RED + "The player you specified does not have a profile on the network.");
+                return;
+            }
+
+            List<Grant> grants = new ArrayList<>();
+            plugin.getCoreProfileManager().getGrantsCollection().find().filter(new Document("issued_to", profile.getUuid())).forEach(document -> {
+                Grant grant = new Grant(document.get("_id", UUID.class));
+                grant.importFromDocument(plugin, document);
+                grants.add(grant);
+            });
+
+            new GrantHistoryGui(profile, grants).open(player);
+        });
 
         return true;
     }
