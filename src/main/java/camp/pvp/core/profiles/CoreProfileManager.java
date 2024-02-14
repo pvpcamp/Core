@@ -40,7 +40,7 @@ public class CoreProfileManager {
 
     private RedisPublisher redisPublisher;
     private RedisSubscriber profileUpdateSubscriber, staffMessageSubscriber;
-    private BukkitTask nameMcVerifier;
+    private BukkitTask nameMcVerifier, flightEffectUpdater;
 
     public CoreProfileManager(Core plugin) {
         this.plugin = plugin;
@@ -72,6 +72,14 @@ public class CoreProfileManager {
                 new StaffMessageListener(plugin));
 
         this.nameMcVerifier = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new NameMcVerifier(this), 0, 1200);
+        this.flightEffectUpdater = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            for(Player player : Bukkit.getOnlinePlayers()) {
+                CoreProfile profile = getLoadedProfile(player.getUniqueId());
+                if(profile.getAppliedFlightEffect().equals(FlightEffect.NONE)) continue;
+
+                profile.getAppliedFlightEffect().playEffect(player);
+            }
+        }, 0, 2);
 
         plugin.getLogger().info("Started CoreProfileManager.");
     }
@@ -201,7 +209,9 @@ public class CoreProfileManager {
             }
         }
 
+        boolean exists = true;
         if(profile == null) {
+            exists = false;
             profile = new CoreProfile(uuid);
             profile.setFirstLogin(new Date());
             profile.setLastLogin(new Date());
@@ -211,6 +221,16 @@ public class CoreProfileManager {
         profile.addIp(ip);
         profile.setLastLogin(new Date());
         profile.setLastLoadFromDatabase(System.currentTimeMillis());
+
+        if(!exists) {
+
+            Document document = profilesCollection.find(new Document("_id", profile.getUuid())).first();
+            if(document == null) {
+                profilesCollection.insertOne(new Document("_id", profile.getUuid()));
+            }
+
+            exportToDatabase(profile, false);
+        }
 
         loadedProfiles.put(uuid, profile);
         return profile;
@@ -240,15 +260,29 @@ public class CoreProfileManager {
     }
 
     public void exportGrant(Grant grant) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin,
-                () -> grant.exportToMap().forEach((key, value)
-                        -> grantsCollection.updateOne(Filters.eq("_id", grant.getUuid()), Updates.set(key, value))));
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+
+            Document document = grantsCollection.find(new Document("_id", grant.getUuid())).first();
+            if(document == null) {
+                grantsCollection.insertOne(new Document("_id", grant.getUuid()));
+            }
+
+            grant.exportToMap().forEach((key, value)
+                    -> grantsCollection.updateOne(Filters.eq("_id", grant.getUuid()), Updates.set(key, value)));
+        });
     }
 
     public void exportHistory(ChatHistory history) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin,
-                () -> history.exportToMap().forEach((key, value)
-                        -> chatHistoryCollection.updateOne(Filters.eq("_id", history.getUuid()), Updates.set(key, value))));
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+
+            Document document = chatHistoryCollection.find(new Document("_id", history.getUuid())).first();
+            if(document == null) {
+                chatHistoryCollection.insertOne(new Document("_id", history.getUuid()));
+            }
+
+            history.exportToMap().forEach((key, value)
+                    -> chatHistoryCollection.updateOne(Filters.eq("_id", history.getUuid()), Updates.set(key, value)));
+        });
     }
 
     public void shutdown() {

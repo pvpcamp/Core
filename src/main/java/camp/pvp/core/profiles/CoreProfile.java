@@ -4,10 +4,8 @@ import camp.pvp.core.Core;
 import camp.pvp.core.chattags.ChatTag;
 import camp.pvp.core.chattags.ChatTagManager;
 import camp.pvp.core.punishments.Punishment;
-import camp.pvp.core.punishments.PunishmentManager;
 import camp.pvp.core.ranks.Rank;
 import camp.pvp.core.ranks.RankManager;
-import camp.pvp.practice.Practice;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
@@ -28,6 +26,9 @@ public class CoreProfile implements Comparable<CoreProfile>{
 
     private ChatTag chatTag;
     private List<ChatTag> ownedChatTags;
+
+    private LobbyArmor appliedLobbyArmor;
+    private FlightEffect appliedFlightEffect;
 
     private UUID replyTo;
     private List<UUID> ignored;
@@ -52,6 +53,9 @@ public class CoreProfile implements Comparable<CoreProfile>{
         this.allowPrivateMessages = true;
         this.messageSounds = true;
         this.staffChat = false;
+
+        this.appliedLobbyArmor = LobbyArmor.NONE;
+        this.appliedFlightEffect = FlightEffect.NONE;
     }
 
     public boolean canChat() {
@@ -193,6 +197,8 @@ public class CoreProfile implements Comparable<CoreProfile>{
         this.messageSounds = doc.getBoolean("message_sounds");
         this.staffChat = doc.getBoolean("staff_chat");
         this.namemc = doc.getBoolean("namemc");
+        this.appliedLobbyArmor = LobbyArmor.valueOf(doc.get("applied_lobby_armor", "NONE"));
+        this.appliedFlightEffect = FlightEffect.valueOf(doc.get("applied_flight_effect", "NONE"));
 
         this.chatTag = plugin.getChatTagManager().getChatTags().get(doc.get("applied_chat_tag", UUID.class));
 
@@ -236,6 +242,8 @@ public class CoreProfile implements Comparable<CoreProfile>{
         map.put("namemc", isNamemc());
         map.put("auth_key", getAuthKey());
         map.put("authenticated", isAuthenticated());
+        map.put("applied_lobby_armor", getAppliedLobbyArmor().name());
+        map.put("applied_flight_effect", getAppliedFlightEffect().name());
 
         UUID chatTag = getChatTag() == null ? null : getChatTag().getUuid();
         map.put("applied_chat_tag", chatTag);

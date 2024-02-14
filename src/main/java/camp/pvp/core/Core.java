@@ -82,6 +82,7 @@ public class Core extends JavaPlugin {
         new HelpOpCommand(this);
         new HistoryCommand(this);
         new IgnoreCommand(this);
+        new InvalidateCommand(this);
         new InventorySeeCommand(this);
         new KickCommand(this);
         new ListCommand(this);

@@ -41,13 +41,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>camp.pvp</groupId>
-            <artifactId>Practice</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/Practice-1.0.jar</systemPath>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.28</version>

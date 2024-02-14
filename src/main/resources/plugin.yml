@@ -5,8 +5,6 @@ author: leuo
 depend:
   - Gooey2
   - ProtocolLib
-softdepend:
-  - Practice
 
 commands:
   alert:
@@ -55,6 +53,9 @@ commands:
   ignore:
     aliases: [block]
     description: Ignore a player from PMs and global chat.
+  invalidate:
+    description: Invalidate a player's core profile.
+    permission: core.commands.invalidate
   inventorysee:
     aliases: [invsee]
     description: View the inventory of a player.

@@ -4,7 +4,6 @@ import camp.pvp.core.Core;
 import camp.pvp.core.chattags.ChatTag;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.utils.Colors;
-import camp.pvp.practice.arenas.Arena;
 import org.bukkit.ChatColor;
 import org.bukkit.command.*;
 import org.bukkit.util.StringUtil;

@@ -32,7 +32,7 @@ public class StaffHistoryCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if(!(sender instanceof Player)) return true;
+        if(!(sender instanceof Player player)) return true;
 
         if(args.length == 0) {
             sender.sendMessage(ChatColor.RED + "Usage: /" + label + " <player>");
@@ -46,7 +46,6 @@ public class StaffHistoryCommand implements CommandExecutor {
                 return;
             }
 
-            Player player = profile.getPlayer();
             List<Punishment> punishments = new ArrayList<>();
             plugin.getPunishmentManager().getLoadedPunishments().forEach((uuid, punishment) -> {
                 if(punishment.getIssuedFrom().equals(profile.getUuid())) {

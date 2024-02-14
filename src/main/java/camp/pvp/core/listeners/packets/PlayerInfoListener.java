@@ -48,7 +48,13 @@ public class PlayerInfoListener extends PacketAdapter {
 
             CoreProfile profile = plugin.getCoreProfileManager().getLoadedProfiles().get(uuid);
 
-            newPlayerInfoData.add(new PlayerInfoData(pid.getProfile(), pid.getLatency(), pid.getGameMode(), WrappedChatComponent.fromText(Colors.get(profile.getHighestRank().getColor() + player.getName()))));
+            String color = profile.getHighestRank().getColor();
+            color = color.length() < 2 ? color : color.substring(0, 2);
+
+            String name = profile.getName();
+            name = name.length() < 14 ? name : name.substring(0, 14);
+
+            newPlayerInfoData.add(new PlayerInfoData(pid.getProfile(), pid.getLatency(), pid.getGameMode(), WrappedChatComponent.fromText(Colors.get(color + name))));
 
             if(packet.getPlayerInfoAction().read(0) == EnumWrappers.PlayerInfoAction.REMOVE_PLAYER && !event.getPlayer().canSee(player)) {
                 PacketContainer p = new PacketContainer(PacketType.Play.Server.PLAYER_INFO);
