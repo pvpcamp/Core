@@ -151,6 +151,11 @@ public class TempBanCommand implements CommandExecutor {
                 reasonBuilder.append("No reason specified.");
             }
 
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("KickPlayer");
+            out.writeUTF(args[0]);
+            out.writeUTF(Colors.get("&cYou have been banned from PvP Camp."));
+
             punishment.setSilent(silent);
             punishment.setReason(reasonBuilder.toString());
             plugin.getPunishmentManager().exportToDatabase(punishment);

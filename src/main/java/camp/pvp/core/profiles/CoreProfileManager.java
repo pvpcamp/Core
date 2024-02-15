@@ -79,7 +79,7 @@ public class CoreProfileManager {
 
                 profile.getAppliedFlightEffect().playEffect(player);
             }
-        }, 0, 2);
+        }, 0, 60);
 
         plugin.getLogger().info("Started CoreProfileManager.");
     }
@@ -125,6 +125,19 @@ public class CoreProfileManager {
                 player.sendMessage(Colors.get("&c[SB] " + message));
             }
         }
+    }
+
+    public void forceUpdate(UUID uuid) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            Document doc = profilesCollection.find().filter(Filters.eq("_id", uuid)).first();
+            if(doc != null) {
+                CoreProfile profile = new CoreProfile(uuid);
+                profile.importFromDocument(plugin, doc);
+                profile.setLastLoadFromDatabase(System.currentTimeMillis());
+
+                loadedProfiles.put(uuid, profile);
+            }
+        });
     }
 
     public CompletableFuture<CoreProfile> findAsync(UUID uuid) {
@@ -215,6 +228,8 @@ public class CoreProfileManager {
             profile = new CoreProfile(uuid);
             profile.setFirstLogin(new Date());
             profile.setLastLogin(new Date());
+
+            profile.getRanks().add(plugin.getRankManager().getDefaultRank());
         }
 
         profile.setName(name);
@@ -242,14 +257,16 @@ public class CoreProfileManager {
                 profile.exportToMap().forEach((key, value) -> {
                     profilesCollection.updateOne(Filters.eq("_id", profile.getUuid()), Updates.set(key, value));
                 });
+
+                sendRedisUpdate(profile.getUuid());
             });
         } else {
             profile.exportToMap().forEach((key, value) -> {
                 profilesCollection.updateOne(Filters.eq("_id", profile.getUuid()), Updates.set(key, value));
             });
-        }
 
-        sendRedisUpdate(profile.getUuid());
+            sendRedisUpdate(profile.getUuid());
+        }
     }
 
     public void sendRedisUpdate(UUID uuid) {

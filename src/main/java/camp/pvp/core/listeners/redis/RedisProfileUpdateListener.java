@@ -22,8 +22,8 @@ public class RedisProfileUpdateListener implements RedisSubscriberListener {
 
         Bukkit.getScheduler().runTaskLater(plugin, ()-> {
             Player player = Bukkit.getPlayer(uuid);
-            if(player != null && player.isOnline()) {
-                plugin.getCoreProfileManager().findAsync(player.getUniqueId());
+            if(player != null) {
+                plugin.getCoreProfileManager().forceUpdate(player.getUniqueId());
             }
         }, 4);
     }

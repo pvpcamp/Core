@@ -13,7 +13,7 @@ messages:
   announcements:
     - "&7[&6&lPvP Camp&7] &6Like our server on NameMC for a free rank! &fnamemc.com/server/pvp.camp"
     - "&7[&6&lPvP Camp&7] &6Ranks and tags are now available on our store! &fstore.pvp.camp"
-    - "&7[&6&lPvP Camp&7] &6Join our Discord: &fdiscord.gg/4F39Qh8dHJ"
+    - "&7[&6&lPvP Camp&7] &6Join our Discord: &fdiscord.pvp.camp"
 networking:
   mongo:
     uri: "uri"
