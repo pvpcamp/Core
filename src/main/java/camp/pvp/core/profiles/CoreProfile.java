@@ -28,7 +28,10 @@ public class CoreProfile implements Comparable<CoreProfile>{
     private List<ChatTag> ownedChatTags;
 
     private LobbyArmor appliedLobbyArmor;
+    private List<LobbyArmor> ownedLobbyArmor;
+
     private FlightEffect appliedFlightEffect;
+    private List<FlightEffect> ownedFlightEffects;
 
     private UUID replyTo;
     private List<UUID> ignored;
@@ -38,6 +41,8 @@ public class CoreProfile implements Comparable<CoreProfile>{
 
     private Date firstLogin, lastLogin, lastLogout;
     private long playtime, afk, lastLoadFromDatabase;
+
+    private int flightEffectFrame;
 
     private boolean authenticated, namemc, seeGlobalChat, allowPrivateMessages, messageSounds, staffChat;
 
@@ -55,7 +60,10 @@ public class CoreProfile implements Comparable<CoreProfile>{
         this.staffChat = false;
 
         this.appliedLobbyArmor = LobbyArmor.NONE;
+        this.ownedLobbyArmor = new ArrayList<>();
+
         this.appliedFlightEffect = FlightEffect.NONE;
+        this.ownedFlightEffects = new ArrayList<>();
     }
 
     public boolean canChat() {
@@ -184,6 +192,10 @@ public class CoreProfile implements Comparable<CoreProfile>{
         }
     }
 
+    public void incrementFlightEffectFrame() {
+        flightEffectFrame++;
+    }
+
     public void importFromDocument(Core plugin, Document doc) {
         this.name = doc.getString("name");
         this.ip = doc.getString("ip");
@@ -207,8 +219,22 @@ public class CoreProfile implements Comparable<CoreProfile>{
             this.authenticated = doc.getBoolean("authenticated");
         }
 
+        for(String s : doc.getList("owned_flight_effects", String.class, new ArrayList<>())) {
+            try {
+                FlightEffect effect = FlightEffect.valueOf(s);
+                ownedFlightEffects.add(effect);
+            } catch (IllegalArgumentException ignored) {}
+        }
+
+        for(String s : doc.getList("owned_lobby_armor", String.class, new ArrayList<>())) {
+            try {
+                LobbyArmor armor = LobbyArmor.valueOf(s);
+                ownedLobbyArmor.add(armor);
+            } catch (IllegalArgumentException ignored) {}
+        }
+
         ChatTagManager ctm = plugin.getChatTagManager();
-        List<UUID> tagIds = doc.getList("owned_chat_tags", UUID.class);
+        List<UUID> tagIds = doc.getList("owned_chat_tags", UUID.class, new ArrayList<>());
         for(UUID uuid : tagIds) {
             ChatTag tag = ctm.getChatTags().get(uuid);
             if(tag != null) {
@@ -217,7 +243,7 @@ public class CoreProfile implements Comparable<CoreProfile>{
         }
 
         RankManager rm = plugin.getRankManager();
-        List<UUID> rankIds = doc.getList("ranks", UUID.class);
+        List<UUID> rankIds = doc.getList("ranks", UUID.class, new ArrayList<>());
         for(UUID uuid : rankIds) {
             Rank rank = rm.getRanks().get(uuid);
             if(rank != null) {
@@ -244,6 +270,16 @@ public class CoreProfile implements Comparable<CoreProfile>{
         map.put("authenticated", isAuthenticated());
         map.put("applied_lobby_armor", getAppliedLobbyArmor().name());
         map.put("applied_flight_effect", getAppliedFlightEffect().name());
+
+        List<String> ownedFlightEffects = new ArrayList<>();
+        getOwnedFlightEffects().forEach(effect -> ownedFlightEffects.add(effect.name()));
+
+        map.put("owned_flight_effects", ownedFlightEffects);
+
+        List<String> ownedLobbyArmor = new ArrayList<>();
+        getOwnedLobbyArmor().forEach(armor -> ownedLobbyArmor.add(armor.name()));
+
+        map.put("owned_lobby_armor", ownedLobbyArmor);
 
         UUID chatTag = getChatTag() == null ? null : getChatTag().getUuid();
         map.put("applied_chat_tag", chatTag);

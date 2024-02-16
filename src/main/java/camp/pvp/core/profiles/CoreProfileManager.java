@@ -77,9 +77,9 @@ public class CoreProfileManager {
                 CoreProfile profile = getLoadedProfile(player.getUniqueId());
                 if(profile.getAppliedFlightEffect().equals(FlightEffect.NONE)) continue;
 
-                profile.getAppliedFlightEffect().playEffect(player);
+                profile.getAppliedFlightEffect().playEffect(player, profile);
             }
-        }, 0, 60);
+        }, 0, 2);
 
         plugin.getLogger().info("Started CoreProfileManager.");
     }
@@ -308,6 +308,7 @@ public class CoreProfileManager {
             exportToDatabase(profile, false);
         }
 
+        flightEffectUpdater.cancel();
         nameMcVerifier.cancel();
     }
 }

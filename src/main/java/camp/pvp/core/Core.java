@@ -73,6 +73,7 @@ public class Core extends JavaPlugin {
         new ChatCommand(this);
         new DemoCommand(this);
         new FeedCommand(this);
+        new FlightEffectsCommand(this);
         new FlyCommand(this);
         new GamemodeCommand(this);
         new GrantCommand(this);

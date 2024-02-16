@@ -97,6 +97,7 @@ public class BlacklistCommand implements CommandExecutor {
             out.writeUTF("KickPlayer");
             out.writeUTF(args[0]);
             out.writeUTF(Colors.get("&cYou have been blacklisted from PvP Camp."));
+            plugin.getServer().sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
 
             punishment.setSilent(silent);
             punishment.setReason(reasonBuilder.toString());

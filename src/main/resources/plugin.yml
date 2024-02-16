@@ -33,6 +33,8 @@ commands:
   feed:
     description: Feed a player.
     permission: core.commands.feed
+  flighteffects:
+    description: Customize your flight effects.
   grant:
     description: Add, remove, or show the grants of a player.
     permission: core.commands.grant

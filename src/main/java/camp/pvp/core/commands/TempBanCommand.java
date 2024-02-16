@@ -154,7 +154,8 @@ public class TempBanCommand implements CommandExecutor {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("KickPlayer");
             out.writeUTF(args[0]);
-            out.writeUTF(Colors.get("&cYou have been banned from PvP Camp."));
+            out.writeUTF(Colors.get("&cYou have been temporarily banned from PvP Camp."));
+            plugin.getServer().sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
 
             punishment.setSilent(silent);
             punishment.setReason(reasonBuilder.toString());
