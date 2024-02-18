@@ -118,7 +118,9 @@
                                 <Implementation-Version>${project.version}</Implementation-Version>
                                 <Implementation-Vendor-Id>${project.groupId}</Implementation-Vendor-Id>
                                 <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+                                <!--suppress UnresolvedMavenProperty -->
                                 <Git-Commit>${git.commit.id.abbrev}</Git-Commit>
+                                <!--suppress UnresolvedMavenProperty -->
                                 <Git-Branch>${git.branch}</Git-Branch>
                             </manifestEntries>
                         </transformer>

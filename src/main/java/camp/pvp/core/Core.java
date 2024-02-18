@@ -96,6 +96,7 @@ public class Core extends JavaPlugin {
         new ReportCommand(this);
         new SeenCommand(this);
         new ServerInfoCommand(this);
+        new SkullCommand(this);
         new SoundsCommand(this);
         new StaffChatCommand(this);
         new StaffHistoryCommand(this);

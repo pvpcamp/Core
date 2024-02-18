@@ -85,6 +85,9 @@ commands:
     permission: core.commands.rank
   report:
     description: Report a player.
+  skull:
+    description: Get the head of a player.
+    permission: core.commands.skull
   sounds:
     description: Enable or disable message sounds.
   staffchat:
