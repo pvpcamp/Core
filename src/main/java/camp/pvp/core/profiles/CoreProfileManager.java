@@ -135,6 +135,8 @@ public class CoreProfileManager {
                 profile.importFromDocument(plugin, doc);
                 profile.setLastLoadFromDatabase(System.currentTimeMillis());
 
+                updatePermissions(profile);
+
                 loadedProfiles.put(uuid, profile);
             }
         });
