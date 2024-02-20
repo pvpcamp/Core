@@ -123,10 +123,11 @@ public class RankManager {
         return rank[0];
     }
 
-    public Rank create(String name) {
+    public Rank create(String name, int weight) {
         Rank rank = new Rank(UUID.randomUUID());
         rank.setName(name.toLowerCase());
         rank.setDisplayName(name);
+        rank.setWeight(weight);
         getRanks().put(rank.getUuid(), rank);
 
         exportToDatabase(rank, false);

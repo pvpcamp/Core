@@ -77,12 +77,14 @@ public class RankCommand implements CommandExecutor {
                                     return true;
                                 }
 
-                                if(rankManager.getRankFromWeight(weight) == null) {
-                                    rank = rankManager.create(args[1]);
-                                    rank.setWeight(weight);
-
-                                    player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getDisplayName() + "&a with a weight of " + weight + " has been created."));
+                                if(rankManager.getRankFromWeight(weight) != null) {
+                                    player.sendMessage(ChatColor.RED + "A rank with this weight already exists.");
+                                    return true;
                                 }
+
+                                rank = rankManager.create(args[1], weight);
+
+                                player.sendMessage(Colors.get("&aRank " + rank.getColor() + rank.getDisplayName() + "&a with a weight of " + weight + " has been created."));
 
                             } else {
                                 player.sendMessage(ChatColor.RED + "This rank already exists.");
