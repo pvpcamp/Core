@@ -44,7 +44,11 @@ public class GrantHistoryCommand implements CommandExecutor {
             }
 
             List<Grant> grants = new ArrayList<>();
-            plugin.getCoreProfileManager().getGrantsCollection().find().filter(new Document("issued_to", profile.getUuid())).forEach(document -> {
+            plugin.getCoreProfileManager()
+                    .getMongoManager()
+                    .getDatabase()
+                    .getCollection(plugin.getCoreProfileManager().getGrantsCollectionName())
+                    .find().filter(new Document("issued_to", profile.getUuid())).forEach(document -> {
                 Grant grant = new Grant(document.get("_id", UUID.class));
                 grant.importFromDocument(plugin, document);
                 grants.add(grant);

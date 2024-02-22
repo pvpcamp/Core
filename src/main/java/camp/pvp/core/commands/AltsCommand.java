@@ -4,24 +4,13 @@ import camp.pvp.core.Core;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.utils.Colors;
-import camp.pvp.core.utils.DateUtils;
-import camp.pvp.mongo.MongoCollectionResult;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.bson.Document;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -52,7 +41,11 @@ public class AltsCommand implements CommandExecutor {
             List<String> ips = profile.getIpList();
             List<CoreProfile> alts = new ArrayList<>();
 
-            plugin.getCoreProfileManager().getProfilesCollection().find(Filters.in("ip", ips)).forEach(document -> {
+            plugin.getCoreProfileManager()
+                    .getMongoManager()
+                    .getDatabase()
+                    .getCollection(plugin.getCoreProfileManager().getProfilesCollectionName())
+                    .find(Filters.in("ip", ips)).forEach(document -> {
                 CoreProfile alt = new CoreProfile(document.get("_id", UUID.class));
                 alt.importFromDocument(plugin, document);
                 alt.setLastLoadFromDatabase(System.currentTimeMillis());

@@ -5,9 +5,7 @@ import camp.pvp.core.listeners.redis.RedisProfileUpdateListener;
 import camp.pvp.core.listeners.redis.StaffMessageListener;
 import camp.pvp.core.profiles.tasks.NameMcVerifier;
 import camp.pvp.core.utils.Colors;
-import camp.pvp.mongo.MongoCollectionResult;
 import camp.pvp.mongo.MongoManager;
-import camp.pvp.mongo.MongoUpdate;
 import camp.pvp.redis.RedisPublisher;
 import camp.pvp.redis.RedisSubscriber;
 import com.google.gson.JsonObject;
@@ -25,6 +23,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 @Getter @Setter
 public class CoreProfileManager {
@@ -36,7 +35,7 @@ public class CoreProfileManager {
     private Map<UUID, PermissionAttachment> permissionAttachments;
 
     private MongoManager mongoManager;
-    private MongoCollection<Document> profilesCollection, chatHistoryCollection, grantsCollection;
+    private String profilesCollectionName, chatHistoryCollectionName, grantsCollectionName;
 
     private RedisPublisher redisPublisher;
     private RedisSubscriber profileUpdateSubscriber, staffMessageSubscriber;
@@ -52,9 +51,9 @@ public class CoreProfileManager {
         FileConfiguration config = plugin.getConfig();
 
         this.mongoManager = new MongoManager(plugin, config.getString("networking.mongo.uri"), config.getString("networking.mongo.database"));
-        this.profilesCollection = mongoManager.getDatabase().getCollection(config.getString("networking.mongo.profiles_collection"));
-        this.chatHistoryCollection = mongoManager.getDatabase().getCollection(config.getString("networking.mongo.chat_history_collection"));
-        this.grantsCollection = mongoManager.getDatabase().getCollection(config.getString("networking.mongo.grants_collection"));
+        this.profilesCollectionName = config.getString("networking.mongo.profiles_collection");
+        this.chatHistoryCollectionName = config.getString("networking.mongo.chat_history_collection");
+        this.grantsCollectionName = config.getString("networking.mongo.grants_collection");
 
         this.redisPublisher = new RedisPublisher(plugin, config.getString("networking.redis.host"), config.getInt("networking.redis.port"));
         this.profileUpdateSubscriber = new RedisSubscriber(
@@ -129,6 +128,7 @@ public class CoreProfileManager {
 
     public void forceUpdate(UUID uuid) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            MongoCollection<Document> profilesCollection = mongoManager.getDatabase().getCollection(profilesCollectionName);
             Document doc = profilesCollection.find().filter(Filters.eq("_id", uuid)).first();
             if(doc != null) {
                 CoreProfile profile = new CoreProfile(uuid);
@@ -147,6 +147,7 @@ public class CoreProfileManager {
         if(loadedProfile != null) return CompletableFuture.supplyAsync(() -> loadedProfile);
 
         CompletableFuture<CoreProfile> profileFuture = CompletableFuture.supplyAsync(() -> {
+            MongoCollection<Document> profilesCollection = mongoManager.getDatabase().getCollection(profilesCollectionName);
             Document doc = profilesCollection.find().filter(Filters.eq("_id", uuid)).first();
             if(doc != null) {
                 CoreProfile profile = new CoreProfile(uuid);
@@ -177,6 +178,7 @@ public class CoreProfileManager {
         if(loadedProfile != null) return CompletableFuture.supplyAsync(() -> loadedProfile);
 
         CompletableFuture<CoreProfile> profileFuture = CompletableFuture.supplyAsync(() -> {
+            MongoCollection<Document> profilesCollection = mongoManager.getDatabase().getCollection(profilesCollectionName);
             Document doc = profilesCollection.find().filter(Filters.regex("name", "(?i)" + name)).first();
             if(doc != null) {
                 CoreProfile profile = new CoreProfile(doc.get("_id", UUID.class));
@@ -216,16 +218,17 @@ public class CoreProfileManager {
 
     public CoreProfile preLogin(UUID uuid, String name, String ip) {
         CoreProfile profile = getLoadedProfile(uuid);
-        if(profile == null) {
+        MongoCollection<Document> profilesCollection = mongoManager.getDatabase().getCollection("profiles");
+        if (profile == null) {
             Document doc = profilesCollection.find().filter(Filters.eq("_id", uuid)).first();
-            if(doc != null) {
+            if (doc != null) {
                 profile = new CoreProfile(uuid);
                 profile.importFromDocument(plugin, doc);
             }
         }
 
         boolean exists = true;
-        if(profile == null) {
+        if (profile == null) {
             exists = false;
             profile = new CoreProfile(uuid);
             profile.setFirstLogin(new Date());
@@ -239,10 +242,10 @@ public class CoreProfileManager {
         profile.setLastLogin(new Date());
         profile.setLastLoadFromDatabase(System.currentTimeMillis());
 
-        if(!exists) {
+        if (!exists) {
 
             Document document = profilesCollection.find(new Document("_id", profile.getUuid())).first();
-            if(document == null) {
+            if (document == null) {
                 profilesCollection.insertOne(new Document("_id", profile.getUuid()));
             }
 
@@ -254,21 +257,20 @@ public class CoreProfileManager {
     }
 
     public void exportToDatabase(CoreProfile profile, boolean async) {
-        if(async) {
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                profile.exportToMap().forEach((key, value) -> {
-                    profilesCollection.updateOne(Filters.eq("_id", profile.getUuid()), Updates.set(key, value));
-                });
+        MongoManager.executeWithRetries(plugin.getLogger(), () -> {
+            MongoCollection<Document> profilesCollection = mongoManager.getDatabase().getCollection(profilesCollectionName);
+            Document document = profilesCollection.find(new Document("_id", profile.getUuid())).first();
+            if (document == null) {
+                profilesCollection.insertOne(new Document("_id", profile.getUuid()));
+            }
 
-                sendRedisUpdate(profile.getUuid());
-            });
-        } else {
             profile.exportToMap().forEach((key, value) -> {
                 profilesCollection.updateOne(Filters.eq("_id", profile.getUuid()), Updates.set(key, value));
             });
 
             sendRedisUpdate(profile.getUuid());
-        }
+            return null;
+        });
     }
 
     public void sendRedisUpdate(UUID uuid) {
@@ -281,6 +283,7 @@ public class CoreProfileManager {
     public void exportGrant(Grant grant) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
 
+            MongoCollection<Document> grantsCollection = mongoManager.getDatabase().getCollection(grantsCollectionName);
             Document document = grantsCollection.find(new Document("_id", grant.getUuid())).first();
             if(document == null) {
                 grantsCollection.insertOne(new Document("_id", grant.getUuid()));
@@ -294,6 +297,7 @@ public class CoreProfileManager {
     public void exportHistory(ChatHistory history) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
 
+            MongoCollection<Document> chatHistoryCollection = mongoManager.getDatabase().getCollection(chatHistoryCollectionName);
             Document document = chatHistoryCollection.find(new Document("_id", history.getUuid())).first();
             if(document == null) {
                 chatHistoryCollection.insertOne(new Document("_id", history.getUuid()));
@@ -305,7 +309,7 @@ public class CoreProfileManager {
     }
 
     public void shutdown() {
-        for(Player player : Bukkit.getOnlinePlayers()) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
             CoreProfile profile = getLoadedProfiles().get(player.getUniqueId());
             exportToDatabase(profile, false);
         }
