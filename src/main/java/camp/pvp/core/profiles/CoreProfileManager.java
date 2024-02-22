@@ -23,7 +23,6 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
 
 @Getter @Setter
 public class CoreProfileManager {
@@ -257,20 +256,17 @@ public class CoreProfileManager {
     }
 
     public void exportToDatabase(CoreProfile profile, boolean async) {
-        MongoManager.executeWithRetries(plugin.getLogger(), () -> {
-            MongoCollection<Document> profilesCollection = mongoManager.getDatabase().getCollection(profilesCollectionName);
-            Document document = profilesCollection.find(new Document("_id", profile.getUuid())).first();
-            if (document == null) {
-                profilesCollection.insertOne(new Document("_id", profile.getUuid()));
-            }
+        MongoCollection<Document> profilesCollection = mongoManager.getDatabase().getCollection(profilesCollectionName);
+        Document document = profilesCollection.find(new Document("_id", profile.getUuid())).first();
+        if (document == null) {
+            profilesCollection.insertOne(new Document("_id", profile.getUuid()));
+        }
 
-            profile.exportToMap().forEach((key, value) -> {
-                profilesCollection.updateOne(Filters.eq("_id", profile.getUuid()), Updates.set(key, value));
-            });
-
-            sendRedisUpdate(profile.getUuid());
-            return null;
+        profile.exportToMap().forEach((key, value) -> {
+            profilesCollection.updateOne(Filters.eq("_id", profile.getUuid()), Updates.set(key, value));
         });
+
+        sendRedisUpdate(profile.getUuid());
     }
 
     public void sendRedisUpdate(UUID uuid) {
