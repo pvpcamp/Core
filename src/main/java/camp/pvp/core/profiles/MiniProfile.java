@@ -10,12 +10,12 @@ public class MiniProfile {
 
     private final UUID uuid;
     private final String name, server;
-    private Date date;
+    private final long retrievalTime;
 
     public MiniProfile(UUID uuid, String name, String server) {
         this.uuid = uuid;
         this.name = name;
         this.server = server;
-        this.date = new Date();
+        this.retrievalTime = System.currentTimeMillis();
     }
 }
