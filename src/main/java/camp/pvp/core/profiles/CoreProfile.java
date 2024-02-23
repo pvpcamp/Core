@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -26,6 +27,8 @@ public class CoreProfile implements Comparable<CoreProfile>{
 
     private ChatTag chatTag;
     private List<ChatTag> ownedChatTags;
+
+    private ChatColor chatColor;
 
     private LobbyArmor appliedLobbyArmor;
     private List<LobbyArmor> ownedLobbyArmor;
@@ -214,6 +217,11 @@ public class CoreProfile implements Comparable<CoreProfile>{
 
         this.chatTag = plugin.getChatTagManager().getChatTags().get(doc.get("applied_chat_tag", UUID.class));
 
+        String chatColor = doc.getString("chat_color");
+        if(chatColor != null) {
+            this.chatColor = ChatColor.valueOf(chatColor);
+        }
+
         if(doc.containsKey("auth_key")) {
             this.authKey = doc.getString("auth_key");
             this.authenticated = doc.getBoolean("authenticated");
@@ -270,6 +278,7 @@ public class CoreProfile implements Comparable<CoreProfile>{
         map.put("authenticated", isAuthenticated());
         map.put("applied_lobby_armor", getAppliedLobbyArmor().name());
         map.put("applied_flight_effect", getAppliedFlightEffect().name());
+        map.put("chat_color", getChatColor() == null ? null : getChatColor().name());
 
         List<String> ownedFlightEffects = new ArrayList<>();
         getOwnedFlightEffects().forEach(effect -> ownedFlightEffects.add(effect.name()));

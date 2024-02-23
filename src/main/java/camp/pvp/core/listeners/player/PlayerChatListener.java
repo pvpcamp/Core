@@ -66,7 +66,7 @@ public class PlayerChatListener implements Listener {
                 return;
             }
 
-            event.setFormat(Colors.get(format(player, rank, tag)));
+            event.setFormat(Colors.get(format(profile, rank, tag)));
 
             if(!profile.isStaffChat()) {
 
@@ -129,21 +129,20 @@ public class PlayerChatListener implements Listener {
         }
     }
 
-    public String format(Player player, Rank rank, ChatTag tag) {
+    public String format(CoreProfile profile, Rank rank, ChatTag tag) {
         StringBuilder chatFormat = new StringBuilder();
 
-        if (rank == null) {
-            rank = plugin.getCoreProfileManager().getLoadedProfiles().get(player.getUniqueId()).getHighestRank();
-        }
-        if(rank.getPrefix() != null) {
-            chatFormat.append(rank.getPrefix() + " ");
-        }
+        if (rank == null) rank = profile.getHighestRank();
 
-        chatFormat.append(rank.getColor() + player.getName());
+        if(rank.getPrefix() != null) chatFormat.append(rank.getPrefix() + " ");
 
-        if(tag != null) {
-            chatFormat.append(" &f" + tag.getTag());
-        }
+        chatFormat.append(rank.getColor());
+
+        if(profile.getChatColor() != null) chatFormat.append(profile.getChatColor());
+
+        chatFormat.append(profile.getName());
+
+        if(tag != null) chatFormat.append(" &f" + tag.getTag());
 
         chatFormat.append("&7:&f %2$s");
         return chatFormat.toString();

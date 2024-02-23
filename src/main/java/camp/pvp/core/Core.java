@@ -71,6 +71,7 @@ public class Core extends JavaPlugin {
         new BanCommand(this);
         new BlacklistCommand(this);
         new ChatCommand(this);
+        new ColorCommand(this);
         new DemoCommand(this);
         new FeedCommand(this);
         new FlightEffectsCommand(this);
