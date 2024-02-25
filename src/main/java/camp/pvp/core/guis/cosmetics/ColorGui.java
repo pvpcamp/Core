@@ -4,6 +4,7 @@ import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.utils.buttons.GuiButton;
 import camp.pvp.utils.guis.ArrangedGui;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
@@ -34,21 +35,28 @@ public class ColorGui extends ArrangedGui {
         for(ChatColor color : ChatColor.values()) {
             if(!color.isColor()) continue;
 
-            GuiButton button = new GuiButton(Colors.convertToItem(color), color + color.name());
+            String name = color.name();
+            name = StringUtils.capitalize(name.toLowerCase());
+            name = name.replace("_", " ");
+
+            GuiButton button = new GuiButton(Colors.convertToItem(color), color + name);
 
             button.setAction((player, guiButton, gui, clickType) -> {
                 profile.setChatColor(color);
+                gui.updateGui();
             });
 
             button.setButtonUpdater((guiButton, gui) -> {
                 if(profile.getChatColor() == color) {
-                    guiButton.setLore("&7&oApplied.");
+                    guiButton.setLore("&7Currently applied.");
                     guiButton.addGlowing();
                 } else {
-                    guiButton.setLore("&aClick to use this color.");
+                    guiButton.setLore("&aClick to apply.");
                     guiButton.removeGlowing();
                 }
             });
+
+            addButton(button);
         }
     }
 }

@@ -144,7 +144,7 @@ public class PlayerChatListener implements Listener {
 
         if(tag != null) chatFormat.append(" &f" + tag.getTag());
 
-        chatFormat.append("&7:&f %2$s");
+        chatFormat.append("&8:&f %2$s");
         return chatFormat.toString();
     }
 }
