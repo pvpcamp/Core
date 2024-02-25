@@ -93,7 +93,7 @@ public class ReportGui extends StandardGui {
             @Override
             public void run(Player player, GuiButton guiButton, Gui gui, ClickType clickType) {
                 CoreServerManager csm = Core.getInstance().getCoreServerManager();
-                csm.sendStaffMessage("&c[Report] &f" + profile.getName() + " &chas reported &f" + target + "&c on server &f" + csm.getCoreServer().getName() + "&c for: &fDelaying Fight or Event");
+                csm.sendStaffMessage("&c[Report] &f" + profile.getName() + " &chas reported &f" + target + "&c on server &f" + csm.getCoreServer().getName() + "&c for: &fInappropriate chat");
                 player.sendMessage(ChatColor.GREEN + "Your report of " + ChatColor.WHITE + target + ChatColor.GREEN + " has been submitted and sent to online staff.");
 
                 profile.addCommandCooldown("/report", 30);
