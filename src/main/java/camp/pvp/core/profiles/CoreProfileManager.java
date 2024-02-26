@@ -256,6 +256,14 @@ public class CoreProfileManager {
     }
 
     public void exportToDatabase(CoreProfile profile, boolean async) {
+        if(async) {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, ()-> exportToDatabase(profile));
+        } else {
+            exportToDatabase(profile);
+        }
+    }
+
+    public void exportToDatabase(CoreProfile profile) {
         MongoCollection<Document> profilesCollection = mongoManager.getDatabase().getCollection(profilesCollectionName);
         Document document = profilesCollection.find(new Document("_id", profile.getUuid())).first();
         if (document == null) {
