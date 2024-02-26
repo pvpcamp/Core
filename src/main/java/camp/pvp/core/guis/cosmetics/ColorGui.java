@@ -18,11 +18,12 @@ public class ColorGui extends ArrangedGui {
         GuiButton none = new GuiButton(Material.PAPER, "&6&lNone");
         none.setAction((player, guiButton, gui, clickType) -> {
             profile.setChatColor(null);
+            gui.updateGui();
         });
 
         none.setButtonUpdater((guiButton, gui) -> {
             if(profile.getChatColor() == null) {
-                guiButton.setLore("&7&oApplied.");
+                guiButton.setLore("&7Currently applied.");
                 guiButton.addGlowing();
             } else {
                 guiButton.setLore("&aClick to use your rank color.");
