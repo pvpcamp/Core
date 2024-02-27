@@ -99,28 +99,25 @@ public class CoreProfile implements Comparable<CoreProfile>{
         commandCooldowns.put(command, calendar.getTime());
     }
 
+    public Set<Rank> getAllRanks() {
+        Set<Rank> ranks = new HashSet<>();
+        for(Rank rank : getRanks()) {
+            ranks.add(rank);
+            ranks.addAll(Core.getInstance().getRankManager().getAllParents(rank));
+        }
+
+        return ranks;
+    }
+
     public Map<String, Boolean> getPermissions(String server) {
         Map<String, Boolean> permissions = new HashMap<>();
-        for(Rank rank : getRanks()) {
+        for(Rank rank : getAllRanks()) {
             for(Map.Entry<String, List<String>> entry : rank.getPermissions().entrySet()) {
                 if(entry.getKey().equalsIgnoreCase("_global") || entry.getKey().equalsIgnoreCase(server)) {
                     List<String> permList = entry.getValue();
                     if(permList != null) {
                         for (String s : permList) {
                             permissions.put(s, true);
-                        }
-                    }
-                }
-            }
-
-            for(Rank pr : rank.getParents(Core.getInstance())) {
-                for(Map.Entry<String, List<String>> entry : pr.getPermissions().entrySet()) {
-                    if(entry.getKey().equalsIgnoreCase("_global") || entry.getKey().equalsIgnoreCase(server)) {
-                        List<String> permList = entry.getValue();
-                        if(permList != null) {
-                            for (String s : permList) {
-                                permissions.put(s, true);
-                            }
                         }
                     }
                 }

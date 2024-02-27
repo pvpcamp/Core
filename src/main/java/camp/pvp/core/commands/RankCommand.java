@@ -305,20 +305,43 @@ public class RankCommand implements CommandExecutor {
                                 rankList = new ArrayList<>(rank.getParents(plugin));
                                 Collections.sort(rankList);
 
+                                List<Rank> relationRanks = rankManager.getAllParents(rank);
+                                Collections.sort(relationRanks);
+                                relationRanks.removeAll(rankList);
+
                                 sb = new StringBuilder();
-                                sb.append("&6Parents of rank " + rank.getColor() + rank.getDisplayName() + " &7(" + rankList.size() + "):&f ");
+                                sb.append("&6Direct parents of rank " + rank.getColor() + rank.getDisplayName() + " &7(" + rankList.size() + "):&f ");
 
                                 while(!rankList.isEmpty()) {
-                                    rank = rankList.get(0);
-                                    sb.append(rank.getColor() + rank.getName() + " &7(" + rank.getWeight() + ")");
+                                    Rank r = rankList.get(0);
+                                    sb.append(r.getColor() + r.getName() + " &7(" + r.getWeight() + ")");
 
-                                    rankList.remove(rank);
+                                    rankList.remove(r);
 
                                     if(rankList.isEmpty()) {
                                         sb.append(".");
                                     } else {
                                         sb.append(", ");
                                     }
+                                }
+
+                                if(!relationRanks.isEmpty()) {
+                                    sb.append("\n&6Additional ranks inherited from parents &7(" + relationRanks.size() + "): &f");
+
+                                    while (!relationRanks.isEmpty()) {
+                                        Rank r = relationRanks.get(0);
+                                        sb.append(r.getColor() + r.getName() + " &7(" + r.getWeight() + ")");
+
+                                        relationRanks.remove(r);
+
+                                        if (relationRanks.isEmpty()) {
+                                            sb.append(".");
+                                        } else {
+                                            sb.append(", ");
+                                        }
+                                    }
+                                } else {
+                                    sb.append("\n&7&oThis rank has no additional inherited ranks.");
                                 }
 
                                 player.sendMessage(Colors.get(sb.toString()));

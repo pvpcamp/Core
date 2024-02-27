@@ -16,9 +16,7 @@ import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Getter @Setter
 public class RankManager {
@@ -121,6 +119,32 @@ public class RankManager {
         }
 
         return rank[0];
+    }
+
+    public List<Rank> getAllParents(Rank rank) {
+        RankManager rankManager = plugin.getRankManager();
+        List<Rank> ranks = new ArrayList<>(getParents(rank, new ArrayList<>()));
+
+        return ranks;
+    }
+
+    public List<Rank> getParents(Rank rank, List<Rank> seenRanks) {
+        List<Rank> ranks = new ArrayList<>();
+
+        for(UUID uuid : rank.getParents()) {
+            Rank r = getRanks().get(uuid);
+            if(r != null) {
+                if(seenRanks.contains(r)) {
+                    continue;
+                }
+
+                seenRanks.add(r);
+                ranks.add(r);
+                ranks.addAll(getParents(r, seenRanks));
+            }
+        }
+
+        return ranks;
     }
 
     public Rank create(String name, int weight) {
