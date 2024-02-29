@@ -86,6 +86,8 @@ public class TimeZoneCommand implements CommandExecutor {
                 } else {
                     lore.add("&aClick to select.");
                 }
+
+                b.setLore(lore);
             });
 
             gui.addButton(button);
