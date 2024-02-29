@@ -108,6 +108,7 @@ public class Core extends JavaPlugin {
         new TeleportCommand(this);
         new TempBanCommand(this);
         new TempMuteCommand(this);
+        new TimeZoneCommand(this);
         new ToggleGlobalChatCommand(this);
         new ToggleMessagesCommand(this);
         new UnbanCommand(this);

@@ -77,7 +77,8 @@ public class GamemodeCommand implements CommandExecutor {
 
         target.setGameMode(gameMode);
         target.sendMessage(ChatColor.GREEN + "Your gamemode has been updated to " + gameMode.toString() + ".");
-        sender.sendMessage(ChatColor.GREEN + "You have updated " + target.getName() + "'s gamemode to " + gameMode.toString() + ".");
+
+        if(target != sender) sender.sendMessage(ChatColor.GREEN + "You have updated " + target.getName() + "'s gamemode to " + gameMode.toString() + ".");
 
         return true;
     }

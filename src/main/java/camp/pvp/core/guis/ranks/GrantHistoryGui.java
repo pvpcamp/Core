@@ -10,8 +10,10 @@ import java.util.*;
 
 public class GrantHistoryGui extends PaginatedGui {
 
-    public GrantHistoryGui(CoreProfile profile, List<Grant> grants) {
-        super(profile.getName() + " Grants", 36);
+    public GrantHistoryGui(CoreProfile profile, List<Grant> grants, CoreProfile opener) {
+        super(profile.getName() + " Grants", 45);
+
+        setBorder(true);
 
         List<Grant> gList = new ArrayList<>(grants);
         Collections.sort(gList);
@@ -25,7 +27,7 @@ public class GrantHistoryGui extends PaginatedGui {
             }
 
             button.setLore(
-                    "&6Date: &f" + grant.getDate().toString(),
+                    "&6Date: &f" + opener.convertToLocalTimeZone(grant.getDate()),
                     "&6Issued By: &f" + grant.getIssuedFromName(),
                     "&6Rank: &f" + (grant.getRank() == null ? "&oRank Deleted" : grant.getRank().getColor() + grant.getRank().getDisplayName())
             );

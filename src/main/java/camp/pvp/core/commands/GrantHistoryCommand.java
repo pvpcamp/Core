@@ -36,6 +36,8 @@ public class GrantHistoryCommand implements CommandExecutor {
             return true;
         }
 
+        final CoreProfile opener = plugin.getCoreProfileManager().getLoadedProfile(player.getUniqueId());
+
         CompletableFuture<CoreProfile> profileFuture = plugin.getCoreProfileManager().findAsync(args[0]);
         profileFuture.thenAcceptAsync(profile -> {
             if(profile == null) {
@@ -54,7 +56,7 @@ public class GrantHistoryCommand implements CommandExecutor {
                 grants.add(grant);
             });
 
-            new GrantHistoryGui(profile, grants).open(player);
+            new GrantHistoryGui(profile, grants, opener).open(player);
         });
 
         return true;

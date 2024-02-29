@@ -39,6 +39,8 @@ public class StaffHistoryCommand implements CommandExecutor {
             return true;
         }
 
+        CoreProfile opener = plugin.getCoreProfileManager().getLoadedProfile(player.getUniqueId());
+
         CompletableFuture<CoreProfile> profileFuture = plugin.getCoreProfileManager().findAsync(args[0]);
         profileFuture.thenAccept(profile -> {
             if (profile == null) {
@@ -53,7 +55,7 @@ public class StaffHistoryCommand implements CommandExecutor {
                 }
             });
 
-            new HistoryGui(profile.getName() + " Staff History", punishments, true).open(player);
+            new HistoryGui(profile, punishments, true, opener).open(player);
         });
 
         return true;

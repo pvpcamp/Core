@@ -270,6 +270,7 @@ public class CoreProfileManager {
 
         profile.setName(name);
         profile.addIp(ip);
+        profile.setLastConnectedServer(plugin.getCoreServerManager().getCoreServer().getName());
         profile.setLastLogin(new Date());
         profile.setLastLoadFromDatabase(System.currentTimeMillis());
 

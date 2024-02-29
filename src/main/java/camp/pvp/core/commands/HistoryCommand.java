@@ -22,14 +22,15 @@ public class HistoryCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if(!(sender instanceof Player)) return true;
+        if(!(sender instanceof Player player)) return true;
 
         if(args.length == 0) {
             sender.sendMessage(ChatColor.RED + "Usage: /" + label + " <player>");
             return true;
         }
 
-        Player player = (Player) sender;
+        CoreProfile opener = plugin.getCoreProfileManager().getLoadedProfile(player.getUniqueId());
+
         CompletableFuture<CoreProfile> profileFuture = plugin.getCoreProfileManager().findAsync(args[0]);
         profileFuture.thenAccept(profile -> {
             if(profile == null) {
@@ -42,7 +43,7 @@ public class HistoryCommand implements CommandExecutor {
                 return;
             }
 
-            new HistoryGui(profile.getName() + " History", profile.getPunishments(), false).open(player);
+            new HistoryGui(profile, profile.getPunishments(), false, opener).open(player);
         });
 
         return true;

@@ -120,6 +120,9 @@ commands:
     aliases: [tm, tmute]
     description: Temporarily mute a player.
     permission: core.commands.tempmute
+  timezone:
+    description: Set your timezone.
+    aliases: [tz]
   toggleglobalchat:
     aliases: [tgc]
     description: Enable or disable global chat.

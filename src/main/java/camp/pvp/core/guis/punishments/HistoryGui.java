@@ -1,6 +1,7 @@
 package camp.pvp.core.guis.punishments;
 
 import camp.pvp.core.Core;
+import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.utils.DateUtils;
 import camp.pvp.utils.buttons.GuiButton;
@@ -17,8 +18,10 @@ import java.util.Date;
 import java.util.List;
 
 public class HistoryGui extends PaginatedGui {
-    public HistoryGui(String title, List<Punishment> pList, boolean staff) {
-        super(title, 36);
+    public HistoryGui(CoreProfile target, List<Punishment> pList, boolean staff, CoreProfile opener) {
+        super("&6" + target.getName() + (staff ? " Staff" : "") + " History", 45);
+
+        setBorder(true);
 
         List<Punishment> punishments = new ArrayList<>(pList);
         Collections.sort(punishments);
@@ -32,7 +35,7 @@ public class HistoryGui extends PaginatedGui {
                 lore.add("&4&lACTIVE PUNISHMENT");
                 lore.add("&cPlayer: &f" + punishment.getIssuedToName());
                 lore.add("&cIssued By: &f" + punishment.getIssuedFromName());
-                lore.add("&cIssue Date: &f" + punishment.getIssued().toString());
+                lore.add("&cIssue Date: &f" + opener.convertToLocalTimeZone(punishment.getIssued()));
                 lore.add("&cReason: &f" + punishment.getReason());
                 lore.add("&cExpires: &f" + (punishment.getExpires() == null ? "Never" : DateUtils.getDifference(punishment.getExpires(), new Date())));
                 lore.add(" ");
@@ -64,11 +67,11 @@ public class HistoryGui extends PaginatedGui {
                     button.setLore(
                             "&cPlayer: &f" + punishment.getIssuedToName(),
                             "&cIssued By: &f" + punishment.getIssuedFromName(),
-                            "&cIssue Date: &f" + punishment.getIssued().toString(),
+                            "&cIssue Date: &f" + opener.convertToLocalTimeZone(punishment.getIssued()),
                             "&cReason: &f" + punishment.getReason(),
                             " ",
                             "&cPardoned By: &f" + punishment.getPardonerName(),
-                            "&cPardon Date: &f" + punishment.getPardoned().toString(),
+                            "&cPardon Date: &f" + opener.convertToLocalTimeZone(punishment.getPardoned()),
                             "&cPardon Reason: &f" + punishment.getPardonReason(),
                             " ",
                             "&cIP Punishment: &f" + punishment.isIpPunished(),
@@ -78,7 +81,7 @@ public class HistoryGui extends PaginatedGui {
                     button.setLore(
                             "&cPlayer: &f" + punishment.getIssuedToName(),
                             "&cIssued By: &f" + punishment.getIssuedFromName(),
-                            "&cIssue Date: &f" + punishment.getIssued().toString(),
+                            "&cIssue Date: &f" + opener.convertToLocalTimeZone(punishment.getIssued()),
                             "&cReason: &f" + punishment.getReason(),
                             " ",
                             "&7This punishment expired.",

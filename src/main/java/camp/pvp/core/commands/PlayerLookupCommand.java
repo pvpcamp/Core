@@ -34,9 +34,9 @@ public class PlayerLookupCommand implements CommandExecutor {
 
         CompletableFuture<CoreProfile> profileFuture = plugin.getCoreProfileManager().findAsync(args[0]);
         profileFuture.thenAccept(profile -> {
-           if(profile == null) {
+            if(profile == null) {
                 sender.sendMessage(ChatColor.RED + "The target you specified does not have a profile on the network.");
-              } else {
+            } else {
                 Player player = profile.getPlayer();
 
                 StringBuilder sb = new StringBuilder();
@@ -48,8 +48,9 @@ public class PlayerLookupCommand implements CommandExecutor {
                 sb.append("\n&6First Login: &f").append(profile.getFirstLogin());
                 sb.append("\n&6Last Login: &f").append(profile.getLastLogin());
                 sb.append("\n&6Last Logout: &f").append(profile.getLastLogout());
+                sb.append("\n&6Last Connected To Server: &f").append(profile.getLastConnectedServer());
                 sender.sendMessage(Colors.get(sb.toString()));
-           }
+            }
         });
 
         return true;
