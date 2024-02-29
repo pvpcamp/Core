@@ -8,12 +8,16 @@ import camp.pvp.core.utils.Colors;
 import camp.pvp.mongo.MongoManager;
 import camp.pvp.redis.RedisPublisher;
 import camp.pvp.redis.RedisSubscriber;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -21,6 +25,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
+import java.sql.Time;
+import java.time.temporal.Temporal;
+import java.time.temporal.TemporalField;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -234,6 +246,26 @@ public class CoreProfileManager {
             profile.setLastLogin(new Date());
 
             profile.getRanks().add(plugin.getRankManager().getDefaultRank());
+
+            try {
+                URL timeZoneUrl = new URL("https://api.ipgeolocation.io/ipgeo?apiKey=" + plugin.getConfig().getString("ipgeolocation.api_key") + "&ip=" + ip);
+                URLConnection connection = timeZoneUrl.openConnection();
+                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+                StringBuilder input = new StringBuilder();
+                String inputLine;
+
+                while ((inputLine = in.readLine()) != null) input.append(inputLine);
+
+                in.close();
+
+                Gson gson = new Gson();
+                JsonObject json = gson.fromJson(input.toString(), JsonObject.class);
+
+                profile.setTimeZone(json.getAsJsonObject("time_zone").get("name").getAsString());
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
         }
 
         profile.setName(name);

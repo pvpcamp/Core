@@ -13,13 +13,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import java.sql.Time;
+import java.time.ZoneOffset;
+import java.time.temporal.TemporalAccessor;
 import java.util.*;
 
 @Getter @Setter
 public class CoreProfile implements Comparable<CoreProfile>{
 
     private final UUID uuid;
-    private String name, ip, authKey;
+    private String name, ip, authKey, timeZone;
 
     private List<String> ipList;
 
@@ -196,10 +199,16 @@ public class CoreProfile implements Comparable<CoreProfile>{
         flightEffectFrame++;
     }
 
+    public Date convertToLocalTime(Date time) {
+        time.setTime(time.getTime() - TimeZone.getTimeZone(getTimeZone()).getRawOffset());
+        return time;
+    }
+
     public void importFromDocument(Core plugin, Document doc) {
         this.name = doc.getString("name");
         this.ip = doc.getString("ip");
         this.ipList = doc.getList("ip_list", String.class);
+        this.timeZone = doc.get("time_zone", "America/New_York");
         this.firstLogin = doc.getDate("first_login");
         this.lastLogin = doc.getDate("last_login");
         this.lastLogout = doc.getDate("last_logout");
@@ -262,6 +271,7 @@ public class CoreProfile implements Comparable<CoreProfile>{
         map.put("name", getName());
         map.put("ip", getIp());
         map.put("ip_list", getIpList());
+        map.put("time_zone", getTimeZone());
         map.put("first_login", getFirstLogin());
         map.put("last_login", getLastLogin());
         map.put("last_logout", getLastLogout());

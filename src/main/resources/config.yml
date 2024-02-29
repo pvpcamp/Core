@@ -18,12 +18,12 @@ networking:
   mongo:
     uri: "uri"
     database: "db"
-    chat_history_collection: "core_chat_history"
-    grants_collection: "core_grants"
-    profiles_collection: "core_profiles"
-    punishments_collection: "core_punishments"
-    ranks_collection: "core_ranks"
-    tags_collection: "core_tags"
+    chat_history_collection: "chat_history"
+    grants_collection: "grants"
+    profiles_collection: "profiles"
+    punishments_collection: "punishments"
+    ranks_collection: "ranks"
+    tags_collection: "tags"
   redis:
     host: "127.0.0.1"
     port: 6379
@@ -32,3 +32,5 @@ chat:
   cooldown: 3
 namemc:
   api_server: "pvp.camp"
+ipgeolocation:
+  api_key: "key"

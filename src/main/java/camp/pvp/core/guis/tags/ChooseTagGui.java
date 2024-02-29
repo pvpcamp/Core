@@ -21,7 +21,9 @@ import java.util.List;
 public class ChooseTagGui extends PaginatedGui {
 
     public ChooseTagGui(CoreProfile profile) {
-        super("&6Choose a Tag", 27);
+        super("&6Choose a Tag", 45);
+
+        setBorder(true);
 
         List<ChatTag> tags = new ArrayList<>(Core.getInstance().getChatTagManager().getChatTags().values());
         Collections.sort(tags);
