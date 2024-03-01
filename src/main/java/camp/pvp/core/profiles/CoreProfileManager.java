@@ -50,7 +50,7 @@ public class CoreProfileManager {
 
     private RedisPublisher redisPublisher;
     private RedisSubscriber profileUpdateSubscriber, staffMessageSubscriber;
-    private BukkitTask nameMcVerifier, flightEffectUpdater;
+    private BukkitTask nameMcVerifier, flightEffectUpdater, profileRefresher;
 
     public CoreProfileManager(Core plugin) {
         this.plugin = plugin;
@@ -90,6 +90,14 @@ public class CoreProfileManager {
                 profile.getAppliedFlightEffect().playEffect(player, profile);
             }
         }, 0, 2);
+
+        this.profileRefresher = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+            for(CoreProfile profile : new ArrayList<>(loadedProfiles.values())) {
+                if(!profile.isCurrent()) {
+                    loadedProfiles.remove(profile.getUuid());
+                }
+            }
+        }, 0, 1200);
 
         plugin.getLogger().info("Started CoreProfileManager.");
     }

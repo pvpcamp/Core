@@ -8,7 +8,10 @@ import camp.pvp.mongo.MongoManager;
 import camp.pvp.mongo.MongoUpdate;
 import camp.pvp.redis.RedisPublisher;
 import camp.pvp.redis.RedisSubscriber;
+import com.avaje.ebean.text.json.JsonElement;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
@@ -50,25 +53,17 @@ public class PunishmentManager {
                 "core_punishment_updates",
                 new RedisPunishmentUpdateListener(plugin));
 
-        punishmentsCollection.find().forEach(document -> {
-            UUID uuid = document.get("_id", UUID.class);
-            Punishment punishment = new Punishment(uuid);
-            punishment.importFromDocument(document);
-            getLoadedPunishments().put(uuid, punishment);
-        });
-
         plugin.getLogger().info("Started PunishmentManager.");
     }
 
     public List<Punishment> getPunishmentsIp(String ip) {
         List<Punishment> punishments = new ArrayList<>();
 
-        getLoadedPunishments().forEach((uuid, punishment) -> {
-            punishment.getIps().forEach(punishmentIp -> {
-                if (punishmentIp.equalsIgnoreCase(ip)) {
-                    punishments.add(punishment);
-                }
-            });
+        getPunishmentsCollection().find(Filters.in("ips", ip)).forEach(document -> {
+            Punishment punishment = new Punishment(UUID.fromString(document.getString("_id")));
+            punishment.importFromDocument(document);
+            punishments.add(punishment);
+            getLoadedPunishments().put(punishment.getUuid(), punishment);
         });
 
         return punishments;
@@ -77,12 +72,11 @@ public class PunishmentManager {
     public List<Punishment> getPunishmentsIps(List<String> ips) {
         List<Punishment> punishments = new ArrayList<>();
 
-        getLoadedPunishments().forEach((uuid, punishment) -> {
-            punishment.getIps().forEach(punishmentIp -> {
-                if (ips.contains(punishmentIp)) {
-                    punishments.add(punishment);
-                }
-            });
+        getPunishmentsCollection().find(Filters.in("ips", ips)).forEach(document -> {
+            Punishment punishment = new Punishment(UUID.fromString(document.getString("_id")));
+            punishment.importFromDocument(document);
+            punishments.add(punishment);
+            getLoadedPunishments().put(punishment.getUuid(), punishment);
         });
 
         return punishments;
@@ -152,15 +146,21 @@ public class PunishmentManager {
             }
 
             punishment.exportToMap().forEach((key, value) -> punishmentsCollection.updateOne(Filters.eq("_id", punishment.getUuid()), Updates.set(key, value)));
-            sendRedisUpdate(punishment.getUuid(), false);
+            sendRedisUpdate(punishment, false);
         });
 
         getLoadedPunishments().put(punishment.getUuid(), punishment);
     }
 
-    public void sendRedisUpdate(UUID uuid, boolean deleted) {
+    public void sendRedisUpdate(Punishment punishment, boolean deleted) {
         JsonObject json = new JsonObject();
-        json.addProperty("uuid", uuid.toString());
+        json.addProperty("uuid", punishment.getUuid().toString());
+        json.addProperty("issued_to", punishment.getIssuedTo().toString());
+
+        JsonArray ips = new JsonArray();
+        punishment.getIps().forEach(ip -> ips.add(new JsonPrimitive(ip)));
+
+        json.add("ips", ips);
         json.addProperty("from_server", plugin.getCoreServerManager().getCoreServer().getName());
         json.addProperty("deleted", deleted);
 

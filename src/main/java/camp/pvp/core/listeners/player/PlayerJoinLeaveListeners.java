@@ -59,7 +59,7 @@ public class PlayerJoinLeaveListeners implements Listener {
         }
 
         if(punishment == null) {
-            List<Punishment> punishments = plugin.getPunishmentManager().getPunishmentsIp(event.getAddress().getHostAddress());
+            List<Punishment> punishments = plugin.getPunishmentManager().getPunishmentsIps(profile.getIpList());
             for(Punishment p : punishments) {
                 if((p.getType().equals(Punishment.Type.BAN) || p.getType().equals(Punishment.Type.BLACKLIST)) && p.isActive() && p.isIpPunished()) {
                     punishment = p;

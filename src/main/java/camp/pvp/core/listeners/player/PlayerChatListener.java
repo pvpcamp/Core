@@ -62,7 +62,7 @@ public class PlayerChatListener implements Listener {
 
             if (plugin.getCoreServerManager().getCoreServer().isMutedChat() && !player.hasPermission("core.staff")) {
                 event.setCancelled(true);
-                player.sendMessage(ChatColor.RED + "Global Chat is currently muted.");
+                player.sendMessage(ChatColor.RED + "Global chat is currently muted.");
                 return;
             }
 
