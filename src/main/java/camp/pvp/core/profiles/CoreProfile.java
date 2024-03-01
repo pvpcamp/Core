@@ -6,6 +6,7 @@ import camp.pvp.core.chattags.ChatTagManager;
 import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.ranks.Rank;
 import camp.pvp.core.ranks.RankManager;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
@@ -19,7 +20,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
 
-@Getter @Setter
+@Data
 public class CoreProfile implements Comparable<CoreProfile>{
 
     private final UUID uuid;
@@ -202,7 +203,7 @@ public class CoreProfile implements Comparable<CoreProfile>{
     }
 
     public String convertToLocalTimeZone(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd YYYY hh:mm:ss a");
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd yyyy hh:mm:ss a Z");
         sdf.setTimeZone(TimeZone.getTimeZone(getTimeZone()));
         return sdf.format(date);
     }
