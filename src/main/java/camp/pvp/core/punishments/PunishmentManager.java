@@ -56,19 +56,6 @@ public class PunishmentManager {
         plugin.getLogger().info("Started PunishmentManager.");
     }
 
-    public List<Punishment> getPunishmentsIp(String ip) {
-        List<Punishment> punishments = new ArrayList<>();
-
-        getPunishmentsCollection().find(Filters.in("ips", ip)).forEach(document -> {
-            Punishment punishment = new Punishment(document.get("_id", UUID.class));
-            punishment.importFromDocument(document);
-            punishments.add(punishment);
-            getLoadedPunishments().put(punishment.getUuid(), punishment);
-        });
-
-        return punishments;
-    }
-
     public List<Punishment> getPunishmentsIps(List<String> ips) {
         List<Punishment> punishments = new ArrayList<>();
 
@@ -103,28 +90,6 @@ public class PunishmentManager {
             punishments.add(punishment);
             getLoadedPunishments().put(uuid, punishment);
         });
-    }
-
-    public CompletableFuture<List<Punishment>> importForPlayerAsync(UUID uuid) {
-        CompletableFuture<List<Punishment>> future = CompletableFuture.supplyAsync(()-> {
-            List<Punishment> punishments = new ArrayList<>();
-
-            punishmentsCollection.find().filter(Filters.eq("issued_to", uuid)).forEach(document -> {
-                Punishment punishment = new Punishment(uuid);
-                punishment.importFromDocument(document);
-                punishments.add(punishment);
-                getLoadedPunishments().put(uuid, punishment);
-            });
-
-            return punishments;
-        });
-
-        future.exceptionally(throwable -> {
-            throwable.printStackTrace();
-            return null;
-        });
-
-        return future;
     }
 
     public CompletableFuture<Punishment> importOneAsync(UUID uuid) {
