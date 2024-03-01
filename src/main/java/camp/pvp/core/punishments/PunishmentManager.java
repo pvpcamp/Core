@@ -60,7 +60,7 @@ public class PunishmentManager {
         List<Punishment> punishments = new ArrayList<>();
 
         getPunishmentsCollection().find(Filters.in("ips", ip)).forEach(document -> {
-            Punishment punishment = new Punishment(UUID.fromString(document.getString("_id")));
+            Punishment punishment = new Punishment(document.get("_id", UUID.class));
             punishment.importFromDocument(document);
             punishments.add(punishment);
             getLoadedPunishments().put(punishment.getUuid(), punishment);
@@ -73,7 +73,7 @@ public class PunishmentManager {
         List<Punishment> punishments = new ArrayList<>();
 
         getPunishmentsCollection().find(Filters.in("ips", ips)).forEach(document -> {
-            Punishment punishment = new Punishment(UUID.fromString(document.getString("_id")));
+            Punishment punishment = new Punishment(document.get("_id", UUID.class));
             punishment.importFromDocument(document);
             punishments.add(punishment);
             getLoadedPunishments().put(punishment.getUuid(), punishment);
@@ -92,6 +92,17 @@ public class PunishmentManager {
         });
 
         return punishments;
+    }
+
+    public void importForPlayer(UUID uuid) {
+        List<Punishment> punishments = new ArrayList<>();
+
+        punishmentsCollection.find().filter(Filters.eq("issued_to", uuid)).forEach(document -> {
+            Punishment punishment = new Punishment(uuid);
+            punishment.importFromDocument(document);
+            punishments.add(punishment);
+            getLoadedPunishments().put(uuid, punishment);
+        });
     }
 
     public CompletableFuture<List<Punishment>> importForPlayerAsync(UUID uuid) {
@@ -172,6 +183,6 @@ public class PunishmentManager {
 
         Bukkit.getScheduler().runTaskAsynchronously(plugin, ()-> punishmentsCollection.deleteOne(Filters.eq("_id", punishment.getUuid())));
 
-        sendRedisUpdate(punishment.getUuid(), true);
+        sendRedisUpdate(punishment, true);
     }
 }

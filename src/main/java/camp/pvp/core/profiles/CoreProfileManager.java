@@ -173,6 +173,8 @@ public class CoreProfileManager {
                 profile.importFromDocument(plugin, doc);
                 profile.setLastLoadFromDatabase(System.currentTimeMillis());
 
+                plugin.getPunishmentManager().importForPlayer(profile.getUuid());
+
                 loadedProfiles.put(uuid, profile);
                 return profile;
             }
@@ -204,6 +206,9 @@ public class CoreProfileManager {
                 profile.importFromDocument(plugin, doc);
                 profile.setLastLoadFromDatabase(System.currentTimeMillis());
                 loadedProfiles.put(profile.getUuid(), profile);
+
+                plugin.getPunishmentManager().importForPlayer(profile.getUuid());
+
                 return profile;
             }
 
@@ -243,6 +248,8 @@ public class CoreProfileManager {
             if (doc != null) {
                 profile = new CoreProfile(uuid);
                 profile.importFromDocument(plugin, doc);
+
+                plugin.getPunishmentManager().importForPlayer(profile.getUuid());
             }
         }
 
