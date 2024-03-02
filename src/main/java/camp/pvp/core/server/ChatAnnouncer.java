@@ -5,6 +5,7 @@ import camp.pvp.core.utils.Colors;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ChatAnnouncer implements Runnable{
@@ -15,6 +16,8 @@ public class ChatAnnouncer implements Runnable{
     public ChatAnnouncer(Core plugin) {
         this.plugin = plugin;
         this.line = 0;
+
+        this.announcements = new ArrayList<>();
 
         plugin.getConfig().getConfigurationSection("messages.announcements").getKeys(false).forEach(key -> {
             announcements.add(plugin.getConfig().getStringList("messages.announcements." + key).toArray(new String[0]));
