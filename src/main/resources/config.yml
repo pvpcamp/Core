@@ -11,9 +11,21 @@ messages:
     - "&cNOTICE: &fWe are still in early beta. Please report any bugs to the developers."
     - "&7&m--------------------------------------------"
   announcements:
-    - "&7[&6&lPvP Camp&7] &6Like our server on NameMC for a free rank! &fnamemc.com/server/pvp.camp"
-    - "&7[&6&lPvP Camp&7] &6Ranks and tags are now available on our store! &fstore.pvp.camp"
-    - "&7[&6&lPvP Camp&7] &6Join our Discord: &fdiscord.pvp.camp"
+    1:
+      - " "
+      - "&6&lPvP Camp"
+      - "&6Like our server on NameMC for a free rank! &fnamemc.com/server/pvp.camp"
+      - " "
+    2:
+      - " "
+      - "&6&lPvP Camp"
+      - "&6Ranks and tags are now available on our store! &fstore.pvp.camp"
+      - " "
+    3:
+      - " "
+      - "&6&lPvP Camp"
+      - "&6Join our Discord: &fdiscord.pvp.camp"
+      - " "
 networking:
   mongo:
     uri: "uri"

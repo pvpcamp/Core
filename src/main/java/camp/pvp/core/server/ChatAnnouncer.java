@@ -11,11 +11,14 @@ public class ChatAnnouncer implements Runnable{
 
     private Core plugin;
     private int line;
-    private List<String> announcements;
+    private List<String[]> announcements;
     public ChatAnnouncer(Core plugin) {
         this.plugin = plugin;
         this.line = 0;
-        this.announcements = plugin.getConfig().getStringList("messages.announcements");
+
+        plugin.getConfig().getConfigurationSection("messages.announcements").getKeys(false).forEach(key -> {
+            announcements.add(plugin.getConfig().getStringList("messages.announcements." + key).toArray(new String[0]));
+        });
     }
 
     @Override
@@ -24,14 +27,13 @@ public class ChatAnnouncer implements Runnable{
             line = 0;
         }
 
-        final String announcement = announcements.get(line);
-        StringBuilder sb = new StringBuilder();
-        sb.append(" \n");
-        sb.append(announcement);
-        sb.append("\n ");
+        String[] announcement = announcements.get(line);
+        for(int i = 0; i < announcement.length; i++) {
+            announcement[i] = Colors.get(announcement[i]);
+        }
 
         for(Player player : Bukkit.getOnlinePlayers()) {
-            player.sendMessage(Colors.get(sb.toString()));
+            player.sendMessage(announcement);
         }
 
         line++;

@@ -61,13 +61,11 @@ public class PlayerInfoListener extends PacketAdapter {
                 p.getPlayerInfoAction().write(0, EnumWrappers.PlayerInfoAction.ADD_PLAYER);
                 p.getPlayerInfoDataLists().write(0, newPlayerInfoData);
 
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    try {
-                        plugin.getProtocolManager().sendServerPacket(event.getPlayer(), p);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }, 1);
+                try {
+                    plugin.getProtocolManager().sendServerPacket(event.getPlayer(), p);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
