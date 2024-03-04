@@ -2,8 +2,11 @@ package camp.pvp.core.server;
 
 import camp.pvp.core.Core;
 import camp.pvp.core.listeners.redis.CoreServerListener;
+import camp.pvp.core.profiles.MiniProfile;
 import camp.pvp.redis.RedisPublisher;
 import camp.pvp.redis.RedisSubscriber;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
@@ -64,21 +67,29 @@ public class CoreServerManager {
         this.currentServerUpdater = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
             @Override
             public void run() {
-                coreServer.setOnline(Bukkit.getOnlinePlayers().size());
+
+                coreServer.getPlayers().clear();
+
+                JsonArray serializedProfiles = new JsonArray();
+
+                for(Player player : Bukkit.getOnlinePlayers()) {
+                    MiniProfile profile = new MiniProfile(player.getUniqueId(), player.getName(), coreServer.getName(), player.hasPermission("core.staff"));
+                    coreServer.getPlayers().add(profile);
+                    serializedProfiles.add(profile.serialize());
+                }
+
                 coreServer.setSlots(plugin.getServer().getMaxPlayers());
                 coreServer.setLastUpdate(new Date().getTime());
                 coreServer.setUpTime(plugin.getUpTime());
-                coreServer.setStaffList(getStaff());
 
                 JsonObject json = new JsonObject();
                 json.addProperty("name", coreServer.getName());
                 json.addProperty("type", coreServer.getType());
-                json.addProperty("online", coreServer.getOnline());
+                json.add("players", serializedProfiles);
                 json.addProperty("slots", coreServer.getSlots());
                 json.addProperty("muted_chat", coreServer.isMutedChat());
                 json.addProperty("last_update", coreServer.getLastUpdate());
                 json.addProperty("uptime", coreServer.getUpTime());
-                json.addProperty("staff_list", coreServer.getStaffList());
                 getRedisPublisher().publishMessage("core_server_updates", json);
             }
         }, 0, 40);

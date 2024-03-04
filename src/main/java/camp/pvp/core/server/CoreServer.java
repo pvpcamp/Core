@@ -1,5 +1,6 @@
 package camp.pvp.core.server;
 
+import camp.pvp.core.profiles.MiniProfile;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,20 +13,17 @@ import java.util.UUID;
 public class CoreServer {
 
     private final String name;
-    private String type, staffList;
-    private int online, slots;
+    private String type;
+    private List<MiniProfile> players;
+    private int slots;
     private long lastUpdate, upTime;
     private boolean currentlyOnline, mutedChat;
-
-    public CoreServer(String name) {
-        this.name = name;
-        this.currentlyOnline = true;
-    }
 
     public CoreServer(String name, String type) {
         this.name = name;
         this.type = type;
         this.currentlyOnline = true;
         this.mutedChat = false;
+        this.players = new ArrayList<>();
     }
 }

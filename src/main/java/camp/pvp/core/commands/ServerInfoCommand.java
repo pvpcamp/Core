@@ -42,7 +42,7 @@ public class ServerInfoCommand implements CommandExecutor {
 
         if(server.isCurrentlyOnline()) {
             sb.append("\n&6Uptime: &f" + DateUtils.getDifference(new Date(), startTime));
-            sb.append("\n&6Players: &f" + server.getOnline() + "/" + server.getSlots());
+            sb.append("\n&6Players: &f" + server.getPlayers().size() + "/" + server.getSlots());
         }
 
         sb.append(server.isCurrentlyOnline() ? "\n&eThis server is online." : "\n&cThis server is currently offline.");

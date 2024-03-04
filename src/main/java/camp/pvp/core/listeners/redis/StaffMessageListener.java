@@ -70,11 +70,21 @@ public class StaffMessageListener implements RedisSubscriberListener {
                 sendStaffMessage(json.get("message").getAsString());
                 break;
             case JOIN:
-                MiniProfile profile = new MiniProfile(UUID.fromString(json.get("uuid").getAsString()), json.get("name").getAsString(), json.get("server").getAsString());
+                MiniProfile profile = new MiniProfile(
+                        UUID.fromString(json.get("uuid").getAsString()),
+                        json.get("name").getAsString(),
+                        json.get("server").getAsString(),
+                        true
+                );
                 joinPlayers.put(profile.getUuid(), profile);
                 break;
             case LEAVE:
-                profile = new MiniProfile(UUID.fromString(json.get("uuid").getAsString()), json.get("name").getAsString(), json.get("server").getAsString());
+                profile = new MiniProfile(
+                        UUID.fromString(json.get("uuid").getAsString()),
+                        json.get("name").getAsString(),
+                        json.get("server").getAsString(),
+                        true
+                );
                 leavePlayers.put(profile.getUuid(), profile);
                 break;
         }
