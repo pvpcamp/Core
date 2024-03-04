@@ -2,6 +2,8 @@ package camp.pvp.core.commands;
 
 import camp.pvp.core.Core;
 import camp.pvp.core.profiles.CoreProfile;
+import camp.pvp.core.profiles.MiniProfile;
+import camp.pvp.core.server.CoreServer;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.core.utils.DateUtils;
 import org.bukkit.Bukkit;
@@ -39,12 +41,22 @@ public class SeenCommand implements CommandExecutor {
                 return;
             }
 
-            Player player = profile.getPlayer();
-            String seen = (player != null && player.isOnline() ? "online for &f" +
-                    DateUtils.getDifference(new Date(), profile.getLastLogin()) : "offline for &f" + DateUtils.getDifference(new Date(), profile.getLastLogout()));
-            String name = profile.getHighestRank().getColor() + profile.getName();
+            MiniProfile miniProfile = null;
+            for(CoreServer cs : plugin.getCoreServerManager().getCoreServers()) {
+                for(MiniProfile mp : cs.getPlayers()) {
+                    if(mp.getUuid().equals(profile.getUuid())) {
+                        miniProfile = mp;
+                        break;
+                    }
+                }
+                if(miniProfile != null) break;
+            }
 
-            sender.sendMessage(Colors.get(name + " &6has been " + seen + "&6."));
+            if(miniProfile != null) {
+                sender.sendMessage(Colors.get(profile.getHighestRank().getColor() + profile.getName() + " &6is currently playing on server &f" + miniProfile.getServer() + "&6."));
+            } else {
+                sender.sendMessage(Colors.get(profile.getHighestRank().getColor() + profile.getName() + " &6was last seen on server &f" + profile.getLastConnectedServer() + " " + DateUtils.getDifference(new Date(), profile.getLastLogout()) + "&6 ago."));
+            }
         });
 
         return true;

@@ -105,20 +105,6 @@ public class CoreServerManager {
         return null;
     }
 
-    public String getStaff() {
-        StringBuilder staff = new StringBuilder();
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            if (p.hasPermission("core.staff")) {
-                staff.append(p.getName()).append(",");
-            }
-        }
-        if (staff.length() == 0) {
-            return "N/A";
-        } else {
-            return staff.substring(0, staff.length() - 1);
-        }
-    }
-
     public void sendStaffMessage(String s) {
         JsonObject json = new JsonObject();
         json.addProperty("type", StaffMessageType.MESSAGE.toString());
