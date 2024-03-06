@@ -60,7 +60,14 @@ public class PunishmentManager {
         List<Punishment> punishments = new ArrayList<>();
 
         getPunishmentsCollection().find(Filters.in("ips", ips)).forEach(document -> {
-            Punishment punishment = new Punishment(document.get("_id", UUID.class));
+
+            Punishment punishment = getLoadedPunishments().get(document.get("_id", UUID.class));
+            if(punishment != null) {
+                Date date = document.getDate("last_update");
+                if(date == punishment.getLastUpdate()) return;
+            }
+
+            punishment = new Punishment(document.get("_id", UUID.class));
             punishment.importFromDocument(document);
             punishments.add(punishment);
             getLoadedPunishments().put(punishment.getUuid(), punishment);
@@ -85,7 +92,14 @@ public class PunishmentManager {
         List<Punishment> punishments = new ArrayList<>();
 
         punishmentsCollection.find().filter(Filters.eq("issued_to", uuid)).forEach(document -> {
-            Punishment punishment = new Punishment(uuid);
+
+            Punishment punishment = getLoadedPunishments().get(document.get("_id", UUID.class));
+            if(punishment != null) {
+                Date date = document.get("last_update", new Date());
+                if(date == punishment.getLastUpdate()) return;
+            }
+
+            punishment = new Punishment(document.get("_id", UUID.class));
             punishment.importFromDocument(document);
             punishments.add(punishment);
             getLoadedPunishments().put(uuid, punishment);
@@ -93,9 +107,16 @@ public class PunishmentManager {
     }
 
     public CompletableFuture<Punishment> importOneAsync(UUID uuid) {
+
+        Punishment loadedPunishment = getLoadedPunishments().get(uuid);
+
         CompletableFuture<Punishment> future = CompletableFuture.supplyAsync(() -> {
             Document doc = punishmentsCollection.find().filter(Filters.eq("_id", uuid)).first();
             if(doc != null) {
+
+                Date date = doc.getDate("last_update");
+                if(date == loadedPunishment.getLastUpdate()) return loadedPunishment;
+
                 Punishment punishment = new Punishment(uuid);
                 punishment.importFromDocument(doc);
                 getLoadedPunishments().put(uuid, punishment);
@@ -114,6 +135,11 @@ public class PunishmentManager {
     }
 
     public void exportToDatabase(Punishment punishment) {
+
+        punishment.setLastUpdate(new Date());
+
+        getLoadedPunishments().put(punishment.getUuid(), punishment);
+
         Bukkit.getScheduler().runTaskAsynchronously(plugin, ()-> {
 
             Document document = punishmentsCollection.find(new Document("_id", punishment.getUuid())).first();
@@ -124,8 +150,6 @@ public class PunishmentManager {
             punishment.exportToMap().forEach((key, value) -> punishmentsCollection.updateOne(Filters.eq("_id", punishment.getUuid()), Updates.set(key, value)));
             sendRedisUpdate(punishment, false);
         });
-
-        getLoadedPunishments().put(punishment.getUuid(), punishment);
     }
 
     public void sendRedisUpdate(Punishment punishment, boolean deleted) {

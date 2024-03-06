@@ -2,6 +2,7 @@ package camp.pvp.core.punishments;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang.WordUtils;
 import org.bson.Document;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -13,18 +14,13 @@ import java.util.*;
 public class Punishment implements Comparable<Punishment>{
 
     public enum Type {
-        BLACKLIST, BAN, MUTE;
+        BLACKLIST, BAN, MUTE, WARNING;
 
         @Override
         public String toString() {
-            switch(this) {
-                case BAN:
-                    return "Ban";
-                case BLACKLIST:
-                    return "Blacklist";
-                default:
-                    return "Mute";
-            }
+            String name = this.name();
+            name = name.replace("_", " ");
+            return WordUtils.capitalizeFully(name);
         }
 
         public ChatColor getColor() {
@@ -33,19 +29,23 @@ public class Punishment implements Comparable<Punishment>{
                     return ChatColor.RED;
                 case BLACKLIST:
                     return ChatColor.DARK_RED;
-                default:
+                case MUTE:
                     return ChatColor.GOLD;
+                default:
+                    return ChatColor.GRAY;
             }
         }
 
         public String getMessage() {
             switch(this) {
                 case BAN:
-                    return "&cYour account has been banned from the PvP Camp Network.";
+                    return "&cYour account is banned from the PvP Camp Network.";
                 case BLACKLIST:
                     return "&4Your account is blacklisted from the PvP Camp Network.";
+                case WARNING:
+                    return "&cYou have received a warning.";
                 default:
-                    return "&cYour account is muted on the PvP Camp Network.";
+                    return "&cYour account is muted across the PvP Camp Network.";
             }
         }
 
@@ -67,8 +67,11 @@ public class Punishment implements Comparable<Punishment>{
                 case BLACKLIST:
                     item.setDurability((short) 15);
                     break;
-                default:
+                case MUTE:
                     item.setDurability((short) 1);
+                    break;
+                default:
+                    item.setDurability((short) 8);
                     break;
             }
 
@@ -79,7 +82,7 @@ public class Punishment implements Comparable<Punishment>{
     private final UUID uuid;
     private Punishment.Type type;
     private UUID issuedTo, issuedFrom, pardoner;
-    private Date issued, expires, pardoned;
+    private Date issued, expires, pardoned, lastUpdate;
     private String issuedToName, issuedFromName, pardonerName, reason, pardonReason;
     private List<String> ips;
     private boolean ipPunished, silent;
@@ -87,6 +90,7 @@ public class Punishment implements Comparable<Punishment>{
     public Punishment(UUID uuid) {
         this.uuid = uuid;
         this.ips = new ArrayList<>();
+        this.lastUpdate = new Date();
     }
 
     public boolean isActive() {
@@ -117,6 +121,7 @@ public class Punishment implements Comparable<Punishment>{
         this.pardonReason = doc.getString("pardon_reason");
         this.ipPunished = doc.getBoolean("ip_punished");
         this.silent = doc.getBoolean("silent");
+        this.lastUpdate = doc.get("last_update", new Date());
     }
 
     public Map<String, Object> exportToMap() {
@@ -136,6 +141,7 @@ public class Punishment implements Comparable<Punishment>{
         map.put("pardon_reason", getPardonReason());
         map.put("ip_punished", isIpPunished());
         map.put("silent", isSilent());
+        map.put("last_update", getLastUpdate());
 
         return map;
     }
