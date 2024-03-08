@@ -114,8 +114,8 @@ public class PlayerChatListener implements Listener {
                     }
                 } else {
                     StringBuilder sb = new StringBuilder();
-                    sb.append("&cYou must wait " + DateUtils.getTimeUntil(profile.getChatCooldown()) + " before using global chat again.");
-                    sb.append("\n&cIf you would like to bypass this cooldown, please purchase &c&lPlus Rank &r&cor higher here: &fstore.pvp.camp");
+                    sb.append("&cYou must wait " + DateUtils.getTimeUntil(profile.getChatCooldown()) + " before typing in global chat again.");
+                    sb.append("\n&6If you would like to bypass this cooldown, please purchase &e&lExplorer Rank &r&6or higher here: &fstore.pvp.camp");
                     player.sendMessage(Colors.get(sb.toString()));
                     event.setCancelled(true);
                 }
@@ -134,7 +134,7 @@ public class PlayerChatListener implements Listener {
 
         if (rank == null) rank = profile.getHighestRank();
 
-        if(rank.getPrefix() != null) chatFormat.append(rank.getPrefix() + " ");
+        if(rank.getPrefix() != null) chatFormat.append(rank.getPrefix()).append(" ");
 
         chatFormat.append(rank.getColor());
 
@@ -142,7 +142,7 @@ public class PlayerChatListener implements Listener {
 
         chatFormat.append(profile.getName());
 
-        if(tag != null) chatFormat.append(" &f" + tag.getTag());
+        if(tag != null) chatFormat.append(" &f").append(tag.getTag());
 
         chatFormat.append("&8:&f %2$s");
         return chatFormat.toString();

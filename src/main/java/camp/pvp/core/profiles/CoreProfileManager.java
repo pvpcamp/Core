@@ -15,9 +15,6 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -27,12 +24,8 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.sql.Time;
-import java.time.temporal.Temporal;
-import java.time.temporal.TemporalField;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
