@@ -80,6 +80,11 @@ public class TagCommand implements CommandExecutor, TabCompleter {
             }
         });
 
+        profileFuture.exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+
         return true;
     }
 
@@ -131,7 +136,7 @@ public class TagCommand implements CommandExecutor, TabCompleter {
 
         profile.getOwnedChatTags().add(chatTag);
 
-        if(profile.getPlayer() == null && profile.getPlayer().isOnline()) {
+        if(profile.getPlayer() == null) {
             plugin.getCoreProfileManager().exportToDatabase(profile, true);
         }
 
@@ -152,7 +157,7 @@ public class TagCommand implements CommandExecutor, TabCompleter {
 
         profile.getOwnedChatTags().remove(chatTag);
 
-        if(profile.getPlayer() == null && profile.getPlayer().isOnline()) {
+        if(profile.getPlayer() == null) {
             plugin.getCoreProfileManager().exportToDatabase(profile, true);
         }
 
@@ -163,7 +168,7 @@ public class TagCommand implements CommandExecutor, TabCompleter {
         profile.setChatTag(null);
         sender.sendMessage(ChatColor.WHITE + profile.getName() + ChatColor.GREEN + " no longer has a chat tag applied.");
 
-        if(profile.getPlayer() == null && profile.getPlayer().isOnline()) {
+        if(profile.getPlayer() == null) {
             plugin.getCoreProfileManager().exportToDatabase(profile, true);
         }
     }
