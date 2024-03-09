@@ -102,7 +102,7 @@ public class PunishmentManager {
             punishment = new Punishment(document.get("_id", UUID.class));
             punishment.importFromDocument(document);
             punishments.add(punishment);
-            getLoadedPunishments().put(uuid, punishment);
+            getLoadedPunishments().put(punishment.getUuid(), punishment);
         });
     }
 
@@ -119,7 +119,7 @@ public class PunishmentManager {
 
                 Punishment punishment = new Punishment(uuid);
                 punishment.importFromDocument(doc);
-                getLoadedPunishments().put(uuid, punishment);
+                getLoadedPunishments().put(punishment.getUuid(), punishment);
                 return punishment;
             }
 
