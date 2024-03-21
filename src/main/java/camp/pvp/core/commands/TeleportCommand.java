@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 
 public class TeleportCommand implements CommandExecutor {
@@ -14,7 +15,9 @@ public class TeleportCommand implements CommandExecutor {
     private Core plugin;
     public TeleportCommand(Core plugin) {
         this.plugin = plugin;
-        plugin.getCommand("teleport").setExecutor(this);
+        PluginCommand command = plugin.getCommand("teleport");
+        command.setExecutor(this);
+        command.setTabCompleter(new PlayerTabCompleter());
     }
 
     @Override

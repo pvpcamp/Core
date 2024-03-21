@@ -35,6 +35,13 @@ public class TagCommand implements CommandExecutor, TabCompleter {
             return completions;
         }
 
+        if(args.length == 2) {
+            List<String> players = new ArrayList<>();
+            plugin.getCoreProfileManager().getLoadedProfiles().values().forEach(profile -> players.add(profile.getName()));
+            StringUtil.copyPartialMatches(args[1], players, completions);
+            return completions;
+        }
+
         return null;
     }
 

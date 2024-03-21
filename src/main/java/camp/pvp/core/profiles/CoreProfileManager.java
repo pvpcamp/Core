@@ -127,6 +127,8 @@ public class CoreProfileManager {
             }
 
             permissionAttachments.put(profile.getUuid(), attachment);
+
+            player.setPlayerListName(Colors.get(profile.getHighestRank().getColor() + profile.getName()));
         }
     }
 

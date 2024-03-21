@@ -7,6 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 
 import java.util.concurrent.CompletableFuture;
@@ -16,7 +17,9 @@ public class HistoryCommand implements CommandExecutor {
     private Core plugin;
     public HistoryCommand(Core plugin) {
         this.plugin = plugin;
-        plugin.getServer().getPluginCommand("history").setExecutor(this);
+        PluginCommand command = plugin.getCommand("history");
+        command.setExecutor(this);
+        command.setTabCompleter(new PlayerTabCompleter());
     }
 
     @Override

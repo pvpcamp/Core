@@ -5,23 +5,25 @@ import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.utils.Colors;
 import com.mongodb.client.model.Filters;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.*;
+import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class AltsCommand implements CommandExecutor {
+public class AltsCommand implements CommandExecutor{
     
     private Core plugin;
     
     public AltsCommand(Core plugin) {
         this.plugin = plugin;
-        plugin.getCommand("alts").setExecutor(this);
+        PluginCommand command = plugin.getCommand("alts");
+        command.setExecutor(this);
+        command.setTabCompleter(new PlayerTabCompleter());
     }
 
     @Override

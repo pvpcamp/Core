@@ -12,14 +12,11 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class TempBanCommand implements CommandExecutor {
@@ -28,7 +25,9 @@ public class TempBanCommand implements CommandExecutor {
 
     public TempBanCommand(Core plugin) {
         this.plugin = plugin;
-        plugin.getServer().getPluginCommand("tempban").setExecutor(this);
+        PluginCommand command = plugin.getCommand("tempban");
+        command.setExecutor(this);
+        command.setTabCompleter(new PlayerTabCompleter());
     }
 
     @Override

@@ -8,12 +8,13 @@ import camp.pvp.core.utils.Colors;
 import camp.pvp.core.utils.DateUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -23,7 +24,9 @@ public class SeenCommand implements CommandExecutor {
 
     public SeenCommand(Core plugin) {
         this.plugin = plugin;
-        plugin.getCommand("seen").setExecutor(this);
+        PluginCommand command = plugin.getCommand("seen");
+        command.setExecutor(this);
+        command.setTabCompleter(new PlayerTabCompleter());
     }
 
     @Override

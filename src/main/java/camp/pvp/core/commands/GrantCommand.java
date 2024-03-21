@@ -4,10 +4,10 @@ import camp.pvp.core.Core;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.ranks.Rank;
 import camp.pvp.core.utils.Colors;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.*;
+import org.bukkit.util.StringUtil;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -17,7 +17,9 @@ public class GrantCommand implements CommandExecutor {
     private Core plugin;
     public GrantCommand(Core plugin) {
         this.plugin = plugin;
-        plugin.getServer().getPluginCommand("grant").setExecutor(this);
+        PluginCommand command = plugin.getCommand("grant");
+        command.setExecutor(this);
+        command.setTabCompleter(new PlayerTabCompleter());
     }
 
     @Override

@@ -12,12 +12,13 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -26,7 +27,9 @@ public class BanCommand implements CommandExecutor {
     private Core plugin;
     public BanCommand(Core plugin) {
         this.plugin = plugin;
-        plugin.getServer().getPluginCommand("ban").setExecutor(this);
+        PluginCommand command = plugin.getCommand("ban");
+        command.setExecutor(this);
+        command.setTabCompleter(new PlayerTabCompleter());
     }
 
     @Override

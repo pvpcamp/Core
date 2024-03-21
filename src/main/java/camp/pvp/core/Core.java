@@ -2,7 +2,6 @@ package camp.pvp.core;
 
 import camp.pvp.core.api.CoreAPI;
 import camp.pvp.core.commands.*;
-import camp.pvp.core.listeners.packets.PlayerInfoListener;
 import camp.pvp.core.listeners.player.PlayerChatListener;
 import camp.pvp.core.listeners.player.PlayerChatTabCompleteListener;
 import camp.pvp.core.listeners.player.PlayerCommandPreprocessListener;
@@ -117,9 +116,5 @@ public class Core extends JavaPlugin {
         new PlayerChatTabCompleteListener(this);
         new PlayerCommandPreprocessListener(this);
         new PlayerJoinLeaveListeners(this);
-
-        if (getServer().getPluginManager().getPlugin("ProtocolLib") != null) {
-            new PlayerInfoListener(this);
-        }
     }
 }

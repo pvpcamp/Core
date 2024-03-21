@@ -5,21 +5,37 @@ import camp.pvp.core.profiles.MiniProfile;
 import camp.pvp.core.server.CoreServer;
 import camp.pvp.core.utils.Colors;
 import camp.pvp.core.utils.DateUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.*;
+import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ServerInfoCommand implements CommandExecutor {
+public class ServerInfoCommand implements CommandExecutor, TabCompleter {
 
     private Core plugin;
     public ServerInfoCommand(Core plugin) {
         this.plugin = plugin;
-        plugin.getCommand("serverinfo").setExecutor(this);
+        PluginCommand command = plugin.getCommand("serverinfo");
+        command.setExecutor(this);
+        command.setTabCompleter(this);
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+        final List<String> completions = new ArrayList<>();
+
+        List<String> servers = new ArrayList<>();
+        plugin.getCoreServerManager().getCoreServers().forEach(server -> servers.add(server.getName()));
+        if(args.length == 1) {
+            StringUtil.copyPartialMatches(args[0], servers, completions);
+            return completions;
+        }
+
+        return null;
     }
 
     @Override

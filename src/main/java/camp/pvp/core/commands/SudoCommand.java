@@ -4,17 +4,21 @@ import camp.pvp.core.Core;
 import camp.pvp.core.utils.Colors;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SudoCommand implements CommandExecutor {
 
     private Core plugin;
     public SudoCommand(Core plugin) {
         this.plugin = plugin;
-        plugin.getCommand("sudo").setExecutor(this);
+        PluginCommand command = plugin.getCommand("sudo");
+        command.setExecutor(this);
+        command.setTabCompleter(new PlayerTabCompleter());
     }
 
     @Override

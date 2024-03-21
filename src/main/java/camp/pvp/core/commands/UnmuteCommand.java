@@ -9,6 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 
 import java.util.Date;
@@ -20,7 +21,9 @@ public class UnmuteCommand implements CommandExecutor {
     private Core plugin;
     public UnmuteCommand(Core plugin) {
         this.plugin = plugin;
-        plugin.getServer().getPluginCommand("unmute").setExecutor(this);
+        PluginCommand command = plugin.getCommand("unmute");
+        command.setExecutor(this);
+        command.setTabCompleter(new PlayerTabCompleter());
     }
 
     @Override

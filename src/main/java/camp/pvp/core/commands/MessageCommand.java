@@ -13,6 +13,7 @@ import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 
 import java.util.Date;
@@ -23,7 +24,9 @@ public class MessageCommand implements CommandExecutor {
     private Core plugin;
     public MessageCommand(Core plugin) {
         this.plugin = plugin;
-        plugin.getServer().getPluginCommand("message").setExecutor(this);
+        PluginCommand command = plugin.getCommand("message");
+        command.setExecutor(this);
+        command.setTabCompleter(new PlayerTabCompleter());
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -59,12 +62,7 @@ public class MessageCommand implements CommandExecutor {
                         return true;
                     }
                     break;
-                case "m":
-                case "pm":
-                case "msg":
-                case "message":
-                case "tell":
-                case "whisper":
+                default:
                     if (args.length > 1) {
                         target = Bukkit.getPlayer(args[0]);
                         start = 1;
@@ -73,8 +71,6 @@ public class MessageCommand implements CommandExecutor {
                         return true;
                     }
                     break;
-                default:
-                    return true;
             }
 
             if(target != null) {

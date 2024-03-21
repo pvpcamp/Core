@@ -8,11 +8,11 @@ import camp.pvp.core.utils.Colors;
 import camp.pvp.mongo.MongoCollectionResult;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,14 +20,15 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class StaffHistoryCommand implements CommandExecutor {
+public class StaffHistoryCommand implements CommandExecutor{
 
     private Core plugin;
     public StaffHistoryCommand(Core plugin) {
         this.plugin = plugin;
-        plugin.getServer().getPluginCommand("staffhistory").setExecutor(this);
+        PluginCommand command = plugin.getCommand("staffhistory");
+        command.setExecutor(this);
+        command.setTabCompleter(new PlayerTabCompleter());
     }
-
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

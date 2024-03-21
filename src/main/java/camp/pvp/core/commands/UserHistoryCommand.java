@@ -13,6 +13,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 
 import java.util.*;
 
@@ -21,7 +22,9 @@ public class UserHistoryCommand implements CommandExecutor {
     private Core plugin;
     public UserHistoryCommand(Core plugin) {
         this.plugin = plugin;
-        plugin.getServer().getPluginCommand("userhistory").setExecutor(this);
+        PluginCommand command = plugin.getCommand("userhistory");
+        command.setExecutor(this);
+        command.setTabCompleter(new PlayerTabCompleter());
     }
 
     @Override
