@@ -4,6 +4,8 @@ import camp.pvp.core.Core;
 import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.utils.Colors;
 import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
@@ -20,10 +22,13 @@ import java.util.UUID;
 public class PlayerInfoListener extends PacketAdapter {
 
     private Core plugin;
+    private ProtocolManager protocolManager;
 
     public PlayerInfoListener(Core plugin) {
         super(plugin, PacketType.Play.Server.PLAYER_INFO);
         this.plugin = plugin;
+        this.protocolManager = ProtocolLibrary.getProtocolManager();
+        protocolManager.addPacketListener(this);
     }
 
     @Override
@@ -63,7 +68,7 @@ public class PlayerInfoListener extends PacketAdapter {
 
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     try {
-                        plugin.getProtocolManager().sendServerPacket(event.getPlayer(), p);
+                        protocolManager.sendServerPacket(event.getPlayer(), p);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

@@ -12,8 +12,6 @@ import camp.pvp.core.punishments.PunishmentManager;
 import camp.pvp.core.ranks.RankManager;
 import camp.pvp.core.chattags.ChatTagManager;
 import camp.pvp.core.server.CoreServerManager;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -28,8 +26,6 @@ public class Core extends JavaPlugin {
     @Getter private CoreProfileManager coreProfileManager;
     @Getter private PunishmentManager punishmentManager;
     @Getter private RankManager rankManager;
-
-    @Getter private ProtocolManager protocolManager;
 
     @Getter private long upTime;
 
@@ -49,8 +45,6 @@ public class Core extends JavaPlugin {
         rankManager = new RankManager(this);
         punishmentManager = new PunishmentManager(this);
         coreProfileManager = new CoreProfileManager(this);
-
-        protocolManager = ProtocolLibrary.getProtocolManager();
 
         registerCommands();
         registerListeners();
@@ -124,6 +118,8 @@ public class Core extends JavaPlugin {
         new PlayerCommandPreprocessListener(this);
         new PlayerJoinLeaveListeners(this);
 
-        protocolManager.addPacketListener(new PlayerInfoListener(this));
+        if (getServer().getPluginManager().getPlugin("ProtocolLib") != null) {
+            new PlayerInfoListener(this);
+        }
     }
 }

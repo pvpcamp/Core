@@ -4,8 +4,8 @@ main: camp.pvp.core.Core
 author: leuo
 depend:
   - Gooey2
+softdepend:
   - ProtocolLib
-
 commands:
   alert:
     description: Send an alert to all players.
