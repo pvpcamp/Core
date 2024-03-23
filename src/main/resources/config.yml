@@ -1,6 +1,14 @@
 server:
   name: "na-practice"
   type: "practice"
+  display_name: "Practice NA"
+  hub: false
+  show_in_server_list: true
+  staff_only_server_list: false
+  server_list_slot: 0
+  server_list_material: "DIAMOND_SWORD"
+  motd:
+    - "&6Duels and Minigames."
 messages:
   welcome:
     - "&7&m--------------------------------------------"

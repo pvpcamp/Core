@@ -88,6 +88,9 @@ commands:
     permission: core.commands.rank
   report:
     description: Report a player.
+  servers:
+    description: View the list of servers.
+    aliases: [serverlist]
   skull:
     description: Get the head of a player.
     permission: core.commands.skull

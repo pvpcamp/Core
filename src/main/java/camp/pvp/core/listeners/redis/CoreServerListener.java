@@ -9,6 +9,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -30,6 +31,12 @@ public class CoreServerListener implements RedisSubscriberListener {
 
         if(server == null) {
             server = new CoreServer(name, json.get("type").getAsString());
+            server.setDisplayName(json.get("display_name").getAsString());
+            server.setHub(json.get("hub").getAsBoolean());
+            server.setShowInServerList(json.get("show_in_server_list").getAsBoolean());
+            server.setStaffOnlyServerList(json.get("staff_only_server_list").getAsBoolean());
+            server.setServerSlot(json.get("server_slot").getAsInt());
+            server.setMaterial(Material.valueOf(json.get("material").getAsString()));
             csm.getCoreServers().add(server);
 
             csm.getPlugin().getCoreProfileManager().staffBroadcast("&cServer &f" + name + " &chas been found.");
@@ -39,6 +46,7 @@ public class CoreServerListener implements RedisSubscriberListener {
         server.setUpTime(json.get("uptime").getAsLong());
         server.setMutedChat(json.get("muted_chat").getAsBoolean());
         server.setLastUpdate(json.get("last_update").getAsLong());
+        server.setWhitelisted(json.get("whitelisted").getAsBoolean());
 
         List<MiniProfile> players = new ArrayList<>();
 
@@ -46,7 +54,13 @@ public class CoreServerListener implements RedisSubscriberListener {
             players.add(MiniProfile.deserialize(e));
         }
 
+        List<String> motd = new ArrayList<>();
+        for (JsonElement e : json.getAsJsonArray("motd")) {
+            motd.add(e.getAsString());
+        }
+
         server.setPlayers(players);
+        server.setMotd(motd);
 
         if(!server.isCurrentlyOnline()) {
             server.setCurrentlyOnline(true);
