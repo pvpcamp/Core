@@ -29,7 +29,7 @@ public class ReportCommand implements CommandExecutor {
                 return true;
             }
 
-            if(args.length > 0) {
+            if(args.length > 1) {
                 Player target = Bukkit.getPlayer(args[0]);
 
                 if(target == null) {
@@ -56,7 +56,7 @@ public class ReportCommand implements CommandExecutor {
                 profile.addCommandCooldown("/report", 30);
                 player.sendMessage(ChatColor.GREEN + "Your report has been submitted to all online staff on the network.");
             } else {
-                player.sendMessage(ChatColor.RED + "Usage: /" + label + " <player>");
+                player.sendMessage(ChatColor.RED + "Usage: /" + label + " <player> <reason>");
             }
         }
 
