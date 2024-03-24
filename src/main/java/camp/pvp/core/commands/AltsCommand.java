@@ -5,9 +5,14 @@ import camp.pvp.core.profiles.CoreProfile;
 import camp.pvp.core.punishments.Punishment;
 import camp.pvp.core.utils.Colors;
 import com.mongodb.client.model.Filters;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.*;
+import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
@@ -34,6 +39,8 @@ public class AltsCommand implements CommandExecutor{
             return true;
         }
 
+        if(!(sender instanceof Player player)) return true;
+
         CompletableFuture<CoreProfile> profileFuture = plugin.getCoreProfileManager().findAsync(args[0]);
         profileFuture.thenAcceptAsync(profile -> {
             if(profile == null) {
@@ -55,11 +62,11 @@ public class AltsCommand implements CommandExecutor{
                 alts.add(alt);
             });
 
-            StringBuilder sb = new StringBuilder();
-            sb.append("&6Alts of ").append(profile.getName()).append("&7: ");
+            TextComponent component = new TextComponent(Colors.get("&6Alts of " + profile.getName() + "&7(" + alts.size() + "): &f"));
 
             int x = 0;
             for(CoreProfile alt : alts) {
+                TextComponent altComponent = new TextComponent();
 
                 Punishment punishment = null;
                 for(Punishment.Type type : Punishment.Type.values()) {
@@ -69,28 +76,47 @@ public class AltsCommand implements CommandExecutor{
                     }
                 }
 
-                sb.append("&f").append(alt.getName());
+                String color = alt.getPlayer() != null && alt.getPlayer().isOnline() ? "&a&l" : "&f";
 
                 if(punishment != null) {
                     switch(punishment.getType()) {
                         case BLACKLIST:
-                            sb.append(ChatColor.DARK_RED).append(" BLACKLISTED");
+                            color = "&4";
                             break;
                         case BAN:
-                            sb.append(ChatColor.RED).append(" BANNED");
+                            color = "&c";
                             break;
                     }
                 }
 
+                altComponent.setText(Colors.get(color + alt.getName()));
+
+                altComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/history " + alt.getName()));
+
+                HoverEvent hover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(Colors.get(
+                        "&6Name: &f" + alt.getName() + "\n" +
+                        "&6Rank: &f" + alt.getHighestRank().getDisplayName() + "\n" +
+                        "&6First Login: &f" + alt.getFirstLogin() + "\n" +
+                        "&6Last Login: &f" + alt.getLastLogin() + "\n" +
+                        "&6Punishments: &f" + alt.getPunishments().size() + "\n" +
+                        "&6Last Online: &f" + alt.getLastLogin() + "\n" +
+                        "&6Last Connected Server: &f" + alt.getLastConnectedServer() + "\n" +
+                        (profile.getIp().contains(alt.getIp()) ? "&cMatching " + profile.getName() + "'s IP." : "&7Not matching " + profile.getName() + "'s IP.")
+                )).create());
+
+                altComponent.setHoverEvent(hover);
+
                 x++;
                 if(x == alts.size()) {
-                    sb.append("&7.");
+                    altComponent.addExtra(Colors.get("&7."));
                 } else {
-                    sb.append("&7, ");
+                    altComponent.addExtra(Colors.get("&7, "));
                 }
+
+                component.addExtra(altComponent);
             }
 
-            sender.sendMessage(Colors.get(sb.toString()));
+            player.spigot().sendMessage(component);
         });
 
         return true;
